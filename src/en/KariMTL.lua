@@ -139,7 +139,8 @@ local function process_image(img)
     if not url or #url < 5 then
         return imageURL
     end
-    return url:sub(5)
+    --return url:sub(5)
+    return imageURL
 end
 
 local function getListing()
