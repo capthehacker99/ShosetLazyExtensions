@@ -141,20 +141,23 @@ local function parseNovel(novelURL)
     document:select("script"):remove()
     local img = document:selectFirst("#novel_info img")
     img = img and img:attr("src") or imageURL
+    local selected = document:select(".novel_index > li > a")
+    local cur = selected:size() + 1
 	return NovelInfo({
         title = document:selectFirst(".title a"):text():gsub("\n" ,""),
         imageURL = img,
         chapters = AsList(
-                map(filter(document:select(".novel_index > li > a"), function(v)
-                    local processed = v:text():lower()
-                    return v:attr("href"):find("karimtl.com") ~= nil
-                end), function(v)
-                    return NovelChapter {
-                        order = v,
-                        title = v:text(),
-                        link = shrinkURL(v:attr("href"))
-                    }
-                end)
+            map(filter(selected, function(v)
+                local processed = v:text():lower()
+                return v:attr("href"):find("karimtl.com") ~= nil
+            end), function(v)
+                cur = cur - 1;
+                return NovelChapter {
+                    order = cur,
+                    title = v:text(),
+                    link = shrinkURL(v:attr("href"))
+                }
+            end)
         )
 
     })
@@ -168,11 +171,11 @@ local function process_image(img)
     if not style then
         return imageURL
     end
-    local url = style:gmatch("url%(\"[^\"]*")()
+    local url = style:gmatch("url%([^)]*")()
     if not url or #url < 5 then
         return imageURL
     end
-    return url:sub(6)
+    return url:sub(5)
 end
 
 local function getListing()
@@ -213,7 +216,7 @@ local function getListing()
         return Novel {
             title = title:text(),
             link = shrinkURL(title:attr("href")),
-            imageURL = process_image(v:select(".caf-featured-img-box"))
+            imageURL = process_image(v:selectFirst(".caf-featured-img-box"))
         }
     end)
 end
