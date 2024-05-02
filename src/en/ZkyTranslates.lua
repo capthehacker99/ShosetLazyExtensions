@@ -30,50 +30,6 @@ local baseURL = "https://zkytl.wordpress.com/"
 --- @type string
 local imageURL = "https://zkytl.files.wordpress.com/2020/07/wp-1595477604772.jpg"
 
---- Shosetsu tries to handle cloudflare protection if this is set to true.
----
---- Optional, Default is false.
----
---- @type boolean
-local hasCloudFlare = false
-
---- If the website has search.
----
---- Optional, Default is true.
----
---- @type boolean
-local hasSearch = false
-
---- If the websites search increments or not.
----
---- Optional, Default is true.
----
---- @type boolean
-local isSearchIncrementing = false
-
---- Filters to display via the filter fab in Shosetsu.
----
---- Optional, Default is none.
----
---- @type Filter[] | Array
-local searchFilters = {}
-
---- Internal settings store.
----
---- Completely optional.
----  But required if you want to save results from [updateSetting].
----
---- Notice, each key is surrounded by "[]" and the value is on the right side.
---- @type table
-local settings = {}
-
---- Settings model for Shosetsu to render.
----
---- Optional, Default is empty.
----
---- @type Filter[] | Array
-local settingsModel = {}
-
 --- ChapterType provided by the extension.
 ---
 --- Optional, Default is STRING. But please do HTML.
@@ -93,9 +49,9 @@ local startIndex = 1
 --- Required.
 ---
 --- @param url string Full URL to shrink.
---- @param type int Either KEY_CHAPTER_URL or KEY_NOVEL_URL.
+--- @param _ int Either KEY_CHAPTER_URL or KEY_NOVEL_URL.
 --- @return string Shrunk URL.
-local function shrinkURL(url, type)
+local function shrinkURL(url, _)
     return url:gsub(".-zkytl.wordpress.com/", "")
 end
 
@@ -104,9 +60,9 @@ end
 --- Required.
 ---
 --- @param url string Shrunk URL to expand.
---- @param type int Either KEY_CHAPTER_URL or KEY_NOVEL_URL.
+--- @param _ int Either KEY_CHAPTER_URL or KEY_NOVEL_URL.
 --- @return string Full URL.
-local function expandURL(url, type)
+local function expandURL(url, _)
 	return baseURL .. url
 end
 
@@ -150,7 +106,6 @@ local function parseNovel(novelURL)
         imageURL = img,
         chapters = AsList(
                 map(filter(document:select(".entry-content a"), function(v)
-                    local processed = v:text():lower()
                     return v:attr("href"):find("zkytl.wordpress.com") ~= nil
                 end), function(v)
                     return NovelChapter {

@@ -31,50 +31,6 @@ local baseURL = "https://karimtl.com/"
 --- @type string
 local imageURL = "https://karimtl.com/wp-content/uploads/2023/11/cropped-pngwing.com_-1.png"
 
---- Shosetsu tries to handle cloudflare protection if this is set to true.
----
---- Optional, Default is false.
----
---- @type boolean
-local hasCloudFlare = false
-
---- If the website has search.
----
---- Optional, Default is true.
----
---- @type boolean
-local hasSearch = false
-
---- If the websites search increments or not.
----
---- Optional, Default is true.
----
---- @type boolean
-local isSearchIncrementing = false
-
---- Filters to display via the filter fab in Shosetsu.
----
---- Optional, Default is none.
----
---- @type Filter[] | Array
-local searchFilters = {}
-
---- Internal settings store.
----
---- Completely optional.
----  But required if you want to save results from [updateSetting].
----
---- Notice, each key is surrounded by "[]" and the value is on the right side.
---- @type table
-local settings = {}
-
---- Settings model for Shosetsu to render.
----
---- Optional, Default is empty.
----
---- @type Filter[] | Array
-local settingsModel = {}
-
 --- ChapterType provided by the extension.
 ---
 --- Optional, Default is STRING. But please do HTML.
@@ -94,9 +50,9 @@ local startIndex = 1
 --- Required.
 ---
 --- @param url string Full URL to shrink.
---- @param type int Either KEY_CHAPTER_URL or KEY_NOVEL_URL.
+--- @param _ int Either KEY_CHAPTER_URL or KEY_NOVEL_URL.
 --- @return string Shrunk URL.
-local function shrinkURL(url, type)
+local function shrinkURL(url, _)
     return url:gsub(".-karimtl.com/", "")
 end
 
@@ -105,9 +61,9 @@ end
 --- Required.
 ---
 --- @param url string Shrunk URL to expand.
---- @param type int Either KEY_CHAPTER_URL or KEY_NOVEL_URL.
+--- @param _ int Either KEY_CHAPTER_URL or KEY_NOVEL_URL.
 --- @return string Full URL.
-local function expandURL(url, type)
+local function expandURL(url, _)
 	return baseURL .. url
 end
 
@@ -141,14 +97,22 @@ local function parseNovel(novelURL)
     document:select("script"):remove()
     local img = document:selectFirst("#novel_info img")
     img = img and img:attr("src") or imageURL
+    local desc = document:selectFirst("#novel_info_right")
+    if desc then
+        local full_str = ""
+        map(desc:select("p"), function(p)
+            full_str = full_str .. '\n' .. p:text()
+        end)
+        desc = full_str
+    end
     local selected = document:select(".novel_index > li > a")
     local cur = selected:size() + 1
 	return NovelInfo({
         title = document:selectFirst(".title a"):text():gsub("\n" ,""),
         imageURL = img,
+        description = desc,
         chapters = AsList(
             map(filter(selected, function(v)
-                local processed = v:text():lower()
                 return v:attr("href"):find("karimtl.com") ~= nil
             end), function(v)
                 cur = cur - 1;
@@ -171,7 +135,7 @@ local function process_image(img)
     if not style then
         return imageURL
     end
-    local url = style:gmatch("url%([^)]*")()
+    local url = style:gmatch("url%([^ \n\t\r)]*")()
     if not url or #url < 5 then
         return imageURL
     end
