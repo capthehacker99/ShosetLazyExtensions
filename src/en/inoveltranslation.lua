@@ -74,7 +74,13 @@ end
 local function getPassage(chapterURL)
 	local url = "https://api.inoveltranslation.com/" .. chapterURL
     local data = json.GET(url)
-    return pageOfElem(Document("<h1>" .. (data.title or "") .. "</h1><p>" .. (data.notes or "") .. "</p><p>" .. (data.content or "") .. "</p>"), true)
+    local src = "<h1>" .. (data.title or "") .. "</h1><p>" .. (data.notes or "") .. "</p>"
+    for token in string.gmatch(data.content or "", "[^\n]+") do
+        if token ~= "" then
+            src = src .. "<p>" .. token .. "</p>"
+        end
+    end
+    return pageOfElem(Document(src), true)
 end
 
 --- Load info on a novel.
@@ -109,9 +115,6 @@ local function getListing()
     local novels = json.GET("https://api.inoveltranslation.com/novels")
     local return_value = {}
     for _, novel in pairs(novels.novels) do
-        --for k, v in pairs(novel) do
-        --    print(k, v)
-        --end
         table.insert(return_value,  Novel {
             title = novel.title,
             link = "novels/" .. novel.id,
