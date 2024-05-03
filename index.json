@@ -65,6 +65,16 @@
       "ver": "1.0.1",
       "libVer": "1.0.1",
       "md5": ""
+    },
+    {
+      "name": "inoveltranslation",
+      "fileName": "inoveltranslation",
+      "imageURL": "https://inoveltranslation.com/favicon.ico",
+      "id": 516385957,
+      "lang": "en",
+      "ver": "1.0.0",
+      "libVer": "1.0.0",
+      "md5": ""
     }
   ]
 }
