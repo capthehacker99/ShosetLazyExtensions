@@ -117,7 +117,7 @@ local function parseNovel(novelURL)
             end), function(v)
                 cur = cur - 1;
                 return NovelChapter {
-                    order = v,
+                    order = cur,
                     title = v:text(),
                     link = shrinkURL(v:attr("href"))
                 }
