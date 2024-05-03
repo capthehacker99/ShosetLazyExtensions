@@ -98,7 +98,7 @@ local function parseNovel(novelURL)
     local cur = selected:size() + 1
 	return NovelInfo({
         title = content:selectFirst("div > p > strong"):text():gsub("\n" ,""),
-        imageURL = content:selectFirst(".wp-block-image > img"):attr("src"),
+        imageURL = content:selectFirst(".wp-block-image > img"):attr("data-src"),
         chapters = AsList(
                 map(filter(selected, function(v)
                     return v:attr("href"):find("lorenovels.com") ~= nil
@@ -124,7 +124,7 @@ local function getListing()
         return Novel {
             title = v:selectFirst("h2"):text(),
             link = shrinkURL(v:selectFirst("a"):attr("href")),
-            imageURL = v:selectFirst("img"):attr("src")
+            imageURL = v:selectFirst("img"):attr("data-src")
         }
     end)
 end
