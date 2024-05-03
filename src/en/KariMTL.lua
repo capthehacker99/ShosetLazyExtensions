@@ -106,7 +106,7 @@ local function parseNovel(novelURL)
         desc = full_str
     end
     local selected = document:select(".novel_index > li > a")
-    --local cur = selected:size() + 1
+    local cur = selected:size() + 1
 	return NovelInfo({
         title = document:selectFirst(".title a"):text():gsub("\n" ,""),
         imageURL = img,
@@ -115,7 +115,7 @@ local function parseNovel(novelURL)
             map(filter(selected, function(v)
                 return v:attr("href"):find("karimtl.com") ~= nil
             end), function(v)
-                --cur = cur - 1;
+                cur = cur - 1;
                 return NovelChapter {
                     order = v,
                     title = v:text(),
@@ -139,8 +139,7 @@ local function process_image(img)
     if not url or #url < 5 then
         return imageURL
     end
-    --return url:sub(5)
-    return imageURL
+    return url:sub(5)
 end
 
 local function getListing()
@@ -154,7 +153,6 @@ local function getListing()
         return {}
     end
     info = json.decode(info .. '}')
-    -- local listing = RequestDocument(
     local req = Request(
         POST(info.ajax_url, nil,
             FormBodyBuilder()
