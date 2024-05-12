@@ -75,6 +75,16 @@
       "ver": "1.0.0",
       "libVer": "1.0.0",
       "md5": ""
+    },
+    {
+      "name": "Fantasy World Online",
+      "fileName": "f-w-o",
+      "imageURL": "https://f-w-o.com/wp-content/uploads/2017/10/logo.5.png",
+      "id": 598221818,
+      "lang": "en",
+      "ver": "1.0.0",
+      "libVer": "1.0.0",
+      "md5": ""
     }
   ]
 }
