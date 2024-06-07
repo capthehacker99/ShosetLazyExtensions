@@ -1,4 +1,4 @@
--- {"id":114035263,"ver":"1.0.0","libVer":"1.0.0","author":"","repo":"","dep":[]}
+-- {"id":114035263,"ver":"1.0.1","libVer":"1.0.1","author":"","repo":"","dep":[]}
 
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -120,8 +120,9 @@ local function parseNovel(novelURL)
         local j = #chapters - i + 1
         chapters[i], chapters[j] = chapters[j], chapters[i]
     end
+    local header = document:selectFirst(".wp-block-heading strong") or document:selectFirst(".wp-block-heading")
 	return NovelInfo({
-        title = document:selectFirst(".wp-block-heading strong"):text():gsub("\n" ,""),
+        title = header:text():gsub("\n" ,""),
         imageURL = img and img:attr("src") or imageURL,
         chapters = AsList(
             chapters
