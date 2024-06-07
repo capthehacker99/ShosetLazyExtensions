@@ -1,4 +1,4 @@
--- {"id":114035263,"ver":"1.0.1","libVer":"1.0.1","author":"","repo":"","dep":[]}
+-- {"id":114035263,"ver":"1.0.2","libVer":"1.0.2","author":"","repo":"","dep":[]}
 
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -95,7 +95,7 @@ local function parseNovel(novelURL)
     local img = document:selectFirst(".wp-block-image img")
     local max_page = 1;
     map(document:select(".wp-block-query-pagination-numbers a"), function(v)
-        local cur_page = tonumber(v)
+        local cur_page = tonumber(v:text())
         if cur_page and cur_page > max_page then
             max_page = cur_page
         end
