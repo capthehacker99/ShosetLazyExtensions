@@ -1,4 +1,4 @@
--- {"id":1548078204,"ver":"1.0.0","libVer":"1.0.0","author":"","repo":"","dep":[]}
+-- {"id":1548078204,"ver":"1.0.1","libVer":"1.0.1","author":"","repo":"","dep":[]}
 local json = Require("dkjson")
 
 --- Identification number of the extension.
@@ -152,18 +152,17 @@ local function search(data)
     local req = Request(
         POST("https://storyseedling.com/ajax",
             HeadersBuilder()
-                    :add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; rv:126.0) Gecko/20100101 Firefox/126.0")
-                    :add("Accept", "*/*")
-                    :add("Accept-Language", "en-US,en;q=0.5")
-                    :add("Origin", "null")
-                    :add("DNT", 1)
-                    :add("Connection", "keep-alive")
-                    :add("Sec-Fetch-Dest", "empty")
-                    :add("Sec-Fetch-Mode", "cors")
-                    :add("Sec-Fetch-Site", "same-origin")
-                    :add("Sec-GPC", "1")
-                    :add("Priority", "u=4")
-                    :build(),
+                :add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; rv:126.0) Gecko/20100101 Firefox/126.0")
+                :add("Accept", "*/*")
+                :add("Accept-Language", "en-US,en;q=0.5")
+                :add("Origin", "null")
+                :add("Connection", "keep-alive")
+                :add("Sec-Fetch-Dest", "empty")
+                :add("Sec-Fetch-Mode", "cors")
+                :add("Sec-Fetch-Site", "same-origin")
+                :add("Sec-GPC", "1")
+                :add("Priority", "u=4")
+                :build(),
             RequestBody(content, MediaType("multipart/form-data; boundary=---------------------------" .. nonce))
         )
     )
