@@ -95,6 +95,26 @@
       "ver": "1.0.2",
       "libVer": "1.0.2",
       "md5": ""
+    },
+    {
+      "name": "Story Seedling",
+      "fileName": "StorySeedling",
+      "imageURL": "https://storyseedling.com/wp/wp-includes/images/w-logo-blue-white-bg.png",
+      "id": 1548078204,
+      "lang": "en",
+      "ver": "1.0.0",
+      "libVer": "1.0.0",
+      "md5": ""
+    },
+    {
+      "name": "The Kay's rookie translations",
+      "fileName": "KaysTLs",
+      "imageURL": "https://kaystls.site/wp-content/uploads/2021/07/cropped-Picture1-1-192x192.png",
+      "id": 1343493282,
+      "lang": "en",
+      "ver": "1.0.0",
+      "libVer": "1.0.0",
+      "md5": ""
     }
   ]
 }
