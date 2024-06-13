@@ -1,4 +1,4 @@
--- {"id":1343493282,"ver":"1.0.0","libVer":"1.0.0","author":"","repo":"","dep":[]}
+-- {"id":1343493282,"ver":"1.0.1","libVer":"1.0.1","author":"","repo":"","dep":[]}
 
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -79,6 +79,7 @@ local function getPassage(chapterURL)
     local htmlElement = document:selectFirst("article > .entry-content > .wp-block-columns")
     htmlElement:select(".donate"):remove()
     htmlElement:select("h3 > a"):remove()
+    htmlElement:select(".code-block"):remove()
     return pageOfElem(htmlElement, true)
 end
 
