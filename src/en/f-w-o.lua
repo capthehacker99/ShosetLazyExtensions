@@ -1,4 +1,4 @@
--- {"id":598221818,"ver":"1.0.0","libVer":"1.0.0","author":"","repo":"","dep":[]}
+-- {"id":598221818,"ver":"1.0.1","libVer":"1.0.1","author":"","repo":"","dep":[]}
 
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -94,8 +94,9 @@ local function parseNovel(novelURL)
     local document = GETDocument(url)
     document:select("script"):remove()
     local img = document:selectFirst(".summary_image img")
-    img = img and img:attr("src") or imageURL
-    local selected = document:select(".list-chap li a")
+    img = img and img:attr("data-lazy-srcset") or nil
+    img = img and img:match("[^%s]+") or nil;
+    local selected = document:select(".list-chap li:not(.list-chap .vip-permission) > a")
     local cur = selected:size() + 1
     return NovelInfo({
         title = document:selectFirst(".post-title h1"):text():gsub("\n" ,""),
@@ -121,7 +122,7 @@ local function getListing()
         return Novel {
             title = v:attr("title"),
             link = shrinkURL(v:attr("href")),
-            imageURL = v:selectFirst("img"):attr("arc")
+            imageURL = v:selectFirst("img"):attr("data-lazy-srcset"):match("[^%s]+")
         }
     end)
 end

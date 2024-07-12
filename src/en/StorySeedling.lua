@@ -1,4 +1,4 @@
--- {"id":1548078204,"ver":"1.0.2","libVer":"1.0.2","author":"","repo":"","dep":[]}
+-- {"id":1548078204,"ver":"1.0.3","libVer":"1.0.3","author":"","repo":"","dep":[]}
 local json = Require("dkjson")
 
 --- Identification number of the extension.
@@ -93,9 +93,14 @@ local function parseNovel(novelURL)
 	--- Novel page, extract info from it.
 	local document = GETDocument(url)
     local desc = ""
-    map(document:select(".order-3 > .order-2 > span"), function(p)
+    map(document:select("div.grid > div > p"), function(p)
         desc = desc .. p:text()
     end)
+    local tags = AsList(map(document:select("div.flex > a.rounded"), function(p)
+        return p:text()
+    end))
+    local author = document:selectFirst("span ~ a")
+    author = author and { author:text() } or nil;
     local title = document:selectFirst(".text-white h1"):text():gsub("\n" ,"")
     local image = document:selectFirst(".justify-self-center > div > img"):attr("src")
     local nonce = ""
@@ -137,14 +142,16 @@ local function parseNovel(novelURL)
         title = title,
         imageURL = image,
         description = desc,
-        chapters = chapters
+        chapters = chapters,
+        authors = author,
+        tags = tags
     })
 end
 
 local function getListing()
     local doc = GETDocument(baseURL)
     return map(doc:select(".flex-wrap > .flex-col"), function(v)
-        local title = v:selectFirst("a")
+        local title = v:selectFirst(".flex > a.text-center")
         return Novel {
             title = title:text(),
             link = shrinkURL(title:attr("href")),
