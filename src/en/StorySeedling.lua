@@ -1,4 +1,4 @@
--- {"id":1548078204,"ver":"1.0.1","libVer":"1.0.1","author":"","repo":"","dep":[]}
+-- {"id":1548078204,"ver":"1.0.2","libVer":"1.0.2","author":"","repo":"","dep":[]}
 local json = Require("dkjson")
 
 --- Identification number of the extension.
@@ -89,35 +89,61 @@ end
 --- @return NovelInfo
 local function parseNovel(novelURL)
 	local url = expandURL(novelURL)
-
+    local novel_id = string.match(novelURL, "%d+")
 	--- Novel page, extract info from it.
 	local document = GETDocument(url)
     local desc = ""
     map(document:select(".order-3 > .order-2 > span"), function(p)
         desc = desc .. p:text()
     end)
-    local selected = document:select(".bg-accent .grid > a")
-    local cur = selected:size() + 1
+    local title = document:selectFirst(".text-white h1"):text():gsub("\n" ,"")
+    local image = document:selectFirst(".justify-self-center > div > img"):attr("src")
+    local nonce = ""
+    for i = 1, 29 do
+        nonce = nonce .. tostring(math.random(0, 9))
+    end
+    local content = "-----------------------------" .. nonce .. "\r\nContent-Disposition: form-data; name=\"post\"\r\n\r\nundefined\r\n-----------------------------" .. nonce .. "\r\nContent-Disposition: form-data; name=\"id\"\r\n\r\n" .. novel_id .. "\r\n-----------------------------" .. nonce .. "\r\nContent-Disposition: form-data; name=\"action\"\r\n\r\nseries_toc\r\n-----------------------------" .. nonce .. "--\r\n"
+    local req = Request(
+            POST("https://storyseedling.com/ajax",
+                    HeadersBuilder()
+                            :add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; rv:126.0) Gecko/20100101 Firefox/126.0")
+                            :add("Accept", "*/*")
+                            :add("Accept-Language", "en-US,en;q=0.5")
+                            :add("Origin", "null")
+                            :add("Connection", "keep-alive")
+                            :add("Sec-Fetch-Dest", "empty")
+                            :add("Sec-Fetch-Mode", "cors")
+                            :add("Sec-Fetch-Site", "same-origin")
+                            :add("Sec-GPC", "1")
+                            :add("Priority", "u=4")
+                            :build(),
+                    RequestBody(content, MediaType("multipart/form-data; boundary=---------------------------" .. nonce))
+            )
+    )
+    local chapters = {};
+    local data = json.decode(req:body():string())
+    if data.success == true then
+        for i, v in next, (data.data or {}) do
+            if not v.is_locked then
+                table.insert(chapters, NovelChapter {
+                    order = tonumber(i);
+                    title = v.title;
+                    link = shrinkURL(v.url)
+                });
+            end
+        end
+    end
 	return NovelInfo({
-        title = document:selectFirst(".text-white h1"):text():gsub("\n" ,""),
-        imageURL = document:selectFirst(".justify-self-center > div > img"):attr("src"),
+        title = title,
+        imageURL = image,
         description = desc,
-        chapters = AsList(
-            map(selected, function(v)
-                cur = cur - 1
-                return NovelChapter {
-                    order = cur,
-                    title = v:selectFirst(".truncate"):text(),
-                    link = shrinkURL(v:attr("href"))
-                }
-            end)
-        )
+        chapters = chapters
     })
 end
 
 local function getListing()
     local doc = GETDocument(baseURL)
-    return map(doc:select(".flex-1 > .flex-wrap > .flex-grow"), function(v)
+    return map(doc:select(".flex-wrap > .flex-col"), function(v)
         local title = v:selectFirst("a")
         return Novel {
             title = title:text(),
@@ -148,7 +174,7 @@ local function search(data)
     for i = 1, 29 do
         nonce = nonce .. tostring(math.random(0, 9))
     end
-    local content = "-----------------------------" .. nonce .. "\r\nContent-Disposition: form-data; name=\"search\"\r\n\r\n" .. query .. "\r\n-----------------------------" .. nonce .. "\r\nContent-Disposition: form-data; name=\"orderBy\"\r\n\r\nrecent\r\n-----------------------------" .. nonce .. "\r\nContent-Disposition: form-data; name=\"curpage\"\r\n\r\n" .. page .. "\r\n-----------------------------" .. nonce .. "\r\nContent-Disposition: form-data; name=\"post\"\r\n\r\n40245250ea\r\n-----------------------------" .. nonce .. "\r\nContent-Disposition: form-data; name=\"action\"\r\n\r\nfetch_browse\r\n-----------------------------" .. nonce .. "--\r\n"
+    local content = "-----------------------------" .. nonce .. "\r\nContent-Disposition: form-data; name=\"search\"\r\n\r\n" .. query .. "\r\n-----------------------------" .. nonce .. "\r\nContent-Disposition: form-data; name=\"orderBy\"\r\n\r\nrecent\r\n-----------------------------" .. nonce .. "\r\nContent-Disposition: form-data; name=\"curpage\"\r\n\r\n" .. page .. "\r\n-----------------------------" .. nonce .. "\r\nContent-Disposition: form-data; name=\"post\"\r\n\r\n843dc1251f\r\n-----------------------------" .. nonce .. "\r\nContent-Disposition: form-data; name=\"action\"\r\n\r\nfetch_browse\r\n-----------------------------" .. nonce .. "--\r\n"
     local req = Request(
         POST("https://storyseedling.com/ajax",
             HeadersBuilder()
@@ -171,7 +197,7 @@ local function search(data)
         return {}
     end
     local novels = {}
-    for _, obj in next, data.data.posts do
+    for _, obj in next, data.data.posts or {} do
         table.insert(novels, Novel {
             title = obj.title,
             link = shrinkURL(obj.permalink),
