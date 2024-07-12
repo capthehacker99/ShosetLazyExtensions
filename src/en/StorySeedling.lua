@@ -208,7 +208,7 @@ local function search(data)
         table.insert(novels, Novel {
             title = obj.title,
             link = shrinkURL(obj.permalink),
-            imageURL = obj.bigThumbnail
+            imageURL = obj.bigThumbnail or obj.thumbnail
         })
     end
     return novels
