@@ -125,6 +125,16 @@
       "ver": "1.0.0",
       "libVer": "1.0.0",
       "md5": ""
+    },
+    {
+      "name": "Toasteful",
+      "fileName": "Toasteful",
+      "imageURL": "https://www.toasteful.com/favicon.ico",
+      "id": 1707688905,
+      "lang": "en",
+      "ver": "1.0.0",
+      "libVer": "1.0.0",
+      "md5": ""
     }
   ]
 }
