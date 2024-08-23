@@ -1,4 +1,4 @@
--- {"id":1440948051,"ver":"1.0.3","libVer":"1.0.3","author":"","repo":"","dep":[]}
+-- {"id":1440948051,"ver":"1.0.4","libVer":"1.0.4","author":"","repo":"","dep":[]}
 local json = Require("dkjson")
 
 --- Identification number of the extension.
@@ -22,7 +22,7 @@ local name = "Kari MTL"
 --- Required.
 ---
 --- @type string
-local baseURL = "https://karimtl.com/"
+local baseURL = "https://karistudio.com/"
 
 --- URL of the logo.
 ---
@@ -53,7 +53,7 @@ local startIndex = 1
 --- @param _ int Either KEY_CHAPTER_URL or KEY_NOVEL_URL.
 --- @return string Shrunk URL.
 local function shrinkURL(url, _)
-    return url:gsub(".-karimtl.com/", "")
+    return url:gsub(".-karistudio.com/", "")
 end
 
 --- Expand a given URL.
@@ -95,9 +95,9 @@ local function parseNovel(novelURL)
 	--- Novel page, extract info from it.
 	local document = GETDocument(url)
     document:select("script"):remove()
-    local img = document:selectFirst("#novel_info img")
+    local img = document:selectFirst("#novel_cover")
     img = img and img:attr("src") or imageURL
-    local desc = document:selectFirst("#novel_info_right")
+    local desc = document:selectFirst(".desc_div")
     if desc then
         local full_str = ""
         map(desc:select("p"), function(p)
@@ -105,7 +105,7 @@ local function parseNovel(novelURL)
         end)
         desc = full_str
     end
-    local selected = document:select(".novel_index > li > a")
+    local selected = document:select(".novel_index > a")
     local cur = selected:size() + 1
 	return NovelInfo({
         title = document:selectFirst(".title a"):text():gsub("\n" ,""),
@@ -113,7 +113,7 @@ local function parseNovel(novelURL)
         description = desc,
         chapters = AsList(
             map(filter(selected, function(v)
-                return v:attr("href"):find("karimtl.com") ~= nil
+                return v:attr("href"):find("karistudio.com") ~= nil
             end), function(v)
                 cur = cur - 1;
                 return NovelChapter {
