@@ -1,4 +1,4 @@
--- {"id":1548078204,"ver":"1.0.3","libVer":"1.0.3","author":"","repo":"","dep":[]}
+-- {"id":1548078204,"ver":"1.0.4","libVer":"1.0.4","author":"","repo":"","dep":[]}
 local json = Require("dkjson")
 
 --- Identification number of the extension.
@@ -177,11 +177,29 @@ end
 local function search(data)
     local page = data[PAGE]
     local query = data[QUERY]
+    local doc = GETDocument(expandURL("browse"))
+    local hash_container = doc:selectFirst("[ax-load]")
+    if not hash_container then
+        error("Failed to find hash container.")
+    end
+    local hash = hash_container:attr("x-data") or ""
+    hash = hash:match("'[a-f0-9]+'")
+    if not hash then
+        error("Hash not found.")
+    end
+    hash = hash:sub(2, #hash - 1)
     local nonce = ""
     for i = 1, 29 do
         nonce = nonce .. tostring(math.random(0, 9))
     end
-    local content = "-----------------------------" .. nonce .. "\r\nContent-Disposition: form-data; name=\"search\"\r\n\r\n" .. query .. "\r\n-----------------------------" .. nonce .. "\r\nContent-Disposition: form-data; name=\"orderBy\"\r\n\r\nrecent\r\n-----------------------------" .. nonce .. "\r\nContent-Disposition: form-data; name=\"curpage\"\r\n\r\n" .. page .. "\r\n-----------------------------" .. nonce .. "\r\nContent-Disposition: form-data; name=\"post\"\r\n\r\n843dc1251f\r\n-----------------------------" .. nonce .. "\r\nContent-Disposition: form-data; name=\"action\"\r\n\r\nfetch_browse\r\n-----------------------------" .. nonce .. "--\r\n"
+    local content = "-----------------------------" .. nonce ..
+            "\r\nContent-Disposition: form-data; name=\"search\"\r\n\r\n" .. query .. "\r\n-----------------------------" .. nonce ..
+            "\r\nContent-Disposition: form-data; name=\"status\"\r\n\r\nany\r\n-----------------------------" .. nonce ..
+            "\r\nContent-Disposition: form-data; name=\"orderBy\"\r\n\r\nrecent\r\n-----------------------------" .. nonce ..
+            "\r\nContent-Disposition: form-data; name=\"curpage\"\r\n\r\n" .. page .. "\r\n-----------------------------" .. nonce ..
+            "\r\nContent-Disposition: form-data; name=\"post\"\r\n\r\n" .. hash .. "\r\n-----------------------------" .. nonce ..
+            "\r\nContent-Disposition: form-data; name=\"action\"\r\n\r\nfetch_browse\r\n-----------------------------" .. nonce ..
+            "--\r\n"
     local req = Request(
         POST("https://storyseedling.com/ajax",
             HeadersBuilder()
