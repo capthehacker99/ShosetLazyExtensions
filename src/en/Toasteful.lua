@@ -1,4 +1,4 @@
--- {"id":1707688905,"ver":"1.0.1","libVer":"1.0.1","author":"","repo":"","dep":[]}
+-- {"id":1707688905,"ver":"1.0.2","libVer":"1.0.2","author":"","repo":"","dep":[]}
 
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -135,6 +135,18 @@ local function getListing()
     end)
 end
 
+local function search(data)
+    local query = data[QUERY]
+    local doc = GETDocument(expandURL("search?q=" .. query))
+    return AsList(map(doc:select(".post-title > a"), function(tag)
+        return Novel {
+            title = tag:text(),
+            link = shrinkURL(tag:attr("href")),
+            imageURL = imageURL
+        }
+    end))
+end
+
 -- Return all properties in a lua table.
 return {
 	-- Required
@@ -148,7 +160,9 @@ return {
 	parseNovel = parseNovel,
 	shrinkURL = shrinkURL,
 	expandURL = expandURL,
-    hasSearch = false,
+    hasSearch = true,
+    isSearchIncrementing = false,
+    search = search,
 	-- Optional values to change
 	imageURL = imageURL,
 	chapterType = chapterType,
