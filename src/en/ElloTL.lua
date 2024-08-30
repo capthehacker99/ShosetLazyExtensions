@@ -1,4 +1,4 @@
--- {"id":1584024299,"ver":"1.0.0","libVer":"1.0.0","author":"","repo":"","dep":[]}
+-- {"id":1584024299,"ver":"1.0.1","libVer":"1.0.1","author":"","repo":"","dep":[]}
 
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -122,7 +122,7 @@ local function getListing()
     return AsList(map(document:select(".maindet > .inmain > .mdthumb > a"), function(v)
         local img = v:selectFirst("img");
         return Novel {
-            title = (v:attr("oldtitle") or ""):gsub("[\r\n]", ""),
+            title = (v:attr("title") or ""):gsub("[\r\n]", ""),
             link = shrinkURL(v:attr("href")),
             imageURL = (img and img:attr("src") or imageURL)
         }
@@ -136,7 +136,7 @@ local function search(data)
     return AsList(map(document:select(".maindet > .inmain > .mdthumb > a"), function(v)
         local img = v:selectFirst("img");
         return Novel {
-            title = (v:attr("oldtitle") or ""):gsub("[\r\n]", ""),
+            title = (v:attr("title") or ""):gsub("[\r\n]", ""),
             link = shrinkURL(v:attr("href")),
             imageURL = (img and img:attr("src") or imageURL)
         }
