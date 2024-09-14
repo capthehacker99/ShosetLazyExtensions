@@ -139,7 +139,7 @@ end
 local function getListing()
     local document = GETDocument(expandURL("novels/"))
 
-    return map(document:select(".td-ss-main-content > .td-page-content > p > span > a"), function(v)
+    return map(document:select(".td-ss-main-content > .td-page-content > p a"), function(v)
         return Novel {
             title = v:text(),
             link = shrinkURL(v:attr("href")),
