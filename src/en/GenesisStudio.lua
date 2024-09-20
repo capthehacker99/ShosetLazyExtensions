@@ -1,4 +1,4 @@
--- {"id":1035923222,"ver":"1.0.1","libVer":"1.0.1","author":"","repo":"","dep":[]}
+-- {"id":1035923222,"ver":"1.0.2","libVer":"1.0.2","author":"","repo":"","dep":[]}
 local json = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -91,7 +91,16 @@ local function getPassage(chapterURL)
     if not data or not data.data then
         error("Failed to obtain passage data.")
     end
-    return pageOfElem(Document(data.data.content), true)
+
+    for _, v in next, data.data do
+        if type(v) == "string" then
+            local content = data.data[v]
+            if content then
+                return pageOfElem(Document(content), true)
+            end
+        end
+    end
+    error("Content not found.")
 end
 
 --- Load info on a novel.
