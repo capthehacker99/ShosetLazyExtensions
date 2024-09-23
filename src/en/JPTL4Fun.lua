@@ -1,4 +1,4 @@
--- {"id":622276777,"ver":"1.0.0","libVer":"1.0.0","author":"","repo":"","dep":[]}
+-- {"id":622276777,"ver":"1.0.1","libVer":"1.0.1","author":"","repo":"","dep":[]}
 
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -111,7 +111,7 @@ local function parseNovel(novelURL)
     map(document:select(".entry-content > blockquote > p"), function(p)
         desc = desc .. '\n\n' .. p:text()
     end)
-    local img = document:selectFirst(".wp-block-image")
+    local img = document:selectFirst(".wp-block-image img")
     if img then
         img = img:attr("data-orig-file")
     end
