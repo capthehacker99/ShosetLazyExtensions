@@ -280,7 +280,6 @@ end
 
 local function conv2lua(js)
     js = [[
-local __ret;
 local parseInt = function(str)
     local res = tonumber(str:match("^%d+"))
     if res == nil then
@@ -438,7 +437,7 @@ local function parseNovel(novelURL)
     end
     local chapters = {}
     local lua_script = conv2lua(data.data.chapters)
-    print(data.data.chapters)
+    --print(data.data.chapters)
     local f, err = load(lua_script)
     if err then
         error(err)
