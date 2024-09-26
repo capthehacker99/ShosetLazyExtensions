@@ -1,4 +1,4 @@
--- {"id":1035923222,"ver":"1.0.3","libVer":"1.0.3","author":"","repo":"","dep":[]}
+-- {"id":1035923222,"ver":"1.0.4","libVer":"1.0.4","author":"","repo":"","dep":[]}
 local json = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -84,6 +84,7 @@ skip_ws = function(lex)
     end
 end
 
+
 parse_string = function(lex)
     local chr = lex[1]:sub(lex[2], lex[2])
     if chr ~= '"' and chr ~= "'" then
@@ -93,38 +94,58 @@ parse_string = function(lex)
     local es = false
     lex[2] = lex[2] + 1
     local beg = lex[2]
+    local total_str = ""
     while true do
         chr = lex[1]:sub(lex[2], lex[2])
         if chr == "" then
             error("[STR] Unterminated string.")
         end
         if not es and chr == og then
-            local raw = lex[1]:sub(beg, lex[2] - 1)
             lex[2] = lex[2] + 1
-            raw = raw:gsub("\\\\", "\\")
-            raw = raw:gsub("\\b", "\b")
-            raw = raw:gsub("\\f", "\f")
-            raw = raw:gsub("\\n", "\n")
-            raw = raw:gsub("\\r", "\r")
-            raw = raw:gsub("\\t", "\t")
-            raw = raw:gsub("\\v", "\v")
-            raw = raw:gsub("\\'", "\'")
-            raw = raw:gsub("\\\"", "\"")
-            raw = raw:gsub("\\([0-7]?[0-7]?[0-7])", function(g)
-                return string.char(tonumber(g, 8))
-            end)
-            raw = raw:gsub("\\x(%x%x)", function(g)
-                return string.char(tonumber(g, 16))
-            end)
-            raw = raw:gsub("\\u(%x%x%x%x)", function(g)
-                return ''
-            end)
-            return raw
+            return total_str
         end
         if es then
+            if chr == '\\' then
+                total_str = total_str .. chr
+            elseif chr == 'b' then
+                total_str = total_str .. '\b'
+            elseif chr == 'f' then
+                total_str = total_str .. '\f'
+            elseif chr == 'n' then
+                total_str = total_str .. '\n'
+            elseif chr == 'r' then
+                total_str = total_str .. '\r'
+            elseif chr == 't' then
+                total_str = total_str .. '\t'
+            elseif chr == 'v' then
+                total_str = total_str .. '\v'
+            elseif chr == '\'' then
+                total_str = total_str .. '\''
+            elseif chr == '\"' then
+                total_str = total_str .. '\"'
+            else
+                local match = lex[1]:sub(lex[2]):match("^([0-7]?[0-7]?[0-7])")
+                if match then
+                    total_str = total_str .. string.char(tonumber(match, 8))
+                    lex[2] = lex[2] + #match
+                else
+                    match = lex[1]:sub(lex[2]):match("^x(%x%x)")
+                    if match then
+                        total_str = total_str .. string.char(tonumber(match, 16))
+                        lex[2] = lex[2] + #match
+                    else
+                        match = lex[1]:sub(lex[2]):match("^u(%x%x%x%x)")
+                        if match then
+                            lex[2] = lex[2] + #match
+                        end
+                    end
+                end
+            end
             es = false
         elseif chr == '\\' then
             es = true
+        else
+            total_str = total_str .. chr
         end
         lex[2] = lex[2] + 1
     end
@@ -410,15 +431,14 @@ local function parseNovel(novelURL)
         if not matched then
             return
         end
-        local trans = matched:sub(0, #matched-2):gsub("([,{][a-zA-Z_$][0-9a-zA-Z_$]*):", function(a) return a:sub(0, 1) .. '"' .. a:sub(2) .. '":' end)
-        data = parse_obj(trans)
+        data = parse_obj(matched:sub(0, #matched-2))
     end)
     if not data or not data.data then
         error("Failed to obtain novel data.")
     end
     local chapters = {}
     local lua_script = conv2lua(data.data.chapters)
-    --print(data.data.chapters)
+    print(data.data.chapters)
     local f, err = load(lua_script)
     if err then
         error(err)
