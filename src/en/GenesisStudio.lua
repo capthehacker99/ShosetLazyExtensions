@@ -1,4 +1,4 @@
--- {"id":1035923222,"ver":"1.0.2","libVer":"1.0.2","author":"","repo":"","dep":[]}
+-- {"id":1035923222,"ver":"1.0.3","libVer":"1.0.3","author":"","repo":"","dep":[]}
 local json = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
