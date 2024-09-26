@@ -111,7 +111,7 @@ end
 
 local function getListing()
     local document = GETDocument(baseURL)
-    return map(document:select("div > ul > li > .sub-menu > li > ul > li > a"), function(v)
+    return map(document:select("div > ul > li > .sub-menu > li > .sub-menu > li > ul > li > a"), function(v)
         return Novel {
             title = v:text(),
             link = shrinkURL(v:attr("href")),
