@@ -1,4 +1,4 @@
--- {"id":1035923222,"ver":"1.0.4","libVer":"1.0.4","author":"","repo":"","dep":[]}
+-- {"id":1035923222,"ver":"1.0.5","libVer":"1.0.5","author":"","repo":"","dep":[]}
 local json = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -67,6 +67,19 @@ end
 
 
 -- Library shit
+local function dump(o)
+    if type(o) == 'table' then
+        local s = '{ '
+        for k,v in pairs(o) do
+            if type(k) ~= 'number' then k = '"'..k..'"' end
+            s = s .. '['..k..'] = ' .. dump(v) .. ','
+        end
+        return s .. '} '
+    else
+        return tostring(o)
+    end
+end
+
 local skip_ws;
 local parse_expr;
 local parse_table;
@@ -379,37 +392,23 @@ local function getPassage(chapterURL)
     if not data or not data.data then
         error("Failed to obtain passage data.")
     end
-
+    print(dump(data.data))
     local real_content;
     for _, v in next, data.data do
         if type(v) == "string" then
-            local content = data.data[v]
-            if content then
-                real_content = content
+            if v:find("</p>") then
+                real_content = v
                 break
             end
         end
     end
     if not real_content then
-        real_content = data.data.content
+        real_content = data.data.gs
     end
     if real_content then
         return pageOfElem(Document(real_content), true)
     end
     error("Content not found.")
-end
-
-local function dump(o)
-    if type(o) == 'table' then
-        local s = '{ '
-        for k,v in pairs(o) do
-            if type(k) ~= 'number' then k = '"'..k..'"' end
-            s = s .. '['..k..'] = ' .. dump(v) .. ','
-        end
-        return s .. '} '
-    else
-        return tostring(o)
-    end
 end
 
 --- Load info on a novel.
@@ -436,8 +435,8 @@ local function parseNovel(novelURL)
         error("Failed to obtain novel data.")
     end
     local chapters = {}
-    local lua_script = conv2lua(data.data.chapters)
-    --print(data.data.chapters)
+    local lua_script = conv2lua(data.data.chapters_list)
+    --print(data.data.chapters_list)
     local f, err = load(lua_script)
     if err then
         error(err)
