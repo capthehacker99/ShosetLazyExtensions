@@ -1,4 +1,4 @@
--- {"id":1548078204,"ver":"1.0.4","libVer":"1.0.4","author":"","repo":"","dep":[]}
+-- {"id":1548078204,"ver":"1.0.5","libVer":"1.0.5","author":"","repo":"","dep":[]}
 local json = Require("dkjson")
 
 --- Identification number of the extension.
@@ -81,6 +81,19 @@ local function getPassage(chapterURL)
     return pageOfElem(htmlElement, true)
 end
 
+local function get_csrf_token(doc)
+    local csrf_token;
+    map(doc:select("[x-data]"), function(v)
+        local tk = v:attr("x-data")
+        if not tk or not (tk:find("toc%(") or tk:find("browse%(")) then return true end
+        tk = tk:match("'[a-f0-9]+'%)")
+        if not tk then return true end
+        csrf_token = tk:sub(2, #tk - 2)
+    end)
+    if csrf_token then return csrf_token end
+    error("CSRF token not found.")
+end
+
 --- Load info on a novel.
 ---
 --- Required.
@@ -92,6 +105,7 @@ local function parseNovel(novelURL)
     local novel_id = string.match(novelURL, "%d+")
 	--- Novel page, extract info from it.
 	local document = GETDocument(url)
+    local csrf_token = get_csrf_token(document)
     local desc = ""
     map(document:select("div.grid > div > p"), function(p)
         desc = desc .. p:text()
@@ -107,7 +121,7 @@ local function parseNovel(novelURL)
     for i = 1, 29 do
         nonce = nonce .. tostring(math.random(0, 9))
     end
-    local content = "-----------------------------" .. nonce .. "\r\nContent-Disposition: form-data; name=\"post\"\r\n\r\nundefined\r\n-----------------------------" .. nonce .. "\r\nContent-Disposition: form-data; name=\"id\"\r\n\r\n" .. novel_id .. "\r\n-----------------------------" .. nonce .. "\r\nContent-Disposition: form-data; name=\"action\"\r\n\r\nseries_toc\r\n-----------------------------" .. nonce .. "--\r\n"
+    local content = "-----------------------------" .. nonce .. "\r\nContent-Disposition: form-data; name=\"post\"\r\n\r\n" .. csrf_token .. "\r\n-----------------------------" .. nonce .. "\r\nContent-Disposition: form-data; name=\"id\"\r\n\r\n" .. novel_id .. "\r\n-----------------------------" .. nonce .. "\r\nContent-Disposition: form-data; name=\"action\"\r\n\r\nseries_toc\r\n-----------------------------" .. nonce .. "--\r\n"
     local req = Request(
             POST("https://storyseedling.com/ajax",
                     HeadersBuilder()
@@ -125,8 +139,9 @@ local function parseNovel(novelURL)
                     RequestBody(content, MediaType("multipart/form-data; boundary=---------------------------" .. nonce))
             )
     )
+    local str = req:body():string()
     local chapters = {};
-    local data = json.decode(req:body():string())
+    local data = json.decode(str)
     if data.success == true then
         for i, v in next, (data.data or {}) do
             if not v.is_locked then
@@ -178,16 +193,7 @@ local function search(data)
     local page = data[PAGE]
     local query = data[QUERY]
     local doc = GETDocument(expandURL("browse"))
-    local hash_container = doc:selectFirst("[ax-load]")
-    if not hash_container then
-        error("Failed to find hash container.")
-    end
-    local hash = hash_container:attr("x-data") or ""
-    hash = hash:match("'[a-f0-9]+'")
-    if not hash then
-        error("Hash not found.")
-    end
-    hash = hash:sub(2, #hash - 1)
+    local hash = get_csrf_token(doc)
     local nonce = ""
     for i = 1, 29 do
         nonce = nonce .. tostring(math.random(0, 9))
