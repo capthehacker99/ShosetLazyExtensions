@@ -1,4 +1,4 @@
--- {"id":541210855,"ver":"1.0.2","libVer":"1.0.2","author":"","repo":"","dep":[]}
+-- {"id":541210855,"ver":"1.0.3","libVer":"1.0.3","author":"","repo":"","dep":[]}
 
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -76,14 +76,14 @@ local function getPassage(chapterURL)
 
 	--- Chapter page, extract info from it.
 	local document = GETDocument(url)
-    local htmlElement = document:selectFirst(".tdb_single_content")
+    local htmlElement = document:selectFirst(".entry-content")
     document:select(".su-spoiler"):remove()
     return pageOfElem(htmlElement, true)
 end
 
 
 local function parseChapters(doc, tab)
-    map(doc:select(".td_block_wrap.tdb-numbered-pagination > .tdb-block-inner a"), function(v)
+    map(doc:select("#masonry-grid .entry-title > a"), function(v)
         table.insert(tab, NovelChapter {
             title = v:text(),
             link = shrinkURL(v:attr("href"))
@@ -106,22 +106,19 @@ local function parseNovel(novelURL)
         desc = desc .. '\n\n' .. p:text()
     end)
     local page = 1
-    local page_nav = document:selectFirst(".page-nav")
-    if page_nav then
-        local last_page = page_nav:selectFirst(".last")
-        if not last_page then
-            map(page_nav:select("a"), function(v)
-                local p = tonumber(v:text())
-                if p and p > page then
-                    page = p
-                end
-            end)
-        end
-    end
+    map(document:select(".pages-nav a"), function(v)
+        local link = v:attr("href")
+        if not link then return end
+        local cur = link:match("page/(%d+)")
+        if not cur then return end
+        local cp = tonumber(cur)
+        if page < cp then page = cp end
+    end)
+    page = 1
     local chapters = {}
     parseChapters(document, chapters)
     for i = 1, page do
-        local doc = GETDocument(url .. "/page/" .. i .. "/")
+        local doc = GETDocument(url .. "page/" .. i .. "/")
         parseChapters(doc, chapters)
     end
     local len = #chapters
@@ -129,8 +126,8 @@ local function parseNovel(novelURL)
         v:setOrder(len - i)
     end
     return NovelInfo({
-        title = document:selectFirst(".tdb-title-text"):text():gsub("\n" ,""),
-        imageURL = document:selectFirst(".tdm-image"):attr("src"),
+        title = document:selectFirst(".page-title"):text():gsub("\n" ,""),
+        imageURL = imageURL,
         description = desc,
         chapters = chapters
     })
@@ -139,7 +136,7 @@ end
 local function getListing()
     local document = GETDocument(expandURL("novels/"))
 
-    return map(document:select(".td-ss-main-content > .td-page-content > p a"), function(v)
+    return map(document:select(".main-content .entry span a"), function(v)
         return Novel {
             title = v:text(),
             link = shrinkURL(v:attr("href")),
