@@ -1,4 +1,4 @@
--- {"id":541210855,"ver":"1.0.3","libVer":"1.0.3","author":"","repo":"","dep":[]}
+-- {"id":541210855,"ver":"1.0.4","libVer":"1.0.4","author":"","repo":"","dep":[]}
 
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -114,7 +114,6 @@ local function parseNovel(novelURL)
         local cp = tonumber(cur)
         if page < cp then page = cp end
     end)
-    page = 1
     local chapters = {}
     parseChapters(document, chapters)
     for i = 1, page do
