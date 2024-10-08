@@ -1,4 +1,4 @@
--- {"id":114035263,"ver":"1.0.2","libVer":"1.0.2","author":"","repo":"","dep":[]}
+-- {"id":114035263,"ver":"1.0.3","libVer":"1.0.3","author":"","repo":"","dep":[]}
 
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -28,7 +28,7 @@ local baseURL = "https://oayo.ink/"
 --- Optional, Default is empty.
 ---
 --- @type string
-local imageURL = "https://oayo0.wordpress.com/wp-content/uploads/2024/05/site-logo.png?w=512"
+local imageURL = "https://oayo.ink/wp-content/uploads/2024/10/cropped-logo-1.png"
 --- ChapterType provided by the extension.
 ---
 --- Optional, Default is STRING. But please do HTML.
@@ -91,7 +91,36 @@ local function parseNovel(novelURL)
 
 	--- Novel page, extract info from it.
 	local document = GETDocument(url)
-    document:select("script"):remove()
+    local entry_content = document:selectFirst(".entry-content")
+    local found_p = false
+    local author = "Unknown"
+    local desc = ""
+    local found_synopsis = false
+    local end_of_p = false
+    map(entry_content:children(), function(v)
+        if end_of_p then return end
+        local is_p = tostring(v):match("^<p")
+        if is_p then
+            local p_text = v:text()
+            if found_synopsis then
+                desc = desc .. p_text .. "\n\n"
+            else
+                local cur_author = p_text:match("^Author: (.+)")
+                if cur_author then
+                    author = cur_author
+                elseif p_text == "Synopsis:" then
+                    found_synopsis = true
+                end
+            end
+        end
+        if found_p then
+            if not is_p then
+                end_of_p = true
+            end
+        elseif is_p then
+            found_p = true
+        end
+    end)
     local img = document:selectFirst(".wp-block-image img")
     local max_page = 1;
     map(document:select(".wp-block-query-pagination-numbers a"), function(v)
@@ -120,9 +149,12 @@ local function parseNovel(novelURL)
         local j = #chapters - i + 1
         chapters[i], chapters[j] = chapters[j], chapters[i]
     end
+
     local header = document:selectFirst(".wp-block-heading strong") or document:selectFirst(".wp-block-heading")
 	return NovelInfo({
         title = header:text():gsub("\n" ,""),
+        authors = { author },
+        description = desc,
         imageURL = img and img:attr("src") or imageURL,
         chapters = AsList(
             chapters
@@ -131,12 +163,10 @@ local function parseNovel(novelURL)
 end
 
 local function getListing()
-    local document = GETDocument(baseURL)
-    return map(filter(document:select(".wp-block-navigation a"), function(v)
-        return v:attr("href") ~= "https://oayo.ink/notice/"
-    end), function(v)
+    local document = GETDocument(expandURL("webnovel-tl/"))
+    return map(document:select(".entry-content > ul > li a"), function(v)
         return Novel {
-            title = v:selectFirst("span"):text(),
+            title = v:text(),
             link = shrinkURL(v:attr("href")),
             imageURL = imageURL
         }
