@@ -1,4 +1,4 @@
--- {"id":114035263,"ver":"1.0.3","libVer":"1.0.3","author":"","repo":"","dep":[]}
+-- {"id":114035263,"ver":"1.0.4","libVer":"1.04","author":"","repo":"","dep":[]}
 
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -122,28 +122,23 @@ local function parseNovel(novelURL)
         end
     end)
     local img = document:selectFirst(".wp-block-image img")
-    local max_page = 1;
+    local links = {}
     map(document:select(".wp-block-query-pagination-numbers a"), function(v)
-        local cur_page = tonumber(v:text())
-        if cur_page and cur_page > max_page then
-            max_page = cur_page
-        end
+        table.insert(links, v:attr("href"))
     end)
-    local function get_chapters(document)
-        return map(document:select(".wp-block-post-template li a"), function(v)
-            return NovelChapter {
+    local chapters = {}
+    local function get_chapters(doc)
+        map(doc:select(".wp-block-post-template li a"), function(v)
+            table.insert(chapters, NovelChapter {
                 order = v,
                 title = v:text(),
                 link = shrinkURL(v:attr("href"))
-            }
+            })
         end)
     end
-    local chapters = {}
-    for i = 1, max_page do
-        local cur_chaps = get_chapters(GETDocument(url .. "?query-9-page=" .. i))
-        for j = 1, #cur_chaps do
-            table.insert(chapters, cur_chaps[j])
-        end
+    get_chapters(document)
+    for _, page in next, links do
+        get_chapters(GETDocument(url .. page))
     end
     for i = 1, math.floor(#chapters/2) do
         local j = #chapters - i + 1
