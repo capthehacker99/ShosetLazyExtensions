@@ -1,4 +1,4 @@
--- {"id":1035923222,"ver":"1.0.5","libVer":"1.0.5","author":"","repo":"","dep":[]}
+-- {"id":1035923222,"ver":"1.0.6","libVer":"1.0.6","author":"","repo":"","dep":[]}
 local json = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -435,8 +435,17 @@ local function parseNovel(novelURL)
         error("Failed to obtain novel data.")
     end
     local chapters = {}
-    local lua_script = conv2lua(data.data.chapters_list)
-    --print(data.data.chapters_list)
+    local prob_list = nil
+    for k, v in next, data.data do
+        if k:match("list") then
+            prob_list = v
+            break
+        end
+    end
+    if prob_list == nil then
+        error("Failed to find chapter list, contact @99tracheae")
+    end
+    local lua_script = conv2lua(prob_list)
     local f, err = load(lua_script)
     if err then
         error(err)
