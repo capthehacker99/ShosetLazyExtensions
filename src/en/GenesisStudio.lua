@@ -1,4 +1,4 @@
--- {"id":1035923222,"ver":"1.0.7","libVer":"1.0.7","author":"","repo":"","dep":[]}
+-- {"id":1035923222,"ver":"1.0.8","libVer":"1.0.8","author":"","repo":"","dep":[]}
 local json = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -450,15 +450,20 @@ local function parseNovel(novelURL)
     if err then
         error(err)
     end
+    local chapters_map = {{}, {}}
     local chapters_data = f()
     for _, v1 in next, chapters_data do
         for _, v2 in next, v1 do
-            if v2.required_tier == 0 then
-                table.insert(chapters, NovelChapter {
-                    order = v2.chapter_number,
-                    title = v2.chapter_title,
-                    link = "viewer/" .. v2.id
-                })
+            if v2.required_tier == 0 and v2.id ~= nil and v2.chapter_number ~= nil then
+                if not chapters_map[1][v2.chapter_number] or not chapters_map[2][v2.id] then
+                    table.insert(chapters, NovelChapter {
+                        order = v2.chapter_number,
+                        title = v2.chapter_title,
+                        link = "viewer/" .. v2.id
+                    })
+                    chapters_map[1][v2.chapter_number] = true
+                    chapters_map[2][v2.id] = true
+                end
             end
         end
     end
