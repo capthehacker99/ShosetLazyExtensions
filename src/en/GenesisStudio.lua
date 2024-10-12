@@ -1,4 +1,4 @@
--- {"id":1035923222,"ver":"1.0.6","libVer":"1.0.6","author":"","repo":"","dep":[]}
+-- {"id":1035923222,"ver":"1.0.7","libVer":"1.0.7","author":"","repo":"","dep":[]}
 local json = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -392,7 +392,7 @@ local function getPassage(chapterURL)
     if not data or not data.data then
         error("Failed to obtain passage data.")
     end
-    print(dump(data.data))
+    --print(dump(data.data))
     local real_content;
     for _, v in next, data.data do
         if type(v) == "string" then
@@ -437,7 +437,7 @@ local function parseNovel(novelURL)
     local chapters = {}
     local prob_list = nil
     for k, v in next, data.data do
-        if k:match("list") then
+        if k:match("list") or k:match("chapters") then
             prob_list = v
             break
         end
