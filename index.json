@@ -175,6 +175,16 @@
       "ver": "1.0.1",
       "libVer": "1.0.1",
       "md5": ""
+    },
+    {
+      "name": "Fenrir Translations",
+      "fileName": "FenrirTranslations",
+      "imageURL": "https://fenrirtranslations.com/wp-content/uploads/2024/03/cropped-Fenrir_the_world_wolf-192x192.png",
+      "id": 1553358903,
+      "lang": "en",
+      "ver": "1.0.0",
+      "libVer": "1.0.0",
+      "md5": ""
     }
   ]
 }
