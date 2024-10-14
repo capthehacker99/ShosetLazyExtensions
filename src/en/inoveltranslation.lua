@@ -1,4 +1,4 @@
--- {"id":516385957,"ver":"1.0.0","libVer":"1.0.0","author":"","repo":"","dep":[]}
+-- {"id":516385957,"ver":"1.0.1","libVer":"1.0.1","author":"","repo":"","dep":[]}
 local json = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -98,7 +98,7 @@ local function parseNovel(novelURL)
             if not chapter.tierId then
                 table.insert(chapters, NovelChapter {
                     order = chapter.id,
-                    title = "Vol. " .. chapter.volume .. " Ch. " .. chapter.chapter .. ' ' .. chapter.title,
+                    title = "Vol. " .. chapter.volume .. " Ch. " .. chapter.chapter .. ' ' .. (chapter.title or chapter.slug),
                     link = "chapters/" .. chapter.id
                 })
             end

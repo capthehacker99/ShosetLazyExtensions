@@ -132,7 +132,13 @@ end
 local function search(data)
     local page = data[PAGE]
     local query = data[QUERY]
-    local document = GETDocument(expandURL("page/" .. page .. "/?s=" .. query))
+    local success, document = pcall(GETDocument, expandURL("page/" .. page .. "/?s=" .. query))
+    if not success then
+        if document:find(": 404") then
+            return {}
+        end
+        error(document)
+    end
     return AsList(map(document:select(".maindet > .inmain > .mdthumb > a"), function(v)
         local img = v:selectFirst("img");
         return Novel {
