@@ -1,4 +1,4 @@
--- {"id":1440948051,"ver":"1.0.1","libVer":"1.0.1","author":"","repo":"","dep":[]}
+-- {"id":1440948051,"ver":"1.0.2","libVer":"1.0.2","author":"","repo":"","dep":[]}
 
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -129,6 +129,8 @@ local title_alias = {
     LVL = "[Reberu] ga Arunara Agerudesho? Mobukyara ni Tensei Shita Ore wa Gēmu Chishiki o Ikashi, Hitasura Reberu o Age Tsudzukeru",
     MSM = "A Sword Master Childhood Friend Power Harassed Me Harshly, So I Broke Off Our Relationship And Make A Fresh Start At The Frontier As A Magic Swordsman.",
     OTO = "Oto Tsukai wa Shi to Odoru",
+    POT = "Potions Are Meant to Be Thrown at 160 km/h! ~I, an Item Handler, Became the Strongest Adventurer by Throwing Omnipotent Potions?!~ (WN)",
+    IDI = "The Idiot, the Curse, and the Magic Academy"
 }
 
 local function convert_title(title)
@@ -138,9 +140,9 @@ end
 local function getListing()
     local document = GETDocument(baseURL)
 
-    return map(filter(document:select("#primary-menu > li > a"), function(v)
+    return map(filter(document:select("#primary-menu > li > a, #primary-menu .sub-menu > li > a"), function(v)
         local text = v:text()
-        return text ~= "Home" and text ~= "Contact"
+        return text ~= "Home" and text ~= "Contact" and text ~= "Completed" and text ~= "Dropped"
     end), function(v)
         return Novel {
             title = convert_title(v:text()),
