@@ -1,4 +1,4 @@
--- {"id":1548078204,"ver":"1.0.5","libVer":"1.0.5","author":"","repo":"","dep":[]}
+-- {"id":1548078204,"ver":"1.0.6","libVer":"1.0.6","author":"","repo":"","dep":[]}
 local json = Require("dkjson")
 
 --- Identification number of the extension.
@@ -78,6 +78,7 @@ local function getPassage(chapterURL)
 	--- Chapter page, extract info from it.
 	local document = GETDocument(url)
     local htmlElement = document:selectFirst("main > .justify-center")
+    htmlElement:select("[x-data=\"{open:false}\"]"):remove()
     return pageOfElem(htmlElement, true)
 end
 
