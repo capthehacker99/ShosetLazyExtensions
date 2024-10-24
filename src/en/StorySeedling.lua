@@ -1,4 +1,4 @@
--- {"id":1548078204,"ver":"1.0.6","libVer":"1.0.6","author":"","repo":"","dep":[]}
+-- {"id":1548078204,"ver":"1.0.7","libVer":"1.0.7","author":"","repo":"","dep":[]}
 local json = Require("dkjson")
 
 --- Identification number of the extension.
@@ -79,6 +79,46 @@ local function getPassage(chapterURL)
 	local document = GETDocument(url)
     local htmlElement = document:selectFirst("main > .justify-center")
     htmlElement:select("[x-data=\"{open:false}\"]"):remove()
+    local prob_cipher = htmlElement:selectFirst("[ax-load][x-data]")
+    if prob_cipher then
+        local OFFSET_AMOUNT = 39
+        local tk = prob_cipher:attr("x-data")
+        if tk:find("loadChapter%(") then
+            tk = tk:match("'[a-f0-9]+'%)")
+            tk = tk:sub(2, #tk - 2)
+            local res = RequestDocument(POST(
+                url .. "/content",
+                HeadersBuilder()
+                    :add("X-Nonce", tk)
+                    :build(),
+                RequestBody("{\"captcha_response\":\"\"}", MediaType("application/json"))
+            ))
+            local all = ""
+            map(res:select("*"), function(v)
+                local text = v:text()
+                if text:find("cls[a-f0-9]+") then
+                    return
+                end
+                local new_text = ""
+                for i = 1, #text do
+                    local ch = text:byte(i, i)
+                    if ch >= 65 and ch <= 90 then
+                        new_text = new_text .. string.char(65 + ((ch - 65 + OFFSET_AMOUNT) % 26))
+                    elseif ch >= 97 and ch <= 122 then
+                        new_text = new_text .. string.char(97 + ((ch - 97 + OFFSET_AMOUNT) % 26))
+                    else
+                        new_text = new_text .. string.char(ch)
+                    end
+                end
+                new_text = new_text:gsub("Copyrighted sentence owned by Story Seedling", "")
+                if #new_text == 0 then
+                    return
+                end
+                all = all .. "<p>" .. new_text .. "</p>"
+            end)
+            return pageOfElem(Document(all), true)
+        end
+    end
     return pageOfElem(htmlElement, true)
 end
 
