@@ -1,4 +1,4 @@
--- {"id":1548078204,"ver":"1.0.8","libVer":"1.0.8","author":"","repo":"","dep":[]}
+-- {"id":1548078204,"ver":"1.0.9","libVer":"1.0.9","author":"","repo":"","dep":[]}
 local json = Require("dkjson")
 local utf8 = Require("utf8")
 
