@@ -1,4 +1,4 @@
--- {"id":1548078204,"ver":"1.0.10","libVer":"1.0.10","author":"","repo":"","dep":[]}
+-- {"id":1548078204,"ver":"1.0.11","libVer":"1.0.11","author":"","repo":"","dep":[]}
 local json = Require("dkjson")
 local utf8 = Require("utf8")
 
@@ -206,7 +206,7 @@ end
 
 local function getListing()
     local doc = GETDocument(baseURL)
-    return map(doc:select(".flex-wrap > .flex-col"), function(v)
+    local tab = map(doc:select(".flex-wrap > .flex-col"), function(v)
         local title = v:selectFirst(".flex > a.text-center")
         return Novel {
             title = title:text(),
@@ -214,6 +214,13 @@ local function getListing()
             imageURL = v:selectFirst("img"):attr("src")
         }
     end)
+    -- For cloudflare shit
+    table.insert(tab, Novel {
+        title = "Cloudflare chapter verification",
+        link = "series/172082/1/",
+        imageURL = "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Flogodownload.org%2Fwp-content%2Fuploads%2F2016%2F10%2FCloudflare-logo.png&f=1&nofb=1&ipt=5720d6dda9a90de4477790a76d2355aa1274c6ce3816c447ce20a0fb337106dd&ipo=images"
+    })
+    return tab
 end
 
 
