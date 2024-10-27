@@ -1,4 +1,4 @@
--- {"id":1548078204,"ver":"1.0.9","libVer":"1.0.9","author":"","repo":"","dep":[]}
+-- {"id":1548078204,"ver":"1.0.10","libVer":"1.0.10","author":"","repo":"","dep":[]}
 local json = Require("dkjson")
 local utf8 = Require("utf8")
 
@@ -293,6 +293,7 @@ return {
 	shrinkURL = shrinkURL,
 	expandURL = expandURL,
     hasSearch = true,
+    hasCloudFlare = true,
     isSearchIncrementing = true,
     search = search,
 	imageURL = imageURL,
