@@ -1,9 +1,13 @@
 {
   "libraries": [
-      {
-        "name": "dkjson",
-        "ver": "1.0.1"
-      }
+    {
+      "name": "dkjson",
+      "ver": "1.0.1"
+    },
+    {
+      "name": "utf8",
+      "ver": "1.0.1"
+    }
   ],
   "scripts": [
     {
@@ -102,8 +106,8 @@
       "imageURL": "https://storyseedling.com/wp/wp-includes/images/w-logo-blue-white-bg.png",
       "id": 1548078204,
       "lang": "en",
-      "ver": "1.0.7",
-      "libVer": "1.0.7",
+      "ver": "1.0.8",
+      "libVer": "1.0.8",
       "md5": ""
     },
     {

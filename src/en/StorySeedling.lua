@@ -1,5 +1,6 @@
--- {"id":1548078204,"ver":"1.0.7","libVer":"1.0.7","author":"","repo":"","dep":[]}
+-- {"id":1548078204,"ver":"1.0.8","libVer":"1.0.8","author":"","repo":"","dep":[]}
 local json = Require("dkjson")
+local utf8 = Require("utf8")
 
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -81,7 +82,6 @@ local function getPassage(chapterURL)
     htmlElement:select("[x-data=\"{open:false}\"]"):remove()
     local prob_cipher = htmlElement:selectFirst("[ax-load][x-data]")
     if prob_cipher then
-        local OFFSET_AMOUNT = 39
         local tk = prob_cipher:attr("x-data")
         if tk:find("loadChapter%(") then
             tk = tk:match("'[a-f0-9]+'%)")
@@ -100,14 +100,14 @@ local function getPassage(chapterURL)
                     return
                 end
                 local new_text = ""
-                for i = 1, #text do
-                    local ch = text:byte(i, i)
-                    if ch >= 65 and ch <= 90 then
-                        new_text = new_text .. string.char(65 + ((ch - 65 + OFFSET_AMOUNT) % 26))
-                    elseif ch >= 97 and ch <= 122 then
-                        new_text = new_text .. string.char(97 + ((ch - 97 + OFFSET_AMOUNT) % 26))
+                for i, ch, bi in utf8.chars(text) do
+                    local ch = utf8.byte(ch)
+                    if ch >= 12098 and ch <= 12123 then
+                        new_text = new_text .. utf8.char(ch - 12033)
+                    elseif ch >= 12124 and ch <= 12149 then
+                        new_text = new_text .. utf8.char(ch - 12027)
                     else
-                        new_text = new_text .. string.char(ch)
+                        new_text = new_text .. utf8.char(ch)
                     end
                 end
                 new_text = new_text:gsub("Copyrighted sentence owned by Story Seedling", "")
