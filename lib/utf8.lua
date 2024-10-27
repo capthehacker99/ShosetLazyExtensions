@@ -1,3 +1,5 @@
+-- {"ver":"1.0.0","author":""}
+
 -- ABNF from RFC 3629
 --
 -- UTF8-octets = *( UTF8-char )
