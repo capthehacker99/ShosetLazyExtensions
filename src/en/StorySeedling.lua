@@ -1,4 +1,4 @@
--- {"id":1548078204,"ver":"1.0.12","libVer":"1.0.12","author":"","repo":"","dep":[]}
+-- {"id":1548078204,"ver":"1.0.13","libVer":"1.0.13","author":"","repo":"","dep":[]}
 local json = Require("dkjson")
 local utf8 = Require("utf8")
 
@@ -67,6 +67,8 @@ local function expandURL(url, _)
 	return baseURL .. url
 end
 
+local last_chap = "series/172082/1/"
+
 --- Get a chapter passage based on its chapterURL.
 ---
 --- Required.
@@ -74,6 +76,7 @@ end
 --- @param chapterURL string The chapters shrunken URL.
 --- @return string Strings in lua are byte arrays. If you are not outputting strings/html you can return a binary stream.
 local function getPassage(chapterURL)
+    last_chap = chapterURL
 	local url = expandURL(chapterURL)
 
 	--- Chapter page, extract info from it.
@@ -219,8 +222,8 @@ local function getListing()
     -- For cloudflare shit
     table.insert(tab, Novel {
         title = "Cloudflare chapter verification",
-        link = "series/172082/1/",
-        imageURL = "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Flogodownload.org%2Fwp-content%2Fuploads%2F2016%2F10%2FCloudflare-logo.png&f=1&nofb=1&ipt=5720d6dda9a90de4477790a76d2355aa1274c6ce3816c447ce20a0fb337106dd&ipo=images"
+        link = last_chap,
+        imageURL = "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fstatic-00.iconduck.com%2Fassets.00%2Fcloudflare-icon-2048x2048-wks6nchu.png&f=1&nofb=1&ipt=f3cc3d8cb94d2ff36ba070cd78a4f7a5a2c53b7c156f78431146f51c430b0055&ipo=images"
     })
     return tab
 end
