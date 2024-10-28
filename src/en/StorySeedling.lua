@@ -1,4 +1,4 @@
--- {"id":1548078204,"ver":"1.0.11","libVer":"1.0.11","author":"","repo":"","dep":[]}
+-- {"id":1548078204,"ver":"1.0.12","libVer":"1.0.12","author":"","repo":"","dep":[]}
 local json = Require("dkjson")
 local utf8 = Require("utf8")
 
@@ -110,7 +110,9 @@ local function getPassage(chapterURL)
                         new_text = new_text .. utf8.char(ch)
                     end
                 end
-                new_text = new_text:gsub("Copyrighted sentence owned by Story Seedling", "")
+                if new_text:find("Story Seedling") then
+                    return
+                end
                 if #new_text == 0 then
                     return
                 end
