@@ -1,4 +1,4 @@
--- {"id":1401762246,"ver":"1.0.0","libVer":"1.0.0","author":"","repo":"","dep":[]}
+-- {"id":1401762246,"ver":"1.0.1","libVer":"1.0.1","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -138,7 +138,7 @@ end
 local function search(data)
     local page = data[PAGE]
     local query = data[QUERY]
-    local document = GETDocument(expandURL("https://wuxia.click/search/" .. query .. "?page=" .. page))
+    local document = GETDocument(expandURL("search/" .. query .. "?page=" .. page))
     return map(document:select(".mantine-Grid-root > div > div > a"), function(v)
         local header = v:selectFirst(".mantine-Text-root")
         return Novel {
