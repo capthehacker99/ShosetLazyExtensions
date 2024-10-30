@@ -1,4 +1,4 @@
--- {"id":636374773,"ver":"1.0.1","libVer":"1.0.1","author":"","repo":"","dep":[]}
+-- {"id":636374773,"ver":"1.0.2","libVer":"1.0.2","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -97,20 +97,16 @@ local function parseNovel(novelURL)
     map(document:select(".td_block_wrap > .tdb-block-inner > p"), function(p)
         desc = desc .. '\n' .. p:text()
     end)
-    local found = {}
-
+    local i = 0
     return NovelInfo({
         title = title,
         imageURL = imageURL,
         description = desc,
         chapters = mapNotNil(document:select(".td-module-meta-info .entry-title > a, .wpb_wrapper .td_block_inner > .td-cpt-post h3 > a"), function(v)
             local link = shrinkURL(v:attr("href"))
-            if found[link] then
-                return nil
-            end
-            found[link] = true
+            i = i + 1
             return NovelChapter {
-                order = v,
+                order = i,
                 title = v:text(),
                 link = link
             }
