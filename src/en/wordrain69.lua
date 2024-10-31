@@ -1,11 +1,12 @@
--- {"id":636374773,"ver":"1.0.2","libVer":"1.0.2","author":"","repo":"","dep":[]}
+-- {"id":1085294623,"ver":"1.0.0","libVer":"1.0.0","author":"","repo":"","dep":[]}
+
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
 ---
 --- Required.
 ---
 --- @type int
-local id = 636374773
+local id = 1085294623
 
 --- Name of extension to display to the user.
 --- Should match index.
@@ -13,21 +14,21 @@ local id = 636374773
 --- Required.
 ---
 --- @type string
-local name = "MyDramaNovel"
+local name = "wordrain69"
 
 --- Base URL of the extension. Used to open web view in Shosetsu.
 ---
 --- Required.
 ---
 --- @type string
-local baseURL = "https://mydramanovel.com/"
+local baseURL = "https://wordrain69.com/"
 
 --- URL of the logo.
 ---
 --- Optional, Default is empty.
 ---
 --- @type string
-local imageURL = "https://mydramanovel.com/wp-content/uploads/2024/10/MyDramaNovel-e1728301732121.webp"
+local imageURL = "https://wordrain69.com/storage/2024/06/cropped-IMG_20240623_094303.png"
 --- ChapterType provided by the extension.
 ---
 --- Optional, Default is STRING. But please do HTML.
@@ -50,7 +51,7 @@ local startIndex = 1
 --- @param _ int Either KEY_CHAPTER_URL or KEY_NOVEL_URL.
 --- @return string Shrunk URL.
 local function shrinkURL(url, _)
-    return url:gsub(".-mydramanovel.com/", "")
+    return url:gsub(".-wordrain69.com/", "")
 end
 
 --- Expand a given URL.
@@ -75,7 +76,8 @@ local function getPassage(chapterURL)
 
     --- Chapter page, extract info from it.
     local document = GETDocument(url)
-    return pageOfElem(document:selectFirst(".tdb_single_content"), true)
+    local htmlElement = document:selectFirst(".reading-content")
+    return pageOfElem(htmlElement, true)
 end
 
 --- Load info on a novel.
@@ -89,38 +91,44 @@ local function parseNovel(novelURL)
 
     --- Novel page, extract info from it.
     local document = GETDocument(url)
-    local title = document:select(".tdb-title-text")
-    title = title and title:text() or nil
-
     local desc = ""
-    map(document:select(".td_block_wrap > .tdb-block-inner > p"), function(p)
+    map(document:select(".manga-summary p"), function(p)
         desc = desc .. '\n' .. p:text()
     end)
-    local i = 0
+    local title = document:selectFirst(".post-title h1")
+    title = title and title:text():gsub("\n" ,"") or "Failed to obtain title"
+    local img = document:selectFirst(".summary_image img")
+    img = img and img:attr("src") or imageURL
+    local chapters_doc = RequestDocument(POST(url .. "ajax/chapters/"))
+    local selected = chapters_doc:select(".free-chap a")
+    local cur = selected:size() + 1
     return NovelInfo({
         title = title,
-        imageURL = imageURL,
+        imageURL = img,
         description = desc,
-        chapters = mapNotNil(document:select(".td-module-meta-info .entry-title > a, .wpb_wrapper .td_block_inner > .td-cpt-post h3 > a"), function(v)
-            local link = shrinkURL(v:attr("href"))
-            i = i + 1
-            return NovelChapter {
-                order = i,
-                title = v:text(),
-                link = link
-            }
-        end)
+        chapters = AsList(
+            map(selected,function(v)
+                cur = cur - 1
+                return NovelChapter {
+                    order = cur,
+                    title = v:text(),
+                    link = shrinkURL(v:attr("href"))
+                }
+            end)
+        )
     })
 end
 
-local function getListing()
-    local document = GETDocument(expandURL("novels/"))
-
-    return map(document:select(".td-ct-wrap > .td-ct-item"), function(v)
+local function getListing(data)
+    local page = data[PAGE]
+    local doc = GETDocument(expandURL("page/" .. page .. "/"))
+    return map(doc:select("#loop-content .page-item-detail > div > a"), function(v)
+        local img = v:selectFirst("img")
+        img = img and img:attr("src") or imageURL
         return Novel {
-            title = v:selectFirst(".td-ct-item-name"):text(),
+            title = v:attr("title"),
             link = shrinkURL(v:attr("href")),
-            imageURL = imageURL
+            imageURL = img
         }
     end)
 end
@@ -132,7 +140,7 @@ return {
     name = name,
     baseURL = baseURL,
     listings = {
-        Listing("Default", false, getListing)
+        Listing("Default", true, getListing)
     }, -- Must have at least one listing
     getPassage = getPassage,
     parseNovel = parseNovel,
