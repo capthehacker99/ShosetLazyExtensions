@@ -223,8 +223,18 @@
     {
       "name": "wordrain69",
       "fileName": "wordrain69",
-      "imageURL": "https://mydramanovel.com/wp-content/uploads/2024/10/MyDramaNovel-e1728301732121.webp",
+      "imageURL": "https://wordrain69.com/storage/2024/06/cropped-IMG_20240623_094303.png",
       "id": 1085294623,
+      "lang": "en",
+      "ver": "1.0.0",
+      "libVer": "1.0.0",
+      "md5": ""
+    },
+    {
+      "name": "wuxiabox",
+      "fileName": "wuxiabox",
+      "imageURL": "https://www.wuxiabox.com/d/img/logo.png",
+      "id": 469256382,
       "lang": "en",
       "ver": "1.0.0",
       "libVer": "1.0.0",
