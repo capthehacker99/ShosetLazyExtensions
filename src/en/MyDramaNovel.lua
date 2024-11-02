@@ -1,4 +1,4 @@
--- {"id":636374773,"ver":"1.0.2","libVer":"1.0.2","author":"","repo":"","dep":[]}
+-- {"id":636374773,"ver":"1.0.3","libVer":"1.0.3","author":"","repo":"","dep":[]}
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
 ---
@@ -101,7 +101,7 @@ local function parseNovel(novelURL)
         title = title,
         imageURL = imageURL,
         description = desc,
-        chapters = mapNotNil(document:select(".td-module-meta-info .entry-title > a, .wpb_wrapper .td_block_inner > .td-cpt-post h3 > a"), function(v)
+        chapters = mapNotNil(document:select(".td-big-grid-flex .td-module-meta-info .entry-title > a, .wpb_wrapper .td_block_inner > .td-cpt-post > .td-category-pos-image h3 > a"), function(v)
             local link = shrinkURL(v:attr("href"))
             i = i + 1
             return NovelChapter {
