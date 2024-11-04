@@ -122,12 +122,12 @@
     },
     {
       "name": "Machine Sliced Bread",
-      "fileName": "MachineSlicedBread",
+      "fileName": "MachineSlicedBreadEx",
       "imageURL": "https://i0.wp.com/machineslicedbread.xyz/wp-content/uploads/2019/10/cropped-kashima.jpg?fit=192%2C192&ssl=1",
       "id": 1344763224,
       "lang": "en",
-      "ver": "1.0.0",
-      "libVer": "1.0.0",
+      "ver": "1.0.1",
+      "libVer": "1.0.1",
       "md5": ""
     },
     {
