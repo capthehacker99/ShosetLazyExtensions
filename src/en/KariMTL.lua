@@ -1,5 +1,4 @@
--- {"id":1440948051,"ver":"1.0.4","libVer":"1.0.4","author":"","repo":"","dep":[]}
-local json = Require("dkjson")
+-- {"id":1440948051,"ver":"1.0.5","libVer":"1.0.5","author":"","repo":"","dep":[]}
 
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -94,7 +93,6 @@ local function parseNovel(novelURL)
 
 	--- Novel page, extract info from it.
 	local document = GETDocument(url)
-    document:select("script"):remove()
     local img = document:selectFirst("#novel_cover")
     img = img and img:attr("src") or imageURL
     local desc = document:selectFirst(".desc_div")
@@ -108,7 +106,7 @@ local function parseNovel(novelURL)
     local selected = document:select(".novel_index > a")
     local cur = selected:size() + 1
 	return NovelInfo({
-        title = document:selectFirst(".title a"):text():gsub("\n" ,""),
+        title = document:selectFirst(".title"):text():gsub("\n" ,""),
         imageURL = img,
         description = desc,
         chapters = AsList(
@@ -127,59 +125,13 @@ local function parseNovel(novelURL)
     })
 end
 
-local function process_image(img)
-    if not img then
-        return imageURL
-    end
-    local style = img:attr("style")
-    if not style then
-        return imageURL
-    end
-    local url = style:gmatch("url%([^ \n\t\r)]*")()
-    if not url or #url < 5 then
-        return imageURL
-    end
-    return url:sub(5)
-end
-
 local function getListing()
-    local document = GETDocument(baseURL)
-    local info = document:selectFirst("#tc-caf-frontend-scripts-js-extra")
-    if not info then
-        return {}
-    end
-    info = tostring(info):gmatch("{[^}]*")()
-    if not info then
-        return {}
-    end
-    info = json.decode(info .. '}')
-    local req = Request(
-        POST(info.ajax_url, nil,
-            FormBodyBuilder()
-                :add("action", "get_filter_posts")
-                :add("nonce", info.nonce)
-                :add("params[page]", "1")
-                :add("params[tax]", "post_tag")
-                :add("params[post-type]", "post")
-                :add("params[term]", "417,418,443,419,422,423,433,436,431,437,415,428,438,394,424,439,429,441,420,425,442,421,434,440,435,416,427,426,430,432")
-                :add("params[per-page]", "1000")
-                :add("params[filter-id]", "8098")
-                :add("params[caf-post-layout]", "post-layout3")
-                :add("params[data-target-div]", ".data-target-div1")
-                :build()
-        )
-    )
-    info = json.decode(req:body():string())
-    if info.status ~= 200 then
-        return {}
-    end
-    local listing = Document(info.content)
-    return map(listing:select("article > div"), function(v)
-        local title = v:select("div > .caf-post-title a")
+    local document = GETDocument(expandURL("novels/"))
+    return map(document:select(".novel-list > .novel-item"), function(v)
         return Novel {
-            title = title:text(),
-            link = shrinkURL(title:attr("href")),
-            imageURL = process_image(v:selectFirst(".caf-featured-img-box"))
+            title = v:selectFirst("p"):text(),
+            link = shrinkURL(v:attr("href")),
+            imageURL = v:selectFirst("img"):attr("src")
         }
     end)
 end
