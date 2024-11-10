@@ -1,4 +1,4 @@
--- {"id":516385957,"ver":"1.0.3","libVer":"1.0.3","author":"","repo":"","dep":[]}
+-- {"id":516385957,"ver":"1.0.4","libVer":"1.0.4","author":"","repo":"","dep":[]}
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
 ---
@@ -97,10 +97,12 @@ local function parseNovel(novelURL)
     map(doc:select("script"), function(v)
         local code = tostring(v)
         for a, b in code:gmatch("{%s*\\\"href\\\"%s*:%s*\\\"([^\"]+)\\\"[^}]+\\\"children\\\"%s*:%s*\\\"([^\"]+)\\\"") do
-            table.insert(chapters, NovelChapter {
-                link = a,
-                title = b,
-            })
+            if not a:find("^/news/") then
+                table.insert(chapters, NovelChapter {
+                    link = a,
+                    title = b,
+                })
+            end
         end
     end)
     for i = 1, #chapters do
