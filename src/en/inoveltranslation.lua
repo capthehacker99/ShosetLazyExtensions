@@ -1,4 +1,4 @@
--- {"id":516385957,"ver":"1.0.1","libVer":"1.0.1","author":"","repo":"","dep":[]}
+-- {"id":516385957,"ver":"1.0.2","libVer":"1.0.2","author":"","repo":"","dep":[]}
 local json = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -72,15 +72,9 @@ end
 --- @param chapterURL string The chapters shrunken URL.
 --- @return string Strings in lua are byte arrays. If you are not outputting strings/html you can return a binary stream.
 local function getPassage(chapterURL)
-	local url = "https://api.inoveltranslation.com/" .. chapterURL
-    local data = json.GET(url)
-    local src = "<h1>" .. (data.title or "") .. "</h1><p>" .. (data.notes or "") .. "</p>"
-    for token in string.gmatch(data.content or "", "[^\n]+") do
-        if token ~= "" then
-            src = src .. "<p>" .. token .. "</p>"
-        end
-    end
-    return pageOfElem(Document(src), true)
+    local doc = GETDocument(expandURL(chapterURL))
+    doc:select("section"):remove()
+    return pageOfElem(Document(doc), true)
 end
 
 --- Load info on a novel.
@@ -90,38 +84,47 @@ end
 --- @param novelURL string shrunken novel url.
 --- @return NovelInfo
 local function parseNovel(novelURL)
-    local novel_info = json.GET("https://api.inoveltranslation.com/" .. novelURL)
-	local chapter_list = json.GET("https://api.inoveltranslation.com/" .. novelURL .. "/feed")
+    local doc = GETDocument(expandURL(novelURL))
+    local title = doc:selectFirst("main > section > div > section > h1")
+    title = title and title:text() or "Unknown Title"
+    local img = doc:selectFirst("[alt=\"Novel main cover\"]")
+    img = img and img:attr("src") or imageURL
+    local desc = ""
+    map(doc:select("dd > div > p"), function(v)
+        desc = desc .. v:text() .. '\n\n'
+    end)
     local chapters = {}
-    if chapter_list.chapters then
-        for _, chapter in pairs(chapter_list.chapters) do
-            if not chapter.tierId then
-                table.insert(chapters, NovelChapter {
-                    order = chapter.id,
-                    title = "Vol. " .. chapter.volume .. " Ch. " .. chapter.chapter .. ' ' .. (chapter.title or chapter.slug),
-                    link = "chapters/" .. chapter.id
-                })
-            end
+    map(doc:select("script"), function(v)
+        local code = tostring(v)
+        for a, b in code:gmatch("{%s*\\\"href\\\"%s*:%s*\\\"([^\"]+)\\\"[^}]+\\\"children\\\"%s*:%s*\\\"([^\"]+)\\\"") do
+            table.insert(chapters, NovelChapter {
+                link = a,
+                title = b,
+            })
         end
+    end)
+    for i = 1, #chapters do
+        chapters[i]:setOrder(#chapters - i)
     end
-    return NovelInfo({
-        title = novel_info.title,
-        imageURL = novel_info.cover and ("https://api.inoveltranslation.com/image/" .. novel_info.cover.filename) or (baseURL .. "placeholder.png"),
+    return NovelInfo {
+        title = title,
+        description = desc,
+        imageURL = img,
         chapters = chapters
-    })
+    }
 end
 
 local function getListing()
-    local novels = json.GET("https://api.inoveltranslation.com/novels")
-    local return_value = {}
-    for _, novel in pairs(novels.novels) do
-        table.insert(return_value,  Novel {
-            title = novel.title,
-            link = "novels/" .. novel.id,
-            imageURL = novel.cover and ("https://api.inoveltranslation.com/image/" .. novel.cover.filename) or (baseURL .. "placeholder.png")
-        })
-    end
-    return return_value
+    local doc = GETDocument(expandURL("novels/"))
+    return map(doc:select("main > section > div > section > a"), function(v)
+        local img = v:selectFirst("img")
+        img = img and v:attr("src") or nil
+        return Novel {
+            title = v:selectFirst("span"):text(),
+            link = v:attr("href"),
+            imageURL = img
+        }
+    end)
 end
 
 -- Return all properties in a lua table.
