@@ -1,5 +1,4 @@
--- {"id":516385957,"ver":"1.0.2","libVer":"1.0.2","author":"","repo":"","dep":[]}
-local json = Require("dkjson")
+-- {"id":516385957,"ver":"1.0.3","libVer":"1.0.3","author":"","repo":"","dep":[]}
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
 ---
@@ -73,6 +72,7 @@ end
 --- @return string Strings in lua are byte arrays. If you are not outputting strings/html you can return a binary stream.
 local function getPassage(chapterURL)
     local doc = GETDocument(expandURL(chapterURL))
+    doc = doc:selectFirst("main")
     doc:select("section"):remove()
     return pageOfElem(Document(doc), true)
 end
@@ -85,10 +85,10 @@ end
 --- @return NovelInfo
 local function parseNovel(novelURL)
     local doc = GETDocument(expandURL(novelURL))
-    local title = doc:selectFirst("main > section > div > section > h1")
+    local title = doc:selectFirst("main > section > div > section > span")
     title = title and title:text() or "Unknown Title"
     local img = doc:selectFirst("[alt=\"Novel main cover\"]")
-    img = img and img:attr("src") or imageURL
+    img = img and expandURL(img:attr("src")) or imageURL
     local desc = ""
     map(doc:select("dd > div > p"), function(v)
         desc = desc .. v:text() .. '\n\n'
@@ -118,7 +118,7 @@ local function getListing()
     local doc = GETDocument(expandURL("novels/"))
     return map(doc:select("main > section > div > section > a"), function(v)
         local img = v:selectFirst("img")
-        img = img and v:attr("src") or nil
+        img = img and expandURL(img:attr("src")) or nil
         return Novel {
             title = v:selectFirst("span"):text(),
             link = v:attr("href"),
