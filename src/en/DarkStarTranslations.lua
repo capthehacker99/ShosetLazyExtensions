@@ -1,4 +1,4 @@
--- {"id":304044934,"ver":"1.0.3","libVer":"1.0.3","author":"","repo":"","dep":[]}
+-- {"id":304044934,"ver":"1.0.4","libVer":"1.0.4","author":"","repo":"","dep":[]}
 
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -140,7 +140,7 @@ local function search(data)
     return map(document:select(".tab-content-wrap > div > .row"), function(v)
         local img = v:selectFirst(".tab-thumb img")
         img = img and img:attr("src") or imageURL
-        local title = v:selectFirst(".post-title")
+        local title = v:selectFirst(".post-title a")
         return Novel {
             title = title:text(),
             link = shrinkURL(title:attr("href")),
