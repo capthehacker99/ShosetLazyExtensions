@@ -1,4 +1,4 @@
--- {"id":304044934,"ver":"1.0.0","libVer":"1.0.0","author":"","repo":"","dep":[]}
+-- {"id":304044934,"ver":"1.0.1","libVer":"1.0.1","author":"","repo":"","dep":[]}
 
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -94,11 +94,13 @@ local function parseNovel(novelURL)
 	local document = GETDocument(url)
     local title = document:selectFirst(".post-title")
     title = title and title:text() or "Unknown Title"
+    local img = document:selectFirst(".summary_image img")
+    img = img and img:attr("data-src") or imageURL
     local desc = ""
     map(document:select(".description-summary p"), function(p)
         desc = desc .. '\n' .. p:text()
     end)
-    local chapters_doc = GETDocument(url .. "/ajax/chapters/")
+    local chapters_doc = RequestDocument(POST(url .. "/ajax/chapters/"))
     local selected = chapters_doc:select(".free-chap a")
     local cur = selected:size() + 1
     return NovelInfo({
