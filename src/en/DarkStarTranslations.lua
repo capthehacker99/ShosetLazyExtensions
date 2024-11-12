@@ -1,4 +1,4 @@
--- {"id":304044934,"ver":"1.0.2","libVer":"1.0.2","author":"","repo":"","dep":[]}
+-- {"id":304044934,"ver":"1.0.3","libVer":"1.0.3","author":"","repo":"","dep":[]}
 
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -137,12 +137,13 @@ local function search(data)
     local page = data[PAGE]
     local query = data[QUERY]
     local document = GETDocument(expandURL("page/" .. page .. "/?s=" .. query .. "&post_type=wp-manga"))
-    return map(document:select(".page-listing-item [data-post-id] > a"), function(v)
-        local img = v:selectFirst("img")
+    return map(document:select(".tab-content-wrap > div > .row"), function(v)
+        local img = v:selectFirst(".tab-thumb img")
         img = img and img:attr("src") or imageURL
+        local title = v:selectFirst(".post-title")
         return Novel {
-            title = v:attr("title"),
-            link = shrinkURL(v:attr("href")),
+            title = title:text(),
+            link = shrinkURL(title:attr("href")),
             imageURL = img
         }
     end)
