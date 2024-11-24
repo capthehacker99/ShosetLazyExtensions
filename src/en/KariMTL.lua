@@ -1,4 +1,4 @@
--- {"id":1440948051,"ver":"1.0.5","libVer":"1.0.5","author":"","repo":"","dep":[]}
+-- {"id":1440948051,"ver":"1.0.6","libVer":"1.0.6","author":"","repo":"","dep":[]}
 
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
