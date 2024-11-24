@@ -78,7 +78,7 @@ local function getPassage(chapterURL)
 	--- Chapter page, extract info from it.
 	local document = GETDocument(url)
     local htmlElement = document:selectFirst(".bs-blog-post")
-    htmlElement:select("#donation-msg, #novel_nav"):remove()
+    htmlElement:select("#donation-msg, #novel_nav, .confuse"):remove()
     return pageOfElem(htmlElement, true)
 end
 
@@ -121,7 +121,6 @@ local function parseNovel(novelURL)
                 }
             end)
         )
-
     })
 end
 
