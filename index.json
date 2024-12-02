@@ -259,6 +259,16 @@
       "ver": "1.0.3",
       "libVer": "1.0.3",
       "md5": ""
+    },
+    {
+      "name": "Cliche Novel",
+      "fileName": "ClicheNovel",
+      "imageURL": "https://s0.wp.com/i/webclip.png",
+      "id": 622317729,
+      "lang": "en",
+      "ver": "1.0.0",
+      "libVer": "1.0.0",
+      "md5": ""
     }
   ]
 }
