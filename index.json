@@ -249,6 +249,16 @@
       "ver": "1.0.4",
       "libVer": "1.0.4",
       "md5": ""
+    },
+    {
+      "name": "Tiny Translation",
+      "fileName": "TinyTranslation",
+      "imageURL": "https://www.tinytranslation.xyz/wp-content/uploads/2023/06/Logo-new.png",
+      "id": 1141686301,
+      "lang": "en",
+      "ver": "1.0.0",
+      "libVer": "1.0.0",
+      "md5": ""
     }
   ]
 }
