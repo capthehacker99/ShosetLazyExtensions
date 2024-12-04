@@ -269,6 +269,16 @@
       "ver": "1.0.0",
       "libVer": "1.0.0",
       "md5": ""
+    },
+    {
+      "name": "Eastern Word Smith",
+      "fileName": "EasternWordSmith",
+      "imageURL": "https://easternwordsmith.com/images/logo2.png",
+      "id": 1619485594,
+      "lang": "en",
+      "ver": "1.0.0",
+      "libVer": "1.0.0",
+      "md5": ""
     }
   ]
 }
