@@ -1,4 +1,4 @@
--- {"id":516385957,"ver":"1.0.4","libVer":"1.0.4","author":"","repo":"","dep":[]}
+-- {"id":516385957,"ver":"1.0.5","libVer":"1.0.5","author":"","repo":"","dep":[]}
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
 ---
@@ -61,6 +61,9 @@ end
 --- @param _ int Either KEY_CHAPTER_URL or KEY_NOVEL_URL.
 --- @return string Full URL.
 local function expandURL(url, _)
+    if url:find("^http") then
+        return url
+    end
 	return baseURL .. url
 end
 
@@ -72,8 +75,11 @@ end
 --- @return string Strings in lua are byte arrays. If you are not outputting strings/html you can return a binary stream.
 local function getPassage(chapterURL)
     local doc = GETDocument(expandURL(chapterURL))
-    doc = doc:selectFirst("main")
-    doc:select("section"):remove()
+    local ndoc = doc:selectFirst("main")
+    if ndoc then
+        ndoc:select("section"):remove()
+        doc = ndoc
+    end
     return pageOfElem(Document(doc), true)
 end
 
@@ -85,7 +91,7 @@ end
 --- @return NovelInfo
 local function parseNovel(novelURL)
     local doc = GETDocument(expandURL(novelURL))
-    local title = doc:selectFirst("main > section > div > section > span")
+    local title = doc:selectFirst("section > h1")
     title = title and title:text() or "Unknown Title"
     local img = doc:selectFirst("[alt=\"Novel main cover\"]")
     img = img and expandURL(img:attr("src")) or imageURL
@@ -129,6 +135,25 @@ local function getListing()
     end)
 end
 
+local function search(data)
+    local query = data[QUERY]
+    local doc = GETDocument(expandURL("novels?query=" .. query))
+    local links = {}
+    local novels = {}
+    map(doc:select("a[data-sentry-component=\"NovelCard\"]"), function(v)
+        local link = v:attr("href")
+        if links[link] then return end
+        links[link] = true
+        local img = v:selectFirst("img")
+        table.insert(novels, Novel {
+            title = v:text(),
+            link = shrinkURL(link),
+            imageURL = img and img:attr("src") or imageURL
+        })
+    end)
+    return novels
+end
+
 -- Return all properties in a lua table.
 return {
 	-- Required
@@ -142,8 +167,10 @@ return {
 	parseNovel = parseNovel,
 	shrinkURL = shrinkURL,
 	expandURL = expandURL,
-    hasSearch = false,
-	-- Optional values to change
+    hasSearch = true,
+    search = search,
+    isSearchIncrementing = false,
+    -- Optional values to change
 	imageURL = imageURL,
 	chapterType = chapterType,
 	startIndex = startIndex,
