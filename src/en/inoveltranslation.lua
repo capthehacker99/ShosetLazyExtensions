@@ -1,4 +1,4 @@
--- {"id":516385957,"ver":"1.0.5","libVer":"1.0.5","author":"","repo":"","dep":[]}
+-- {"id":516385957,"ver":"1.0.6","libVer":"1.0.6","author":"","repo":"","dep":[]}
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
 ---
@@ -77,7 +77,7 @@ local function getPassage(chapterURL)
     local doc = GETDocument(expandURL(chapterURL))
     local ndoc = doc:selectFirst("main")
     if ndoc then
-        ndoc:select("section"):remove()
+        ndoc:select("[data-sentry-component=\"Comments\"], [data-sentry-component=\"Controls\"]"):remove()
         doc = ndoc
     end
     return pageOfElem(Document(doc), true)
