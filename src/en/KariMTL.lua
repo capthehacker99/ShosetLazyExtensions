@@ -1,4 +1,4 @@
--- {"id":1440948051,"ver":"1.0.6","libVer":"1.0.6","author":"","repo":"","dep":[]}
+-- {"id":1440948051,"ver":"1.0.7","libVer":"1.0.7","author":"","repo":"","dep":[]}
 
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -124,8 +124,33 @@ local function parseNovel(novelURL)
     })
 end
 
-local function getListing()
-    local document = GETDocument(expandURL("novels/"))
+local function getListing(data)
+    local page = data[PAGE]
+    local document = GETDocument(expandURL("novels/page/" .. page .. "/"))
+    return map(document:select(".novel-list > .novel-item"), function(v)
+        return Novel {
+            title = v:selectFirst("p"):text(),
+            link = shrinkURL(v:attr("href")),
+            imageURL = v:selectFirst("img"):attr("src")
+        }
+    end)
+end
+
+local function urlEncode(str)
+    if str then
+        str = str:gsub("\n", "\r\n")
+        str = str:gsub("([^%w %-%_%.%~])", function(c)
+            return ("%%%02X"):format(string.byte(c))
+        end)
+        str = str:gsub(" ", "+")
+    end
+    return str
+end
+
+local function search(data)
+    local page = data[PAGE]
+    local query = data[QUERY]
+    local document = GETDocument(expandURL("novels/page/" .. page .. "/?search=" .. urlEncode(query) .. "&status&sort"))
     return map(document:select(".novel-list > .novel-item"), function(v)
         return Novel {
             title = v:selectFirst("p"):text(),
@@ -142,13 +167,15 @@ return {
 	name = name,
 	baseURL = baseURL,
 	listings = {
-        Listing("Default", false, getListing)
+        Listing("Default", true, getListing)
     }, -- Must have at least one listing
 	getPassage = getPassage,
 	parseNovel = parseNovel,
 	shrinkURL = shrinkURL,
 	expandURL = expandURL,
-    hasSearch = false,
+    hasSearch = true,
+    isSearchIncrementing = true,
+    search = search,
 	-- Optional values to change
 	imageURL = imageURL,
 	chapterType = chapterType,
