@@ -1,304 +1,314 @@
 {
-  "libraries": [
-    {
-      "name": "dkjson",
-      "ver": "1.0.1"
-    },
-    {
-      "name": "utf8",
-      "ver": "1.0.1"
-    }
-  ],
-  "scripts": [
-    {
-      "name": "Sousetsuka",
-      "fileName": "Sousetsuka",
-      "imageURL": "https://www.sousetsuka.com/favicon.ico",
-      "id": 1049439700,
-      "lang": "en",
-      "ver": "1.0.1",
-      "libVer": "1.0.1",
-      "md5": ""
-    },
-    {
-      "name": "Zky Translates",
-      "fileName": "ZkyTranslates",
-      "imageURL": "https://zkytl.files.wordpress.com/2020/07/wp-1595477604772.jpg",
-      "id": 774525766,
-      "lang": "en",
-      "ver": "1.0.2",
-      "libVer": "1.0.2",
-      "md5": ""
-    },
-    {
-      "name": "Kari MTL",
-      "fileName": "KariMTL",
-      "imageURL": "https://karimtl.com/wp-content/uploads/2023/11/cropped-pngwing.com_-1.png",
-      "id": 1440948051,
-      "lang": "en",
-      "ver": "1.0.7",
-      "libVer": "1.0.7",
-      "md5": ""
-    },
-    {
-      "name": "Genesis Studio",
-      "fileName": "GenesisStudio",
-      "imageURL": "https://genesistudio.com/favicon-32x32.png",
-      "id": 1035923222,
-      "lang": "en",
-      "ver": "1.0.8",
-      "libVer": "1.0.8",
-      "md5": ""
-    },
-    {
-      "name": "Arcane Translations",
-      "fileName": "ArcaneTranslations",
-      "imageURL": "https://arcanetranslations.com/wp-content/uploads/2024/03/Untitled_design_16_-removebg-preview.png",
-      "id": 639193459,
-      "lang": "en",
-      "ver": "1.0.0",
-      "libVer": "1.0.0",
-      "md5": ""
-    },
-    {
-      "name": "Lore Novels",
-      "fileName": "LoreNovels",
-      "imageURL": "https://lorenovels.com/wp-content/uploads/fbrfg/favicon-32x32.png",
-      "id": 964690806,
-      "lang": "en",
-      "ver": "1.0.2",
-      "libVer": "1.0.2",
-      "md5": ""
-    },
-    {
-      "name": "inoveltranslation",
-      "fileName": "inoveltranslation",
-      "imageURL": "https://inoveltranslation.com/favicon.ico",
-      "id": 516385957,
-      "lang": "en",
-      "ver": "1.0.6",
-      "libVer": "1.0.6",
-      "md5": ""
-    },
-    {
-      "name": "Fantasy World Online",
-      "fileName": "f-w-o",
-      "imageURL": "https://f-w-o.com/wp-content/uploads/2017/10/logo.5.png",
-      "id": 598221818,
-      "lang": "en",
-      "ver": "1.0.1",
-      "libVer": "1.0.1",
-      "md5": ""
-    },
-    {
-      "name": "Oayo TL",
-      "fileName": "OayoTL",
-      "imageURL": "https://oayo.ink/wp-content/uploads/2024/10/cropped-logo-1.png",
-      "id": 114035263,
-      "lang": "en",
-      "ver": "1.0.5",
-      "libVer": "1.0.5",
-      "md5": ""
-    },
-    {
-      "name": "Story Seedling",
-      "fileName": "StorySeedling",
-      "imageURL": "https://storyseedling.com/wp/wp-includes/images/w-logo-blue-white-bg.png",
-      "id": 1548078204,
-      "lang": "en",
-      "ver": "1.0.13",
-      "libVer": "1.0.13",
-      "md5": ""
-    },
-    {
-      "name": "The Kay's rookie translations",
-      "fileName": "KaysTLs",
-      "imageURL": "https://kaystls.site/wp-content/uploads/2021/07/cropped-Picture1-1-192x192.png",
-      "id": 1343493282,
-      "lang": "en",
-      "ver": "1.0.2",
-      "libVer": "1.0.2",
-      "md5": ""
-    },
-    {
-      "name": "Machine Sliced Bread",
-      "fileName": "MachineSlicedBreadEx",
-      "imageURL": "https://i0.wp.com/machineslicedbread.xyz/wp-content/uploads/2019/10/cropped-kashima.jpg?fit=192%2C192&ssl=1",
-      "id": 1344763224,
-      "lang": "en",
-      "ver": "1.0.1",
-      "libVer": "1.0.1",
-      "md5": ""
-    },
-    {
-      "name": "Toasteful",
-      "fileName": "Toasteful",
-      "imageURL": "https://www.toasteful.com/favicon.ico",
-      "id": 1707688905,
-      "lang": "en",
-      "ver": "1.0.2",
-      "libVer": "1.0.2",
-      "md5": ""
-    },
-    {
-      "name": "ElloTL",
-      "fileName": "ElloTL",
-      "imageURL": "https://i3.wp.com/ellotl.com/wp-content/uploads/2024/03/cropped-ello-logo-final-1-192x192.png",
-      "id": 1584024299,
-      "lang": "en",
-      "ver": "1.0.1",
-      "libVer": "1.0.1",
-      "md5": ""
-    },
-    {
-      "name": "Dumah's Translations",
-      "fileName": "DumahsTranslations",
-      "imageURL": "https://s0.wp.com/i/webclip.png",
-      "id": 49041064,
-      "lang": "en",
-      "ver": "1.0.0",
-      "libVer": "1.0.0",
-      "md5": ""
-    },
-    {
-      "name": "novelonomicon",
-      "fileName": "novelonomicon",
-      "imageURL": "https://311a7f82.rocketcdn.me/wp-content/uploads/2024/06/NovelonomiconLogo_darkbg.png",
-      "id": 541210855,
-      "lang": "en",
-      "ver": "1.0.4",
-      "libVer": "1.0.4",
-      "md5": ""
-    },
-    {
-      "name": "JP Translations for Fun",
-      "fileName": "JPTL4Fun",
-      "imageURL": "https://jptranslation5.wordpress.com/wp-content/uploads/2023/10/wp-1698671266386.jpg",
-      "id": 622276777,
-      "lang": "en",
-      "ver": "1.0.1",
-      "libVer": "1.0.1",
-      "md5": ""
-    },
-    {
-      "name": "Fenrir Translations",
-      "fileName": "FenrirTranslations",
-      "imageURL": "https://fenrirtranslations.com/wp-content/uploads/2024/03/cropped-Fenrir_the_world_wolf-192x192.png",
-      "id": 1553358903,
-      "lang": "en",
-      "ver": "1.0.0",
-      "libVer": "1.0.0",
-      "md5": ""
-    },
-    {
-      "name": "Dragonholic",
-      "fileName": "Dragonholic",
-      "imageURL": "https://dragonholic.com/wp-content/uploads/2024/09/cropped-favicon-32x32.png",
-      "id": 1567186593,
-      "lang": "en",
-      "ver": "1.0.0",
-      "libVer": "1.0.0",
-      "md5": ""
-    },
-    {
-      "name": "WuxiaClick",
-      "fileName": "WuxiaClick",
-      "imageURL": "https://wuxia.click/favicon.ico",
-      "id": 1401762246,
-      "lang": "en",
-      "ver": "1.0.1",
-      "libVer": "1.0.1",
-      "md5": ""
-    },
-    {
-      "name": "MyDramaNovel",
-      "fileName": "MyDramaNovel",
-      "imageURL": "https://mydramanovel.com/wp-content/uploads/2024/10/MyDramaNovel-e1728301732121.webp",
-      "id": 636374773,
-      "lang": "en",
-      "ver": "1.0.3",
-      "libVer": "1.0.3",
-      "md5": ""
-    },
-    {
-      "name": "wordrain69",
-      "fileName": "wordrain69",
-      "imageURL": "https://wordrain69.com/storage/2024/06/cropped-IMG_20240623_094303.png",
-      "id": 1085294623,
-      "lang": "en",
-      "ver": "1.0.0",
-      "libVer": "1.0.0",
-      "md5": ""
-    },
-    {
-      "name": "wuxiabox",
-      "fileName": "wuxiabox",
-      "imageURL": "https://www.wuxiabox.com/d/img/logo.png",
-      "id": 469256382,
-      "lang": "en",
-      "ver": "1.0.0",
-      "libVer": "1.0.0",
-      "md5": ""
-    },
-    {
-      "name": "DarkStar Translations",
-      "fileName": "DarkStarTranslations",
-      "imageURL": "https://darkstartranslations.com/wp-content/uploads/2024/03/cropped-artworks-000124012668-q7lg09-t500x500-192x192.jpg",
-      "id": 304044934,
-      "lang": "en",
-      "ver": "1.0.4",
-      "libVer": "1.0.4",
-      "md5": ""
-    },
-    {
-      "name": "Tiny Translation",
-      "fileName": "TinyTranslation",
-      "imageURL": "https://www.tinytranslation.xyz/wp-content/uploads/2023/06/Logo-new.png",
-      "id": 1141686301,
-      "lang": "en",
-      "ver": "1.0.3",
-      "libVer": "1.0.3",
-      "md5": ""
-    },
-    {
-      "name": "Cliche Novel",
-      "fileName": "ClicheNovel",
-      "imageURL": "https://s0.wp.com/i/webclip.png",
-      "id": 622317729,
-      "lang": "en",
-      "ver": "1.0.0",
-      "libVer": "1.0.0",
-      "md5": ""
-    },
-    {
-      "name": "Eastern Word Smith",
-      "fileName": "EasternWordSmith",
-      "imageURL": "https://easternwordsmith.com/images/logo2.png",
-      "id": 1619485594,
-      "lang": "en",
-      "ver": "1.0.0",
-      "libVer": "1.0.0",
-      "md5": ""
-    },
-    {
-      "name": "nhvnovels",
-      "fileName": "nhvnovels",
-      "imageURL": "https://nhvnovels.com/wp-content/uploads/2025/01/cropped-nhv-photoaidcom-cropped-png-192x192.webp",
-      "id": 402713732,
-      "lang": "en",
-      "ver": "1.0.0",
-      "libVer": "1.0.0",
-      "md5": ""
-    },
-    {
-      "name": "Aries Translation",
-      "fileName": "AriesTranslation",
-      "imageURL": "https://ariestranslation.com/wp-content/uploads/2024/05/Purple-Abstract-A-Letter-Free-Logo.png",
-      "id": 500669541,
-      "lang": "en",
-      "ver": "1.0.0",
-      "libVer": "1.0.0",
-      "md5": ""
-    }
-  ]
+	"libraries": [
+		{
+			"name": "dkjson",
+			"ver": "1.0.1"
+		},
+		{
+			"name": "utf8",
+			"ver": "1.0.1"
+		}
+	],
+	"scripts": [
+		{
+			"name": "Sousetsuka",
+			"fileName": "Sousetsuka",
+			"imageURL": "https://www.sousetsuka.com/favicon.ico",
+			"id": 1049439700,
+			"lang": "en",
+			"ver": "1.0.1",
+			"libVer": "1.0.1",
+			"md5": "0407ab037473b1799318b75d789851ba"
+		},
+		{
+			"name": "Zky Translates",
+			"fileName": "ZkyTranslates",
+			"imageURL": "https://zkytl.files.wordpress.com/2020/07/wp-1595477604772.jpg",
+			"id": 774525766,
+			"lang": "en",
+			"ver": "1.0.2",
+			"libVer": "1.0.2",
+			"md5": "227ca35240dceaf1c91d893a984d3468"
+		},
+		{
+			"name": "Kari MTL",
+			"fileName": "KariMTL",
+			"imageURL": "https://karimtl.com/wp-content/uploads/2023/11/cropped-pngwing.com_-1.png",
+			"id": 1440948051,
+			"lang": "en",
+			"ver": "1.0.7",
+			"libVer": "1.0.7",
+			"md5": "206fbd09c513537869b0be7c7f2e5fdd"
+		},
+		{
+			"name": "Genesis Studio",
+			"fileName": "GenesisStudio",
+			"imageURL": "https://genesistudio.com/favicon-32x32.png",
+			"id": 1035923222,
+			"lang": "en",
+			"ver": "1.0.8",
+			"libVer": "1.0.8",
+			"md5": "58673715f6ea810155855c1df3a78539"
+		},
+		{
+			"name": "Arcane Translations",
+			"fileName": "ArcaneTranslations",
+			"imageURL": "https://arcanetranslations.com/wp-content/uploads/2024/03/Untitled_design_16_-removebg-preview.png",
+			"id": 639193459,
+			"lang": "en",
+			"ver": "1.0.0",
+			"libVer": "1.0.0",
+			"md5": "07a035fc136c03c7d47a06d218e8a356"
+		},
+		{
+			"name": "Lore Novels",
+			"fileName": "LoreNovels",
+			"imageURL": "https://lorenovels.com/wp-content/uploads/fbrfg/favicon-32x32.png",
+			"id": 964690806,
+			"lang": "en",
+			"ver": "1.0.2",
+			"libVer": "1.0.2",
+			"md5": "469862a38a987ce2d577449430998c76"
+		},
+		{
+			"name": "inoveltranslation",
+			"fileName": "inoveltranslation",
+			"imageURL": "https://inoveltranslation.com/favicon.ico",
+			"id": 516385957,
+			"lang": "en",
+			"ver": "1.0.6",
+			"libVer": "1.0.6",
+			"md5": "c0af2243089882b5ad634da63538d001"
+		},
+		{
+			"name": "Fantasy World Online",
+			"fileName": "f-w-o",
+			"imageURL": "https://f-w-o.com/wp-content/uploads/2017/10/logo.5.png",
+			"id": 598221818,
+			"lang": "en",
+			"ver": "1.0.1",
+			"libVer": "1.0.1",
+			"md5": "ac3b6b278412645586b0c1e63b4fe58f"
+		},
+		{
+			"name": "Oayo TL",
+			"fileName": "OayoTL",
+			"imageURL": "https://oayo.ink/wp-content/uploads/2024/10/cropped-logo-1.png",
+			"id": 114035263,
+			"lang": "en",
+			"ver": "1.0.5",
+			"libVer": "1.0.5",
+			"md5": "bc0339de9d61ed15f10692b9ef897377"
+		},
+		{
+			"name": "Story Seedling",
+			"fileName": "StorySeedling",
+			"imageURL": "https://storyseedling.com/wp/wp-includes/images/w-logo-blue-white-bg.png",
+			"id": 1548078204,
+			"lang": "en",
+			"ver": "1.0.13",
+			"libVer": "1.0.13",
+			"md5": "95a805aaaaf6f2643d10780a8e80e317"
+		},
+		{
+			"name": "The Kay's rookie translations",
+			"fileName": "KaysTLs",
+			"imageURL": "https://kaystls.site/wp-content/uploads/2021/07/cropped-Picture1-1-192x192.png",
+			"id": 1343493282,
+			"lang": "en",
+			"ver": "1.0.2",
+			"libVer": "1.0.2",
+			"md5": "d161da6dcdd5e480d8e6cd23ffb559c5"
+		},
+		{
+			"name": "Machine Sliced Bread",
+			"fileName": "MachineSlicedBreadEx",
+			"imageURL": "https://i0.wp.com/machineslicedbread.xyz/wp-content/uploads/2019/10/cropped-kashima.jpg?fit=192%2C192&ssl=1",
+			"id": 1344763224,
+			"lang": "en",
+			"ver": "1.0.1",
+			"libVer": "1.0.1",
+			"md5": "4fb779d418e93f1275cfb4728af6125a"
+		},
+		{
+			"name": "Toasteful",
+			"fileName": "Toasteful",
+			"imageURL": "https://www.toasteful.com/favicon.ico",
+			"id": 1707688905,
+			"lang": "en",
+			"ver": "1.0.2",
+			"libVer": "1.0.2",
+			"md5": "343df1078bed5e96f9710f57fddc30f2"
+		},
+		{
+			"name": "ElloTL",
+			"fileName": "ElloTL",
+			"imageURL": "https://i3.wp.com/ellotl.com/wp-content/uploads/2024/03/cropped-ello-logo-final-1-192x192.png",
+			"id": 1584024299,
+			"lang": "en",
+			"ver": "1.0.1",
+			"libVer": "1.0.1",
+			"md5": "37ee5a842a69e5a93d23f6ae67697577"
+		},
+		{
+			"name": "Dumah's Translations",
+			"fileName": "DumahsTranslations",
+			"imageURL": "https://s0.wp.com/i/webclip.png",
+			"id": 49041064,
+			"lang": "en",
+			"ver": "1.0.0",
+			"libVer": "1.0.0",
+			"md5": "da99948c5178a0d3226da0fcf7b981dd"
+		},
+		{
+			"name": "novelonomicon",
+			"fileName": "novelonomicon",
+			"imageURL": "https://311a7f82.rocketcdn.me/wp-content/uploads/2024/06/NovelonomiconLogo_darkbg.png",
+			"id": 541210855,
+			"lang": "en",
+			"ver": "1.0.4",
+			"libVer": "1.0.4",
+			"md5": "2bd033653112910e4f9bc10cd1a440c4"
+		},
+		{
+			"name": "JP Translations for Fun",
+			"fileName": "JPTL4Fun",
+			"imageURL": "https://jptranslation5.wordpress.com/wp-content/uploads/2023/10/wp-1698671266386.jpg",
+			"id": 622276777,
+			"lang": "en",
+			"ver": "1.0.1",
+			"libVer": "1.0.1",
+			"md5": "0fc31ea351de87434c7dd8a4e86ff6f0"
+		},
+		{
+			"name": "Fenrir Translations",
+			"fileName": "FenrirTranslations",
+			"imageURL": "https://fenrirtranslations.com/wp-content/uploads/2024/03/cropped-Fenrir_the_world_wolf-192x192.png",
+			"id": 1553358903,
+			"lang": "en",
+			"ver": "1.0.0",
+			"libVer": "1.0.0",
+			"md5": "1ef83b446ab4e11ead71b06ac82bd719"
+		},
+		{
+			"name": "Dragonholic",
+			"fileName": "Dragonholic",
+			"imageURL": "https://dragonholic.com/wp-content/uploads/2024/09/cropped-favicon-32x32.png",
+			"id": 1567186593,
+			"lang": "en",
+			"ver": "1.0.0",
+			"libVer": "1.0.0",
+			"md5": "a9817d305b30f64fb7d77bfaea8aac97"
+		},
+		{
+			"name": "WuxiaClick",
+			"fileName": "WuxiaClick",
+			"imageURL": "https://wuxia.click/favicon.ico",
+			"id": 1401762246,
+			"lang": "en",
+			"ver": "1.0.1",
+			"libVer": "1.0.1",
+			"md5": "a014142acd1c05b89a237d322c0cdf8a"
+		},
+		{
+			"name": "MyDramaNovel",
+			"fileName": "MyDramaNovel",
+			"imageURL": "https://mydramanovel.com/wp-content/uploads/2024/10/MyDramaNovel-e1728301732121.webp",
+			"id": 636374773,
+			"lang": "en",
+			"ver": "1.0.3",
+			"libVer": "1.0.3",
+			"md5": "ab5b0979b1e30e574ef06118146d5bca"
+		},
+		{
+			"name": "wordrain69",
+			"fileName": "wordrain69",
+			"imageURL": "https://wordrain69.com/storage/2024/06/cropped-IMG_20240623_094303.png",
+			"id": 1085294623,
+			"lang": "en",
+			"ver": "1.0.0",
+			"libVer": "1.0.0",
+			"md5": "1b72b9898b9a0881c0f1029e957e91c6"
+		},
+		{
+			"name": "wuxiabox",
+			"fileName": "wuxiabox",
+			"imageURL": "https://www.wuxiabox.com/d/img/logo.png",
+			"id": 469256382,
+			"lang": "en",
+			"ver": "1.0.0",
+			"libVer": "1.0.0",
+			"md5": "0cab532238f2dcdd2ffa43a12a3dfc86"
+		},
+		{
+			"name": "DarkStar Translations",
+			"fileName": "DarkStarTranslations",
+			"imageURL": "https://darkstartranslations.com/wp-content/uploads/2024/03/cropped-artworks-000124012668-q7lg09-t500x500-192x192.jpg",
+			"id": 304044934,
+			"lang": "en",
+			"ver": "1.0.4",
+			"libVer": "1.0.4",
+			"md5": "36bbf27c03a21839531a687dc9897fb7"
+		},
+		{
+			"name": "Tiny Translation",
+			"fileName": "TinyTranslation",
+			"imageURL": "https://www.tinytranslation.xyz/wp-content/uploads/2023/06/Logo-new.png",
+			"id": 1141686301,
+			"lang": "en",
+			"ver": "1.0.3",
+			"libVer": "1.0.3",
+			"md5": "9af8856349939b0c3751bd3bffa0ee10"
+		},
+		{
+			"name": "Cliche Novel",
+			"fileName": "ClicheNovel",
+			"imageURL": "https://s0.wp.com/i/webclip.png",
+			"id": 622317729,
+			"lang": "en",
+			"ver": "1.0.0",
+			"libVer": "1.0.0",
+			"md5": "7cb3c62dbd4c6a3593c82ccff2a49686"
+		},
+		{
+			"name": "Eastern Word Smith",
+			"fileName": "EasternWordSmith",
+			"imageURL": "https://easternwordsmith.com/images/logo2.png",
+			"id": 1619485594,
+			"lang": "en",
+			"ver": "1.0.0",
+			"libVer": "1.0.0",
+			"md5": "c5abeb3a0e71250c0d13374e0664e2da"
+		},
+		{
+			"name": "nhvnovels",
+			"fileName": "nhvnovels",
+			"imageURL": "https://nhvnovels.com/wp-content/uploads/2025/01/cropped-nhv-photoaidcom-cropped-png-192x192.webp",
+			"id": 402713732,
+			"lang": "en",
+			"ver": "1.0.0",
+			"libVer": "1.0.0",
+			"md5": "77bdd72a83bc9aa9203cae783cd1dbff"
+		},
+		{
+			"name": "Aries Translation",
+			"fileName": "AriesTranslation",
+			"imageURL": "https://ariestranslation.com/wp-content/uploads/2024/05/Purple-Abstract-A-Letter-Free-Logo.png",
+			"id": 500669541,
+			"lang": "en",
+			"ver": "1.0.0",
+			"libVer": "1.0.0",
+			"md5": "81de58e42c6a6c01b753f768d3108db0"
+		},
+		{
+			"name": "Mystic Translations",
+			"fileName": "MysticTranslations",
+			"imageURL": "https://mystictranslations.com/favicon.svg",
+			"id": 1140740461,
+			"lang": "en",
+			"ver": "1.0.0",
+			"libVer": "1.0.0",
+			"md5": "843ea34e03df22047deac8cd242d7cb9"
+		}
+	]
 }

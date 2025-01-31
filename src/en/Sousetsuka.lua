@@ -112,13 +112,17 @@ local function parseNovel(novelURL)
     })
 end
 
+local function trim(s)
+    return s:match('^%s*(.*%S)') or ''
+end
+
 local function getListing()
     local document = GETDocument(baseURL)
 
     return map(document:select(".nav .arrow ul li a"), function(v)
         return Novel {
             title = v:text(),
-            link = shrinkURL(v:attr("href")),
+            link = shrinkURL(trim(v:attr("href"))),
             imageURL = imageURL
         }
     end)

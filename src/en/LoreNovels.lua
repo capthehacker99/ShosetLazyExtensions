@@ -92,26 +92,24 @@ local function parseNovel(novelURL)
 
 	--- Novel page, extract info from it.
 	local document = GETDocument(url)
-    document:select("script"):remove()
     local content = document:selectFirst(".entry-content")
     local selected = content:select(".entry-content ul > li > a")
     local cur = selected:size() + 1
 	return NovelInfo({
-        title = content:selectFirst("div > h2 > strong"):text():gsub("\n" ,""),
+        title = content:selectFirst("h2.wp-block-heading"):text():gsub("\n" ,""),
         imageURL = content:selectFirst(".wp-block-image > img"):attr("data-src"),
         chapters = AsList(
-                map(filter(selected, function(v)
-                    return v:attr("href"):find("lorenovels.com") ~= nil
-                end), function(v)
-                    cur = cur - 1
-                    return NovelChapter {
-                        order = cur,
-                        title = v:text(),
-                        link = shrinkURL(v:attr("href"))
-                    }
-                end)
+            map(filter(selected, function(v)
+                return v:attr("href"):find("lorenovels.com") ~= nil
+            end), function(v)
+                cur = cur - 1
+                return NovelChapter {
+                    order = cur,
+                    title = v:text(),
+                    link = shrinkURL(v:attr("href"))
+                }
+            end)
         )
-
     })
 end
 
