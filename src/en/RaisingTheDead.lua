@@ -1,4 +1,4 @@
--- {"id":1658695508,"ver":"1.0.0","libVer":"1.0.0","author":"","repo":"","dep":[]}
+-- {"id":1658695508,"ver":"1.0.1","libVer":"1.0.1","author":"","repo":"","dep":[]}
 
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -77,7 +77,7 @@ local function getPassage(chapterURL)
 	--- Chapter page, extract info from it.
 	local document = GETDocument(url)
     local htmlElement = document:selectFirst("#content")
-    htmlElement:select("div"):remove()
+    htmlElement:select(".wp-post-navigation, .tags"):remove()
     return pageOfElem(htmlElement, true)
 end
 
@@ -92,13 +92,15 @@ local function parseNovel(novelURL)
 
 	--- Novel page, extract info from it.
 	local document = GETDocument(url)
-    local selected = document:select("#content > ul > li > a")
-    local cur = selected:size() + 1
-	return NovelInfo({
-        title = document:selectFirst(".title"):text():gsub("\n" ,""),
-        imageURL = imageURL,
-        description = "",
-        chapters = AsList(
+    if document:selectFirst(".postsby") then
+        -- It's a category, fuck it.
+        local selected = document:select("article header h2 a")
+        local cur = selected:size() + 1
+        return NovelInfo({
+            title = document:selectFirst(".postsby span span"):text():gsub("\n" ,""),
+            imageURL = imageURL,
+            description = "",
+            chapters = AsList(
                 map(selected, function(v)
                     cur = cur - 1
                     return NovelChapter {
@@ -107,15 +109,32 @@ local function parseNovel(novelURL)
                         link = shrinkURL(v:attr("href"))
                     }
                 end)
+            )
+        })
+    end
+    local selected = document:select("#content > ul > li > a")
+    local cur = selected:size() + 1
+	return NovelInfo({
+        title = document:selectFirst(".title"):text():gsub("\n" ,""),
+        imageURL = imageURL,
+        description = "",
+        chapters = AsList(
+            map(selected, function(v)
+                cur = cur - 1
+                return NovelChapter {
+                    order = cur,
+                    title = v:text(),
+                    link = shrinkURL(v:attr("href"))
+                }
+            end)
         )
-
     })
 end
 
 local function getListing()
     local document = GETDocument(expandURL("novels/"))
 
-    return map(document:select("#content > h4 > a"), function(v)
+    return map(document:select("#content > h4 a"), function(v)
         return Novel {
             title = v:text(),
             link = shrinkURL(v:attr("href")),

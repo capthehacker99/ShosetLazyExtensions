@@ -132,7 +132,7 @@ pub fn main() !void {
                 var tsa: std.heap.ThreadSafeAllocator = .{
                     .child_allocator = allocator
                 };
-                for(index.scripts[25..30]) |script|
+                for(index.scripts) |script|
                     wg.spawnManager(testScript, .{ tsa.allocator(), &obw, &mutex, &count, @as(u32, @intCast(index.scripts.len)), script, args[2..] });
                 wg.wait();
             },
