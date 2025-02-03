@@ -78,7 +78,7 @@
 			"lang": "en",
 			"ver": "1.0.6",
 			"libVer": "1.0.6",
-			"md5": "c0af2243089882b5ad634da63538d001"
+			"md5": "7535b361b14301e9e05b9cc0e6858839"
 		},
 		{
 			"name": "Fantasy World Online",
@@ -309,6 +309,16 @@
 			"ver": "1.0.0",
 			"libVer": "1.0.0",
 			"md5": "843ea34e03df22047deac8cd242d7cb9"
+		},
+		{
+			"name": "Raising The Dead",
+			"fileName": "RaisingTheDead",
+			"imageURL": "https://d2fcrrxq70ovip.cloudfront.net/wp-content/uploads/2018/03/cropped-54060-e1521967394198-4-192x192.jpg",
+			"id": 1658695508,
+			"lang": "en",
+			"ver": "1.0.0",
+			"libVer": "1.0.0",
+			"md5": "93ab2ced3d442a1fab3e053d9a77e888"
 		}
 	]
 }

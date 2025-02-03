@@ -60,22 +60,30 @@ pub fn testScript(allocator: std.mem.Allocator, obw: anytype, mutex: *std.Thread
         ".lua"
     }) catch return;
     var arr: std.BoundedArray([]const u8, 32) = .{};
+    // arr.appendSlice(if(std.mem.eql(u8, script.name, "Cliche Novel")) @as([]const []const u8, &.{ "cmd", "/c", "timeout /NOBREAK /T 30 > nul" }) else @as([]const []const u8, &.{ "cmd", "/c", "timeout /NOBREAK /T 1 > nul" })) catch {};
     arr.appendSlice(&.{ "java", "-jar", "extension-tester.jar", file_path }) catch return;
     arr.appendSlice(args) catch return;
     var child = std.process.Child.init(arr.constSlice(), allocator);
+    child.stdin_behavior = .Close;
     child.stdout_behavior = .Pipe;
-    const term = child.spawnAndWait() catch return;
+    child.stderr_behavior = .Pipe;
+    child.spawn() catch return;
+    var child_stdout = std.ArrayList(u8).init(allocator);
+    var child_stderr = std.ArrayList(u8).init(allocator);
+    defer child_stdout.deinit();
+    defer child_stderr.deinit();
+    child.collectOutput(&child_stdout, &child_stderr, std.math.maxInt(usize)) catch return;
+    const term = child.wait() catch return;
     mutex.lock();
     defer mutex.unlock();
     defer obw.flush() catch {};
     const stdout = obw.writer();
     count.* += 1;
-    stdout.print("{c}{d}{c}{d}{s}{s}{s}", .{ '(', count.* , '/', total , ") ", script.name, if(term.Exited == 0) ": OK\n" else ": FAILED\n" }) catch {};
+    stdout.print("{s}{d}{c}{d}{s}{s}{s}{s}{s}{c}", .{ "\x1b[90m(", count.* , '/', total , ") \x1b[10", if(term.Exited == 0) "2;1m PASSED \x1b[0;39;49m \x1b[47;1m " else "1;1m FAILED \x1b[0;39;49m \x1b[47;1m ", script.name, " \x1b[0;39;49m ", file_path, '\n' }) catch {};
     if(term.Exited == 0)
         return;
-    // const err = child.stdout.?.readToEndAlloc(allocator, std.math.maxInt(usize)) catch return;
-    // stdout.writeAll(err) catch {};
-    // defer allocator.free(err);
+    stdout.writeAll(child_stdout.items) catch {};
+    stdout.writeAll(child_stderr.items) catch {};
 }
 
 pub fn main() !void {
@@ -124,7 +132,7 @@ pub fn main() !void {
                 var tsa: std.heap.ThreadSafeAllocator = .{
                     .child_allocator = allocator
                 };
-                for(index.scripts) |script|
+                for(index.scripts[25..30]) |script|
                     wg.spawnManager(testScript, .{ tsa.allocator(), &obw, &mutex, &count, @as(u32, @intCast(index.scripts.len)), script, args[2..] });
                 wg.wait();
             },

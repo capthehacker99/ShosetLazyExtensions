@@ -103,7 +103,7 @@ local function parseNovel(novelURL)
     map(doc:select("script"), function(v)
         local code = tostring(v)
         for a, b in code:gmatch("{%s*\\\"href\\\"%s*:%s*\\\"([^\"]+)\\\"[^}]+\\\"children\\\"%s*:%s*\\\"([^\"]+)\\\"") do
-            if not a:find("^/news/") then
+            if not a:find("^/news/") and not (a:find("^http") and not a:find("inoveltranslation")) then
                 table.insert(chapters, NovelChapter {
                     link = a,
                     title = b,
