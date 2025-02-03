@@ -319,6 +319,16 @@
 			"ver": "1.0.2",
 			"libVer": "1.0.2",
 			"md5": "4fa680ac3fb7f5400d955897268efec4"
+		},
+		{
+			"name": "Ranobes",
+			"fileName": "Ranobes",
+			"imageURL": "https://ranobes.top/templates/Dark/images/favicon.ico",
+			"id": 472808831,
+			"lang": "en",
+			"ver": "1.0.0",
+			"libVer": "1.0.0",
+			"md5": "57319c11f870533442bd953fc11231f1"
 		}
 	]
 }
