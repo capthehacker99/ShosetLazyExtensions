@@ -1,4 +1,4 @@
--- {"id":1658695508,"ver":"1.0.1","libVer":"1.0.1","author":"","repo":"","dep":[]}
+-- {"id":1658695508,"ver":"1.0.2","libVer":"1.0.2","author":"","repo":"","dep":[]}
 
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -133,14 +133,23 @@ end
 
 local function getListing()
     local document = GETDocument(expandURL("novels/"))
-
-    return map(document:select("#content > h4 a"), function(v)
-        return Novel {
+    local novels = {}
+    map(document:select("#content > h4 a"), function(v)
+        table.insert(novels, Novel {
             title = v:text(),
             link = shrinkURL(v:attr("href")),
-            imageURL = imageURL 
-        }
+            imageURL = imageURL
+        })
     end)
+    document = GETDocument(expandURL("original-novels/"))
+    map(document:select("#content > h3 a"), function(v)
+        table.insert(novels, Novel {
+            title = v:text(),
+            link = shrinkURL(v:attr("href")),
+            imageURL = imageURL
+        })
+    end)
+    return novels
 end
 
 -- Return all properties in a lua table.
