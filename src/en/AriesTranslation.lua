@@ -1,4 +1,4 @@
--- {"id":500669541,"ver":"1.0.0","libVer":"1.0.0","author":"","repo":"","dep":[]}
+-- {"id":500669541,"ver":"1.0.1","libVer":"1.0.1","author":"","repo":"","dep":[]}
 
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -21,7 +21,7 @@ local name = "Aries Translation"
 --- Required.
 ---
 --- @type string
-local baseURL = "https://ariestranslation.com//"
+local baseURL = "https://ariestranslation.com/"
 
 --- URL of the logo.
 ---
@@ -100,7 +100,7 @@ local function parseNovel(novelURL)
     local selected = document:select(".eplister > ul > li > a")
     local cur = selected:size() + 1
 	return NovelInfo({
-        title = document:selectFirst("[itemprop=\"name\"]"):text():gsub("\n" ,""),
+        title = document:selectFirst(".entry-title"):text():gsub("\n" ,""),
         imageURL = img,
         description = desc,
         chapters = AsList(
@@ -113,7 +113,6 @@ local function parseNovel(novelURL)
                 }
             end)
         )
-
     })
 end
 
