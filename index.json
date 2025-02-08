@@ -63,12 +63,12 @@
 		{
 			"name": "Lore Novels",
 			"fileName": "LoreNovels",
-			"imageURL": "https://lorenovels.com/wp-content/uploads/fbrfg/favicon-32x32.png",
+			"imageURL": "https://lorenovels.com/wp-content/uploads/2024/07/lorenovels-favicon-300x300.png",
 			"id": 964690806,
 			"lang": "en",
-			"ver": "1.0.3",
-			"libVer": "1.0.3",
-			"md5": "6fbd23f7bb8ab0f54ab1460126d00d93"
+			"ver": "1.0.4",
+			"libVer": "1.0.4",
+			"md5": "2471bd0fbf4f659540aa453bf9c8fa35"
 		},
 		{
 			"name": "inoveltranslation",

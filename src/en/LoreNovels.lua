@@ -1,4 +1,4 @@
--- {"id":964690806,"ver":"1.0.3","libVer":"1.0.3","author":"","repo":"","dep":[]}
+-- {"id":964690806,"ver":"1.0.4","libVer":"1.0.4","author":"","repo":"","dep":[]}
 
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -28,7 +28,7 @@ local baseURL = "https://lorenovels.com/"
 --- Optional, Default is empty.
 ---
 --- @type string
-local imageURL = "https://lorenovels.com/wp-content/uploads/fbrfg/favicon-32x32.png"
+local imageURL = "https://lorenovels.com/wp-content/uploads/2024/07/lorenovels-favicon-300x300.png"
 --- ChapterType provided by the extension.
 ---
 --- Optional, Default is STRING. But please do HTML.
