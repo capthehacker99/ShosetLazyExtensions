@@ -68,11 +68,11 @@ pub fn testScript(allocator: std.mem.Allocator, obw: anytype, mutex: *std.Thread
     child.stdout_behavior = .Pipe;
     child.stderr_behavior = .Pipe;
     child.spawn() catch return;
-    var child_stdout = std.ArrayList(u8).init(allocator);
-    var child_stderr = std.ArrayList(u8).init(allocator);
-    defer child_stdout.deinit();
-    defer child_stderr.deinit();
-    child.collectOutput(&child_stdout, &child_stderr, std.math.maxInt(usize)) catch return;
+    var child_stdout: std.ArrayListUnmanaged(u8) = .{};
+    var child_stderr: std.ArrayListUnmanaged(u8) = .{};
+    defer child_stdout.deinit(allocator);
+    defer child_stderr.deinit(allocator);
+    child.collectOutput(allocator, &child_stdout, &child_stderr, std.math.maxInt(usize)) catch return;
     const term = child.wait() catch return;
     mutex.lock();
     defer mutex.unlock();
