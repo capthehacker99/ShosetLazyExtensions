@@ -1,4 +1,4 @@
--- {"id":472808831,"ver":"1.0.0","libVer":"1.0.0","author":"","repo":"","dep":[]}
+-- {"id":472808831,"ver":"1.0.1","libVer":"1.0.1","author":"","repo":"","dep":[]}
 local json = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -128,7 +128,7 @@ local function parseNovel(novelURL)
 	return NovelInfo({
         title = document:selectFirst("h1.title"):text():gsub("\n" ,""),
         imageURL = document:selectFirst(".poster img"):attr("src"),
-        description = document:selectFirst("[itemprop=\"description\"]"):text(),
+        description = document:selectFirst(".r-desription .cont-text,[itemprop=\"description\"]"):text(),
         chapters = chapters
     })
 end
