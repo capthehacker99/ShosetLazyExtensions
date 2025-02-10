@@ -329,6 +329,16 @@
 			"ver": "1.0.1",
 			"libVer": "1.0.1",
 			"md5": "5072d3d1d4b8a4b618896d04ab042761"
+		},
+		{
+			"name": "MVLEMPYR",
+			"fileName": "mvlempyr",
+			"imageURL": "https://assets.mvlempyr.com/images/asset/LogoMage.webp",
+			"id": 1339243358,
+			"lang": "en",
+			"ver": "1.0.0",
+			"libVer": "1.0.0",
+			"md5": "92047416248cc76ea33cf80884b483ef"
 		}
 	]
 }
