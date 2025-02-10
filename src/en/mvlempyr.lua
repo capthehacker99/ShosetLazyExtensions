@@ -1,4 +1,4 @@
--- {"id":1339243358,"ver":"1.0.0","libVer":"1.0.0","author":"","repo":"","dep":[]}
+-- {"id":1339243358,"ver":"1.0.1","libVer":"1.0.1","author":"","repo":"","dep":[]}
 
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -120,7 +120,18 @@ local listing_page_parm
 local function getListing()
     local document = GETDocument(expandURL("novels" .. (listing_page_parm and (listing_page_parm .. data[PAGE]) or "")))
     if not listing_page_parm then
-        listing_page_parm = document:selectFirst(".painationbutton.w--current"):attr("href"):match("%?[^=]+=")
+        listing_page_parm = document:selectFirst(".painationbutton.w--current")
+        if not listing_page_parm then
+            error("Failed to find listing element")
+        end
+        listing_page_parm = listing_page_parm:attr("href")
+        if not listing_page_parm then
+            error("Failed to find listing href")
+        end
+        listing_page_parm = listing_page_parm:match("%?[^=]+=")
+        if not listing_page_parm then
+            error("Failed to find listing match")
+        end
     end
     return map(document:select("div.searchlist[role=\"listitem\"]"), function(v)
         return Novel {
