@@ -1,4 +1,4 @@
--- {"id":1339243358,"ver":"1.0.1","libVer":"1.0.1","author":"","repo":"","dep":[]}
+-- {"id":1339243358,"ver":"1.0.2","libVer":"1.0.2","author":"","repo":"","dep":[]}
 
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -122,7 +122,7 @@ local function getListing()
     if not listing_page_parm then
         listing_page_parm = document:selectFirst(".painationbutton.w--current")
         if not listing_page_parm then
-            error("Failed to find listing element")
+            error(document)
         end
         listing_page_parm = listing_page_parm:attr("href")
         if not listing_page_parm then
