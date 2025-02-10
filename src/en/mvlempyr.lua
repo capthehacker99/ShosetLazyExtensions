@@ -1,4 +1,4 @@
--- {"id":1339243358,"ver":"1.0.2","libVer":"1.0.2","author":"","repo":"","dep":[]}
+-- {"id":1339243358,"ver":"1.0.3","libVer":"1.0.3","author":"","repo":"","dep":[]}
 
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -120,7 +120,7 @@ local listing_page_parm
 local function getListing()
     local document = GETDocument(expandURL("novels" .. (listing_page_parm and (listing_page_parm .. data[PAGE]) or "")))
     if not listing_page_parm then
-        listing_page_parm = document:selectFirst(".painationbutton.w--current")
+        listing_page_parm = document:selectFirst("a.painationbutton.w--current,a.w-pagination-next")
         if not listing_page_parm then
             error(document)
         end
