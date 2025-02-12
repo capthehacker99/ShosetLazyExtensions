@@ -117,7 +117,7 @@ local function parseNovel(novelURL)
 end
 
 local listing_page_parm
-local function getListing()
+local function getListing(data)
     local document = GETDocument(expandURL("novels" .. (listing_page_parm and (listing_page_parm .. data[PAGE]) or "")))
     if not listing_page_parm then
         listing_page_parm = document:selectFirst("a.painationbutton.w--current,a.w-pagination-next")

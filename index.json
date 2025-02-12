@@ -181,14 +181,14 @@
 			"md5": "0fc31ea351de87434c7dd8a4e86ff6f0"
 		},
 		{
-			"name": "Fenrir Translations",
+			"name": "Fenrir Realm",
 			"fileName": "FenrirTranslations",
-			"imageURL": "https://fenrirtranslations.com/wp-content/uploads/2024/03/cropped-Fenrir_the_world_wolf-192x192.png",
+			"imageURL": "https://fenrirealm.com/img/logo/fenrir-logo.png",
 			"id": 1553358903,
 			"lang": "en",
-			"ver": "1.0.0",
-			"libVer": "1.0.0",
-			"md5": "1ef83b446ab4e11ead71b06ac82bd719"
+			"ver": "1.0.1",
+			"libVer": "1.0.1",
+			"md5": "3dd4376661879f0539315f7aa042bf58"
 		},
 		{
 			"name": "Dragonholic",
@@ -338,7 +338,7 @@
 			"lang": "en",
 			"ver": "1.0.3",
 			"libVer": "1.0.3",
-			"md5": "add037439b6c742d896c3615526690ff"
+			"md5": "3a150a8f17ec5794e1793548bf1e4eb7"
 		}
 	]
 }
