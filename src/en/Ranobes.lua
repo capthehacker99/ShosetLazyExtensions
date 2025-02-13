@@ -1,4 +1,4 @@
--- {"id":472808831,"ver":"1.0.2","libVer":"1.0.2","author":"","repo":"","dep":[]}
+-- {"id":472808831,"ver":"1.0.3","libVer":"1.0.3","author":"","repo":"","dep":[]}
 local json = Require("dkjson")
 local DELAY_AMOUNT = 1250
 --- Identification number of the extension.
@@ -105,6 +105,18 @@ local function parseNovel(novelURL)
     if document:selectFirst("#content > .cf-turnstile") then
         error("Antiflood triggered, please resolve in webview")
     end
+    local genres = {}
+    map(document:select("#mc-fs-genre .links > a"), function(v)
+        table.insert(genres, v:text())
+    end)
+    local tags = {}
+    map(document:select("#mc-fs-keyw .links a"), function(v)
+        table.insert(tags, v:text())
+    end)
+    local authors = {}
+    map(document:select("[itemprop=\"creator\"] > a"), function(v)
+        table.insert(authors, v:text())
+    end)
     local chapters_link = document:selectFirst(".read-continue"):attr("href")
     local chapters = {}
     local high = 100000
@@ -149,7 +161,10 @@ local function parseNovel(novelURL)
         title = document:selectFirst("h1.title"):text():gsub("\n" ,""),
         imageURL = expandIfNeeded(document:selectFirst(".poster img"):attr("src")),
         description = document:selectFirst(".r-desription .cont-text,[itemprop=\"description\"]"):text(),
-        chapters = chapters
+        chapters = chapters,
+        genres = genres,
+        tags = tags,
+        authors = authors
     })
 end
 
