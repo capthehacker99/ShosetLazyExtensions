@@ -1,5 +1,6 @@
--- {"id":472808831,"ver":"1.0.1","libVer":"1.0.1","author":"","repo":"","dep":[]}
+-- {"id":472808831,"ver":"1.0.2","libVer":"1.0.2","author":"","repo":"","dep":[]}
 local json = Require("dkjson")
+local DELAY_AMOUNT = 1250
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
 ---
@@ -76,8 +77,18 @@ local function getPassage(chapterURL)
 
 	--- Chapter page, extract info from it.
 	local document = GETDocument(url)
+    if document:selectFirst("#content > .cf-turnstile") then
+        error("Antiflood triggered, please resolve in webview")
+    end
     local htmlElement = document:selectFirst("#arrticle")
     return pageOfElem(htmlElement, true)
+end
+
+local function expandIfNeeded(link)
+    if link:sub(1, 1) == "/" then
+        return expandURL(link)
+    end
+    return link
 end
 
 --- Load info on a novel.
@@ -91,12 +102,19 @@ local function parseNovel(novelURL)
 
 	--- Novel page, extract info from it.
 	local document = GETDocument(url)
+    if document:selectFirst("#content > .cf-turnstile") then
+        error("Antiflood triggered, please resolve in webview")
+    end
     local chapters_link = document:selectFirst(".read-continue"):attr("href")
     local chapters = {}
     local high = 100000
     local max_page = 0
+    delay(DELAY_AMOUNT)
     local first_page = GETDocument(expandURL(chapters_link))
     local function add_chapters(page)
+        if page:selectFirst("#content > .cf-turnstile") then
+            return
+        end
         local data;
         map(page:select("script"), function(v)
             if data then
@@ -121,13 +139,15 @@ local function parseNovel(novelURL)
             high = high - 1
         end
     end
+    delay(DELAY_AMOUNT)
     add_chapters(first_page)
     for i = 2, max_page do
+        delay(DELAY_AMOUNT)
         add_chapters(GETDocument(expandURL(chapters_link .. "page/" .. i .. "/")))
     end
 	return NovelInfo({
         title = document:selectFirst("h1.title"):text():gsub("\n" ,""),
-        imageURL = document:selectFirst(".poster img"):attr("src"),
+        imageURL = expandIfNeeded(document:selectFirst(".poster img"):attr("src")),
         description = document:selectFirst(".r-desription .cont-text,[itemprop=\"description\"]"):text(),
         chapters = chapters
     })
@@ -136,7 +156,9 @@ end
 local function getListing(data)
     local page = data[PAGE]
     local document = GETDocument(expandURL("novels/page/" .. page .."/"))
-
+    if document:selectFirst("#content > .cf-turnstile") then
+        error("Antiflood triggered, please resolve in webview")
+    end
     return map(document:select("article"), function(v)
         local title = v:selectFirst(".title a")
         local link = v:selectFirst(".cover"):attr("style"):match("url%b()")
@@ -164,15 +186,20 @@ local function search(data)
     local page = data[PAGE]
     local query = data[QUERY]
     local document = GETDocument(expandURL("search/" .. urlEncode(query) .. "/page/" .. page .. "/"))
-    return map(document:select("article"), function(v)
+    if document:selectFirst("#content > .cf-turnstile") then
+        error("Antiflood triggered, please resolve in webview")
+    end
+    return mapNotNil(document:select("article"), function(v)
         local title = v:selectFirst(".title a")
-        local link = v:selectFirst(".cover"):attr("style"):match("url%b()")
-        link = link:sub(5, #link - 1)
-        return Novel {
-            title = title:text(),
-            link = shrinkURL(title:attr("href")),
-            imageURL = link
-        }
+        if title then
+            local link = v:selectFirst(".cover"):attr("style"):match("url%b()")
+            link = link:sub(5, #link - 1)
+            return Novel {
+                title = title:text(),
+                link = shrinkURL(title:attr("href")),
+                imageURL = link
+            }
+        end
     end)
 end
 
@@ -190,6 +217,7 @@ return {
 	shrinkURL = shrinkURL,
 	expandURL = expandURL,
     hasSearch = true,
+    hasCloudFlare = true,
     isSearchIncrementing = true,
     search = search,
 	imageURL = imageURL,
