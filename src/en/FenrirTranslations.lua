@@ -1,4 +1,4 @@
--- {"id":1553358903,"ver":"1.0.1","libVer":"1.0.1","author":"","repo":"","dep":[]}
+-- {"id":1553358903,"ver":"1.0.2","libVer":"1.0.2","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -124,11 +124,13 @@ local function parseNovel(novelURL)
     local raw_url = novelURL:match("(.+)#.+$")
     local chapters = {}
     for _, v in next, chapter_data do
-        table.insert(chapters, NovelChapter {
-            order = v.index,
-            title = v.title,
-            link = raw_url .. "/" .. v.slug
-        })
+        if not v.locked or v.locked.price == 0 then            
+            table.insert(chapters, NovelChapter {
+                order = v.index,
+                title = v.title,
+                link = raw_url .. "/" .. v.slug
+            })
+        end
     end
     local tags = {}
     for _, v in next, data.tags do
@@ -155,7 +157,7 @@ local function getListing(data)
     local data = dkjson.GET(expandURL("api/novels/filter?page=" .. page .. "&per_page=25&status=any&order=latest"))
     local chapters = {}
     for _, v in next, data.data do
-        table.insert(chapters, NovelInfo {
+        table.insert(chapters, Novel {
             title = v.title,
             link = "series/" .. v.slug .. "#" .. b64enc(dkjson.encode(v)),
             imageURL = expandURL(shrinkURL(v.cover)),
@@ -183,7 +185,7 @@ local function search(data)
     local data = dkjson.GET(expandURL("api/novels/filter?page=" .. page .. "&per_page=25&status=any&order=latest&search=" .. urlEncode(query)))
     local chapters = {}
     for _, v in next, data.data do
-        table.insert(chapters, NovelInfo {
+        table.insert(chapters, Novel {
             title = v.title,
             link = "series/" .. v.slug .. "#" .. b64enc(dkjson.encode(v)),
             imageURL = expandURL(shrinkURL(v.cover)),
