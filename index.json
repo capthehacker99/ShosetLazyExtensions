@@ -339,6 +339,16 @@
 			"ver": "1.0.3",
 			"libVer": "1.0.3",
 			"md5": "3a150a8f17ec5794e1793548bf1e4eb7"
+		},
+		{
+			"name": "Otaku Translation",
+			"fileName": "OtakuTranslation",
+			"imageURL": "https://otakutl.blogspot.com/favicon.ico",
+			"id": 930283970,
+			"lang": "en",
+			"ver": "1.0.0",
+			"libVer": "1.0.0",
+			"md5": "999162784d90210130918e35581d113b"
 		}
 	]
 }
