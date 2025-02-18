@@ -1,4 +1,4 @@
--- {"id":1035923222,"ver":"1.0.8","libVer":"1.0.8","author":"","repo":"","dep":[]}
+-- {"id":1035923222,"ver":"1.0.9","libVer":"1.0.9","author":"","repo":"","dep":[]}
 local json = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -382,11 +382,12 @@ local function getPassage(chapterURL)
         if data then
             return
         end
-        local matched = string.match(tostring(script), "{\"type\":\"data\",\"data\":{form:.+];")
+        local matched = string.match(tostring(script), "{\"type\":\"data\",\"data\":{form:.+")
         if not matched then
             return
         end
-        local trans = matched:sub(0, #matched-2):gsub("void (%d)", function(o) return o end):gsub("([,{][a-zA-Z_$][0-9a-zA-Z_$]*):", function(a) return a:sub(0, 1) .. '"' .. a:sub(2) .. '":' end)
+        matched = string.match(matched, "%b{}")
+        local trans = matched:gsub("void (%d)", function(o) return o end):gsub("([,{][a-zA-Z_$][0-9a-zA-Z_$]*):", function(a) return a:sub(0, 1) .. '"' .. a:sub(2) .. '":' end)
         data = json.decode(trans)
     end)
     if not data or not data.data then
@@ -425,11 +426,12 @@ local function parseNovel(novelURL)
         if data then
             return
         end
-        local matched = string.match(tostring(script), "{\"type\":\"data\",\"data\":{novel:.+];")
+        local matched = string.match(tostring(script), "{\"type\":\"data\",\"data\":{novel:.+")
         if not matched then
             return
         end
-        data = parse_obj(matched:sub(0, #matched-2))
+        matched = string.match(matched, "%b{}")
+        data = parse_obj(matched)
     end)
     if not data or not data.data then
         error("Failed to obtain novel data.")
@@ -445,13 +447,18 @@ local function parseNovel(novelURL)
     if prob_list == nil then
         error("Failed to find chapter list, contact @99tracheae")
     end
-    local lua_script = conv2lua(prob_list)
-    local f, err = load(lua_script)
-    if err then
-        error(err)
+    local chapters_data
+    if type(prob_list) == "table" then
+        chapters_data = prob_list
+    else
+        local lua_script = conv2lua(prob_list)
+        local f, err = load(lua_script)
+        if err then
+            error(err)
+        end
+        chapters_data = f()
     end
     local chapters_map = {{}, {}}
-    local chapters_data = f()
     for _, v1 in next, chapters_data do
         for _, v2 in next, v1 do
             if v2.required_tier == 0 and v2.id ~= nil and v2.chapter_number ~= nil then
@@ -476,7 +483,7 @@ local function parseNovel(novelURL)
 end
 
 local function getListing()
-    local novels_json = json.GET("https://genesistudio.com/api/search?serialization=All&sort=Popular")
+    local novels_json = json.GET("https://genesistudio.com/api/novels/search?serialization=All&sort=Popular")
     local novels = {}
     for _, novel in pairs(novels_json) do
         table.insert(novels, Novel {
@@ -489,9 +496,20 @@ local function getListing()
     return novels
 end
 
+local function urlEncode(str)
+    if str then
+        str = str:gsub("\n", "\r\n")
+        str = str:gsub("([^%w %-%_%.%~])", function(c)
+            return ("%%%02X"):format(string.byte(c))
+        end)
+        str = str:gsub(" ", "+")
+    end
+    return str
+end
+
 local function search(data)
     local query = data[QUERY]
-    local novels_json = json.GET("https://genesistudio.com/api/search?serialization=All&sort=Popular&title=" .. query)
+    local novels_json = json.GET("https://genesistudio.com/api/novels/search?serialization=All&sort=Popular&title=" .. urlEncode(query))
     local novels = {}
     for _, novel in pairs(novels_json) do
         table.insert(novels, Novel {
