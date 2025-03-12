@@ -1,4 +1,4 @@
--- {"id":347719483,"ver":"1.0.0","libVer":"1.0.0","author":"","repo":"","dep":[]}
+-- {"id":347719483,"ver":"1.0.1","libVer":"1.0.1","author":"","repo":"","dep":[]}
 
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -107,20 +107,19 @@ local function parseNovel(novelURL)
     local trigger_title = false;
     local desc = "";
     local trigger_desc = false;
-    map(document:select("entry-content > h3"), function(p)
+    map(document:select(".entry-content > h3 > strong, .entry-content > p"), function(p)
         local txt = p:text()
         if trigger_desc then
             desc = desc .. txt
             trigger_desc = false
-            return
-        end
-        if trigger_title then
+        elseif trigger_title then
             title = title .. txt
             trigger_title = false
-            return
+        elseif txt:find("Associated names") then
+            trigger_title = true
+        elseif txt:find("Summary") then
+            trigger_desc = true
         end
-        trigger_desc = false
-        trigger_title = false
     end)
 	return NovelInfo({
         title = title:gsub("\n" ,""),
@@ -129,7 +128,7 @@ local function parseNovel(novelURL)
         chapters = AsList(
             mapNotNil(document:select("p a"), function(v)
                 local link = shrinkURL(v:attr("href"))
-                if link == "" or link:find("akismet.com/privacy") or link:find("membership-account/membership-levels") then
+                if link == "" or link:find("akismet.com/privacy") or link:find("membership%-account") then
                     return
                 end
                 return NovelChapter {
