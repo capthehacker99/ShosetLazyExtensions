@@ -349,6 +349,16 @@
 			"ver": "1.0.0",
 			"libVer": "1.0.0",
 			"md5": "999162784d90210130918e35581d113b"
+		},
+		{
+			"name": "Lazy Translations",
+			"fileName": "LazyTranslations",
+			"imageURL": "https://i0.wp.com/lazytranslations.com/wp-content/uploads/2020/08/cropped-profile-lazykun.jpg?ssl=1",
+			"id": 347719483,
+			"lang": "en",
+			"ver": "1.0.0",
+			"libVer": "1.0.0",
+			"md5": "0c1c421f5684dca8328ff54f327459b2"
 		}
 	]
 }
