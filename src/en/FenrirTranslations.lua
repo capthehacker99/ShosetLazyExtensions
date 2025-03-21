@@ -1,4 +1,4 @@
--- {"id":1553358903,"ver":"1.0.3","libVer":"1.0.3","author":"","repo":"","dep":[]}
+-- {"id":1553358903,"ver":"1.0.4","libVer":"1.0.4","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -160,7 +160,7 @@ local function getListing(data)
         table.insert(chapters, Novel {
             title = v.title,
             link = "series/" .. v.slug .. "#" .. b64enc(dkjson.encode(v)),
-            imageURL = expandURL(shrinkURL(v.cover)),
+            imageURL = v.cover and expandURL(shrinkURL(v.cover)) or imageURL,
             alternativeTitles = v.alt_title and { v.alt_title } or nil,
             description = v.description
         })
