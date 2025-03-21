@@ -1,4 +1,4 @@
--- {"id":1339243358,"ver":"1.0.4","libVer":"1.0.4","author":"","repo":"","dep":[]}
+-- {"id":1339243358,"ver":"1.0.5","libVer":"1.0.5","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -104,12 +104,11 @@ local function parseNovel(novelURL)
     local chapters = {}
     for i, v in next, chapter_data do
         table.insert(chapters, NovelChapter {
-            order = i,
+            order = #chapter_data - i,
             title = v.acf.ch_name,
             link = shrinkURL(v.link)
         })
     end
-    local i = 0
 	return NovelInfo({
         title = document:selectFirst(".novel-title2"):text():gsub("\n" ,""),
         imageURL = img,
