@@ -1,4 +1,4 @@
--- {"id":469256382,"ver":"1.0.0","libVer":"1.0.0","author":"","repo":"","dep":[]}
+-- {"id":469256382,"ver":"1.0.1","libVer":"1.0.1","author":"","repo":"","dep":[]}
 
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -99,13 +99,13 @@ local function parseNovel(novelURL)
     end)
     local doc_str = tostring(document)
     local max_page = 0
-    for p in doc_str:gmatch("\"/e/extend/[a-z0-9]+%.php%?page=([0-9]+)&wjm=[a-zA-Z0-9-]+\"") do
+    for p in doc_str:gmatch("\"/e/extend/[a-z0-9]+%.php%?page=([0-9]+)&a?m?p?;?wjm=[a-zA-Z0-9-]+\"") do
         local cur_page = tonumber(p)
         if cur_page > max_page then
             max_page = cur_page
         end
     end
-    local part_a, part_b = tostring(document):match("\"/(e/extend/[a-z]+.php%?page=)[0-9]+&amp;(wjm=[a-z-]+)\"")
+    local part_a, part_b = tostring(document):match("\"/(e/extend/[a-z0-9]+.php%?page=)[0-9]+&a?m?p?;?(wjm=[a-zA-Z0-9-]+)\"")
     local chapters = {}
     local function request_chapter(page)
         local doc = GETDocument(expandURL(part_a .. page .. '&' .. part_b))
