@@ -1,5 +1,5 @@
--- {"id":1339243358,"ver":"1.0.3","libVer":"1.0.3","author":"","repo":"","dep":[]}
-
+-- {"id":1339243358,"ver":"1.0.4","libVer":"1.0.4","author":"","repo":"","dep":[]}
+local dkjson = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
 ---
@@ -51,7 +51,7 @@ local startIndex = 1
 --- @param _ int Either KEY_CHAPTER_URL or KEY_NOVEL_URL.
 --- @return string Shrunk URL.
 local function shrinkURL(url, _)
-    return url:gsub(".-mvlempyr.com/", "")
+    return url
 end
 
 --- Expand a given URL.
@@ -62,7 +62,7 @@ end
 --- @param _ int Either KEY_CHAPTER_URL or KEY_NOVEL_URL.
 --- @return string Full URL.
 local function expandURL(url, _)
-	return baseURL .. url
+	return url
 end
 
 --- Get a chapter passage based on its chapterURL.
@@ -97,28 +97,30 @@ local function parseNovel(novelURL)
     end)
     local img = document:selectFirst("img.novel-image2")
     img = img and img:attr("src") or imageURL
-    local nerve_endings = shrinkURL(document:selectFirst(".continuebutton"):attr("href")):match("(.+)%d+$")
+    local novel_code = document:selectFirst("#novel-code"):text()
+    local headers = HeadersBuilder():add("Origin", "https://www.mvlempyr.com"):build()
+    local tags = dkjson.GET("https://chp.mvlempyr.net/wp-json/wp/v2/tags?slug=" .. novel_code, headers)
+    local chapter_data = dkjson.GET("https://chp.mvlempyr.net/wp-json/wp/v2/posts?tags=" .. tags[1].id .. "&per_page=500&page=1", headers)
+    local chapters = {}
+    for i, v in next, chapter_data do
+        table.insert(chapters, NovelChapter {
+            order = i,
+            title = v.acf.ch_name,
+            link = shrinkURL(v.link)
+        })
+    end
     local i = 0
 	return NovelInfo({
         title = document:selectFirst(".novel-title2"):text():gsub("\n" ,""),
         imageURL = img,
         description = desc,
-        chapters = AsList(
-            map(document:select(".chapter-item h3"), function(v)
-                i = i + 1
-                return NovelChapter {
-                    order = i,
-                    title = v:text(),
-                    link = shrinkURL(nerve_endings .. i)
-                }
-            end)
-        )
+        chapters = chapters
     })
 end
 
 local listing_page_parm
 local function getListing(data)
-    local document = GETDocument(expandURL("novels" .. (listing_page_parm and (listing_page_parm .. data[PAGE]) or "")))
+    local document = GETDocument("https://www.mvlempyr.com/novels" .. (listing_page_parm and (listing_page_parm .. data[PAGE]) or ""))
     if not listing_page_parm then
         listing_page_parm = document:selectFirst("a.painationbutton.w--current,a.w-pagination-next")
         if not listing_page_parm then
@@ -136,7 +138,7 @@ local function getListing(data)
     return map(document:select("div.searchlist[role=\"listitem\"]"), function(v)
         return Novel {
             title = v:selectFirst("h2"):text(),
-            link = shrinkURL(v:selectFirst("a"):attr("href")),
+            link = "https://www.mvlempyr.com/" ..v:selectFirst("a"):attr("href"),
             imageURL = v:selectFirst("img"):attr("src")
         }
     end)
@@ -144,7 +146,7 @@ end
 
 local function search(data)
     local query = data[QUERY]
-    local document = GETDocument(expandURL("advance-search"))
+    local document = GETDocument("https://www.mvlempyr.com/advance-search")
     return mapNotNil(document:select("div.searchitem"), function(v)
         local name = v:selectFirst(".novelsearchname"):text()
         if not name:lower():match(query) then
@@ -152,7 +154,7 @@ local function search(data)
         end
         return Novel {
             title = name,
-            link = shrinkURL(v:selectFirst("a"):attr("href")),
+            link = "https://www.mvlempyr.com/" ..v:selectFirst("a"):attr("href"),
             imageURL = imageURL
         }
     end)
