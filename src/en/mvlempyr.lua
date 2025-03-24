@@ -1,5 +1,6 @@
--- {"id":1339243358,"ver":"1.0.6","libVer":"1.0.6","author":"","repo":"","dep":[]}
+-- {"id":1339243358,"ver":"1.0.7","libVer":"1.0.7","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
+local bigint = Require("bigint")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
 ---
@@ -80,6 +81,22 @@ local function getPassage(chapterURL)
     return pageOfElem(htmlElement, true)
 end
 
+local function calculateTagId(novel_code)
+    local t = bigint.new("1999999997")
+    local c = bigint.modulus(bigint.new("7"), t);
+    local d = tonumber(novel_code);
+    local u = bigint.new(1);
+    while d > 0 do
+        -- print(bigint.unserialize(t, "string"), bigint.unserialize(c, "string"), d, bigint.unserialize(u, "string"))
+        if (d % 2) == 1 then
+            u = bigint.modulus((u * c), t)
+        end
+        c = bigint.modulus((c * c), t);
+        d = math.floor(d/2);
+    end
+    return bigint.unserialize(u, "string")
+end
+
 --- Load info on a novel.
 ---
 --- Required.
@@ -99,8 +116,7 @@ local function parseNovel(novelURL)
     img = img and img:attr("src") or imageURL
     local novel_code = document:selectFirst("#novel-code"):text()
     local headers = HeadersBuilder():add("Origin", "https://www.mvlempyr.com"):build()
-    local tags = dkjson.GET("https://chp.mvlempyr.net/wp-json/wp/v2/tags?slug=" .. novel_code, headers)
-    local chapter_data = dkjson.GET("https://chp.mvlempyr.net/wp-json/wp/v2/posts?tags=" .. tags[1].id .. "&per_page=500&page=1", headers)
+    local chapter_data = dkjson.GET("https://chap.mvlempyr.net/wp-json/wp/v2/posts?tags=" .. calculateTagId(novel_code) .. "&per_page=500&page=1", headers)
     local chapters = {}
     for i, v in next, chapter_data do
         table.insert(chapters, NovelChapter {
@@ -145,7 +161,7 @@ end
 
 local function search(data)
     local query = data[QUERY]
-    local document = GETDocument("https://www.mvlempyr.com/advance-search")
+    local document = GETDocument("https://www.mvlempyr.com/advance-search?deadbeef_page=" .. data[PAGE])
     return mapNotNil(document:select("div.searchitem"), function(v)
         local name = v:selectFirst(".novelsearchname"):text()
         if not name:lower():match(query) then
@@ -173,7 +189,7 @@ return {
 	shrinkURL = shrinkURL,
 	expandURL = expandURL,
     hasSearch = true,
-    isSearchIncrementing = false,
+    isSearchIncrementing = true,
     hasCloudFlare = true,
     search = search,
 	imageURL = imageURL,
