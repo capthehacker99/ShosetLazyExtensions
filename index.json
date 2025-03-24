@@ -7,6 +7,10 @@
 		{
 			"name": "utf8",
 			"ver": "1.0.1"
+		},
+		{
+			"name": "bigint",
+			"ver": "1.0.0"
 		}
 	],
 	"scripts": [
