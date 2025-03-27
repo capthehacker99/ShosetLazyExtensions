@@ -1,4 +1,4 @@
--- {"id":1339243358,"ver":"1.0.7","libVer":"1.0.7","author":"","repo":"","dep":[]}
+-- {"id":1339243358,"ver":"1.0.8","libVer":"1.0.8","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 local bigint = Require("bigint")
 --- Identification number of the extension.
@@ -137,7 +137,7 @@ local listing_page_parm
 local function getListing(data)
     local document = GETDocument("https://www.mvlempyr.com/novels" .. (listing_page_parm and (listing_page_parm .. data[PAGE]) or ""))
     if not listing_page_parm then
-        listing_page_parm = document:selectFirst("a.painationbutton.w--current,a.w-pagination-next")
+        listing_page_parm = document:selectFirst(".g-tpage a.painationbutton.w--current, .g-tpage a.w-pagination-next")
         if not listing_page_parm then
             error(document)
         end
@@ -150,20 +150,35 @@ local function getListing(data)
             error("Failed to find listing match")
         end
     end
-    return map(document:select("div.searchlist[role=\"listitem\"]"), function(v)
+    return map(document:select(".g-tpage div.searchlist[role=\"listitem\"] .novelcolumn .novelcolumimage a"), function(v)
         return Novel {
-            title = v:selectFirst("h2"):text(),
-            link = "https://www.mvlempyr.com/" ..v:selectFirst("a"):attr("href"),
+            title = v:attr("title"),
+            link = "https://www.mvlempyr.com/" .. v:attr("href"),
             imageURL = v:selectFirst("img"):attr("src")
         }
     end)
 end
 
+local search_page_parm
 local function search(data)
     local query = data[QUERY]
-    local document = GETDocument("https://www.mvlempyr.com/advance-search?deadbeef_page=" .. data[PAGE])
-    return mapNotNil(document:select("div.searchitem"), function(v)
-        local name = v:selectFirst(".novelsearchname"):text()
+    local document = GETDocument("https://www.mvlempyr.com/advance-search" .. (search_page_parm and (search_page_parm .. data[PAGE]) or ""))
+    if not search_page_parm then
+        search_page_parm = document:selectFirst("[role=\"navigation\"]:has(.paginationbuttonwrapper) [aria-label=\"Next Page\"]")
+        if not search_page_parm then
+            error(document)
+        end
+        search_page_parm = search_page_parm:attr("href")
+        if not search_page_parm then
+            error("Failed to find search href")
+        end
+        search_page_parm = search_page_parm:match("%?[^=]+=")
+        if not search_page_parm then
+            error("Failed to find search match")
+        end
+    end
+    return mapNotNil(document:select(".novelcolumn"), function(v)
+        local name = v:selectFirst(".novelcolumcontent h2"):text()
         if not name:lower():match(query) then
             return nil
         end
