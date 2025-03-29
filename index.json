@@ -373,6 +373,16 @@
 			"ver": "1.0.0",
 			"libVer": "1.0.0",
 			"md5": "21b28703bfcef3aa95460b37efa0584f"
+		},
+		{
+			"name": "Gravity Tales",
+			"fileName": "GravityTales",
+			"imageURL": "https://gravitytales.com/wp-content/uploads/2024/07/153447053-187d129a8b1bb4c31fa0ebb07ffa7aa5ed36511035ddf6d3b4994fecb0ebab97-1.png",
+			"id": 28508335,
+			"lang": "en",
+			"ver": "1.0.0",
+			"libVer": "1.0.0",
+			"md5": "5ed3860ef15b86017e155c5ea423574b"
 		}
 	]
 }
