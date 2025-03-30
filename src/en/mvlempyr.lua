@@ -1,4 +1,4 @@
--- {"id":1339243358,"ver":"1.0.8","libVer":"1.0.8","author":"","repo":"","dep":[]}
+-- {"id":1339243358,"ver":"1.0.9","libVer":"1.0.9","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 local bigint = Require("bigint")
 --- Identification number of the extension.
@@ -73,7 +73,8 @@ end
 --- @param chapterURL string The chapters shrunken URL.
 --- @return string Strings in lua are byte arrays. If you are not outputting strings/html you can return a binary stream.
 local function getPassage(chapterURL)
-	local url = expandURL(chapterURL)
+    -- Thanks to bigr4nd for figuring out that somehow .space domain bypasses cloudflare
+	local url = expandURL(chapterURL):gsub("(%w+://[^/]+)%.net", "%1.space")
 
 	--- Chapter page, extract info from it.
 	local document = GETDocument(url)

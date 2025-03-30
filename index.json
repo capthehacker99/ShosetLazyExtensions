@@ -340,9 +340,9 @@
 			"imageURL": "https://assets.mvlempyr.com/images/asset/LogoMage.webp",
 			"id": 1339243358,
 			"lang": "en",
-			"ver": "1.0.8",
-			"libVer": "1.0.8",
-			"md5": "934066ff79ff9be69cfb081d7ccf9c7b"
+			"ver": "1.0.9",
+			"libVer": "1.0.9",
+			"md5": "f4167566c0e616b2f9739a1d80a62c9e"
 		},
 		{
 			"name": "Otaku Translation",
@@ -382,7 +382,7 @@
 			"lang": "en",
 			"ver": "1.0.0",
 			"libVer": "1.0.0",
-			"md5": "5ed3860ef15b86017e155c5ea423574b"
+			"md5": "e375d6ba260f803366b25f8f3420a87a"
 		}
 	]
 }
