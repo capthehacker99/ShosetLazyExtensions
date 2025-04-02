@@ -1,4 +1,4 @@
--- {"id":1339243358,"ver":"1.0.9","libVer":"1.0.9","author":"","repo":"","dep":[]}
+-- {"id":1339243358,"ver":"1.0.10","libVer":"1.0.10","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 local bigint = Require("bigint")
 --- Identification number of the extension.
@@ -117,15 +117,19 @@ local function parseNovel(novelURL)
     img = img and img:attr("src") or imageURL
     local novel_code = document:selectFirst("#novel-code"):text()
     local headers = HeadersBuilder():add("Origin", "https://www.mvlempyr.com"):build()
-    local chapter_data = dkjson.GET("https://chap.mvlempyr.net/wp-json/wp/v2/posts?tags=" .. calculateTagId(novel_code) .. "&per_page=500&page=1", headers)
     local chapters = {}
-    for i, v in next, chapter_data do
-        table.insert(chapters, NovelChapter {
-            order = v.acf.chapter_number,
-            title = v.acf.ch_name,
-            link = shrinkURL(v.link)
-        })
-    end
+    local page = 1
+    repeat
+        local chapter_data = dkjson.GET("https://chap.mvlempyr.space/wp-json/wp/v2/posts?tags=" .. calculateTagId(novel_code) .. "&per_page=500&page=" .. page, headers)
+        for i, v in next, chapter_data do
+            table.insert(chapters, NovelChapter {
+                order = v.acf.chapter_number,
+                title = v.acf.ch_name,
+                link = shrinkURL(v.link)
+            })
+        end
+        page = page + 1
+    until #chapter_data < 500
 	return NovelInfo({
         title = document:selectFirst(".novel-title2"):text():gsub("\n" ,""),
         imageURL = img,
