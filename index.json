@@ -383,6 +383,16 @@
 			"ver": "1.0.0",
 			"libVer": "1.0.0",
 			"md5": "e375d6ba260f803366b25f8f3420a87a"
+		},
+		{
+			"name": "Read Fanfic",
+			"fileName": "ReadFanfic",
+			"imageURL": "https://readfanfic.com/wp-content/uploads/2022/07/cropped-favicon-read-fanfic-1-192x192.jpeg",
+			"id": 610947673,
+			"lang": "en",
+			"ver": "1.0.0",
+			"libVer": "1.0.0",
+			"md5": "118117990cee8d1e64b18dd696b92421"
 		}
 	]
 }
