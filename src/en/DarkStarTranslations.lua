@@ -1,5 +1,5 @@
--- {"id":304044934,"ver":"1.0.4","libVer":"1.0.4","author":"","repo":"","dep":[]}
-
+-- {"id":304044934,"ver":"1.1.0","libVer":"1.1.0","author":"","repo":"","dep":[]}
+local dkjson = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
 ---
@@ -76,9 +76,10 @@ local function getPassage(chapterURL)
 
 	--- Chapter page, extract info from it.
 	local document = GETDocument(url)
-    local htmlElement = document:selectFirst(".reading-content")
-    htmlElement:select(".chapter-warning"):remove()
-    return pageOfElem(htmlElement, true)
+    local data = dkjson.decode(document:selectFirst("[data-page]"):attr("data-page"))
+    local doc = Document("<body>" .. data.props.chapter.content .. "</body>")
+    doc:select(".ad-container"):remove()
+    return pageOfElem(doc:selectFirst("body"), true)
 end
 
 --- Load info on a novel.
@@ -92,61 +93,75 @@ local function parseNovel(novelURL)
 
 	--- Novel page, extract info from it.
 	local document = GETDocument(url)
-    local title = document:selectFirst(".post-title")
-    title = title and title:text() or "Unknown Title"
-    local img = document:selectFirst(".summary_image img")
-    img = img and img:attr("data-src") or imageURL
-    local desc = ""
-    map(document:select(".description-summary p"), function(p)
-        desc = desc .. '\n' .. p:text()
-    end)
-    local chapters_doc = RequestDocument(POST(url .. "ajax/chapters/"))
-    local selected = chapters_doc:select(".free-chap a")
-    local cur = selected:size() + 1
+    local data = dkjson.decode(document:selectFirst("[data-page]"):attr("data-page"))
+    local title = data.props.series.title
+    local img = data.props.series.cover
+    img = img and expandURL("storage/" .. img.path) or imageURL
+    local desc = data.props.series.description:gsub("<p>", ""):gsub("</p>", "\n\n"):gsub("<br>", "\n")
+    local chapters_data = dkjson.GET(url .. "/chapters?sort_order=asc")
+    local chapters = {}
+    for i, v in next, chapters_data.chapters do
+        table.insert(chapters, NovelChapter {
+            order = i,
+            title = v.name,
+            link = novelURL .. "/" .. v.slug
+        })
+    end
     return NovelInfo({
         title = title,
         imageURL = img,
         description = desc,
-        chapters = AsList(
-                map(selected,function(v)
-                    cur = cur - 1
-                    return NovelChapter {
-                        order = cur,
-                        title = v:text(),
-                        link = shrinkURL(v:attr("href"))
-                    }
-                end)
-        )
+        chapters = AsList(chapters)
     })
 end
 
-local function getListing()
-    local document = GETDocument(expandURL("manga/"))
-    return map(document:select(".page-listing-item [data-post-id] > a"), function(v)
-        local img = v:selectFirst("img")
-        img = img and img:attr("src") or imageURL
-        return Novel {
-            title = v:attr("title"),
-            link = shrinkURL(v:attr("href")),
-            imageURL = img
-        }
-    end)
+local function getListing(data)
+    local document = GETDocument(expandURL("series?page=" .. data[PAGE]))
+    local data = dkjson.decode(document:selectFirst("[data-page]"):attr("data-page"))
+    local novels = {}
+    for _, novel in next, data.props.seriesList.data do
+        local image = imageURL
+        if novel.cover and novel.cover.path then
+            image = expandURL("storage/" .. novel.cover.path)
+        end
+        table.insert(novels, Novel {
+            title = novel.title,
+            imageURL = image,
+            link = "series/" .. novel.slug
+        })
+    end
+    return novels
+end
+
+local function urlEncode(str)
+    if str then
+        str = str:gsub("\n", "\r\n")
+        str = str:gsub("([^%w %-%_%.%~])", function(c)
+            return ("%%%02X"):format(string.byte(c))
+        end)
+        str = str:gsub(" ", "+")
+    end
+    return str
 end
 
 local function search(data)
     local page = data[PAGE]
     local query = data[QUERY]
-    local document = GETDocument(expandURL("page/" .. page .. "/?s=" .. query .. "&post_type=wp-manga"))
-    return map(document:select(".tab-content-wrap > div > .row"), function(v)
-        local img = v:selectFirst(".tab-thumb img")
-        img = img and img:attr("src") or imageURL
-        local title = v:selectFirst(".post-title a")
-        return Novel {
-            title = title:text(),
-            link = shrinkURL(title:attr("href")),
-            imageURL = img
-        }
-    end)
+    local document = GETDocument(expandURL("series?order=desc&search=" .. urlEncode(query) .. "&page=" .. page))
+    local data = dkjson.decode(document:selectFirst("[data-page]"):attr("data-page"))
+    local novels = {}
+    for _, novel in next, data.props.seriesList.data do
+        local image = imageURL
+        if novel.cover and novel.cover.path then
+            image = expandURL("storage/" .. novel.cover.path)
+        end
+        table.insert(novels, Novel {
+            title = novel.title,
+            imageURL = image,
+            link = "series/" .. novel.slug
+        })
+    end
+    return novels
 end
 
 -- Return all properties in a lua table.
@@ -156,7 +171,7 @@ return {
 	name = name,
 	baseURL = baseURL,
 	listings = {
-        Listing("Default", false, getListing)
+        Listing("Default", true, getListing)
     }, -- Must have at least one listing
 	getPassage = getPassage,
 	parseNovel = parseNovel,
