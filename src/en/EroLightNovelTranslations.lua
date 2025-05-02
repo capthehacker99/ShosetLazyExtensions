@@ -1,4 +1,4 @@
--- {"id":571525654,"ver":"1.0.0","libVer":"1.0.0","author":"","repo":"","dep":[]}
+-- {"id":571525654,"ver":"1.0.1","libVer":"1.0.1","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -72,7 +72,8 @@ end
 --- @param chapterURL string The chapters shrunken URL.
 --- @return string Strings in lua are byte arrays. If you are not outputting strings/html you can return a binary stream.
 local function getPassage(chapterURL)
-	local document = Document("<body>" .. chapterURL .. "</body>")
+    local data = dkjson.GET(chapterURL .. "?alt=json")
+	local document = Document("<body>" .. data.entry.content["$t"] .. "</body>")
     return pageOfElem(document:selectFirst("body"), true)
 end
 
@@ -94,14 +95,20 @@ end
 --- @param novelURL string shrunken novel url.
 --- @return NovelInfo
 local function parseNovel(novelURL)
-    local data = dkjson.GET(expandURL("feeds/posts/default/-/" .. urlEncode(novelURL) .. "?alt=json"))
+    local data = dkjson.GET(expandURL("feeds/posts/summary/-/" .. urlEncode(novelURL) .. "?alt=json"))
     local chapters = {}
     local len = #data.feed.entry
     for i, chapter in next, data.feed.entry do
+        local link;
+        for _, v in next, chapter.link do
+            if v.rel == "self" then
+                link = v.href
+            end
+        end
         table.insert(chapters, NovelChapter {
             order = 1 + len - i,
             title = chapter.title["$t"],
-            link = chapter.content["$t"]
+            link = link
         })
     end
 	return NovelInfo({
