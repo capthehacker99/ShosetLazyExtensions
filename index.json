@@ -393,6 +393,16 @@
 			"ver": "1.0.0",
 			"libVer": "1.0.0",
 			"md5": "118117990cee8d1e64b18dd696b92421"
+		},
+		{
+			"name": "Ero Light Novel Translations",
+			"fileName": "EroLightNovelTranslations",
+			"imageURL": "https://www.blogger.com/img/logo_blogger_40px.png",
+			"id": 571525654,
+			"lang": "en",
+			"ver": "1.0.0",
+			"libVer": "1.0.0",
+			"md5": "50d276dff2daf423457b2b1015434482"
 		}
 	]
 }
