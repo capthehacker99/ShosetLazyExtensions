@@ -1,4 +1,4 @@
--- {"id":1658695508,"ver":"1.0.2","libVer":"1.0.2","author":"","repo":"","dep":[]}
+-- {"id":1658695508,"ver":"1.0.3","libVer":"1.0.3","author":"","repo":"","dep":[]}
 
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -76,8 +76,8 @@ local function getPassage(chapterURL)
 
 	--- Chapter page, extract info from it.
 	local document = GETDocument(url)
-    local htmlElement = document:selectFirst("#content")
-    htmlElement:select(".wp-post-navigation, .tags"):remove()
+    local htmlElement = document:selectFirst("main")
+    htmlElement:select(".flex.justify-center.items-center.text-center"):remove()
     return pageOfElem(htmlElement, true)
 end
 
@@ -92,32 +92,36 @@ local function parseNovel(novelURL)
 
 	--- Novel page, extract info from it.
 	local document = GETDocument(url)
-    if document:selectFirst(".postsby") then
-        -- It's a category, fuck it.
-        local selected = document:select("article header h2 a")
-        local cur = selected:size() + 1
-        return NovelInfo({
-            title = document:selectFirst(".postsby span span"):text():gsub("\n" ,""),
-            imageURL = imageURL,
-            description = "",
-            chapters = AsList(
-                map(selected, function(v)
-                    cur = cur - 1
-                    return NovelChapter {
-                        order = cur,
-                        title = v:text(),
-                        link = shrinkURL(v:attr("href"))
-                    }
-                end)
-            )
-        })
-    end
-    local selected = document:select("#content > ul > li > a")
+    -- if document:selectFirst(".postsby") then
+    --     -- It's a category, fuck it.
+    --     local selected = document:select("article header h2 a")
+    --     local cur = selected:size() + 1
+    --     return NovelInfo({
+    --         title = document:selectFirst(".postsby span span"):text():gsub("\n" ,""),
+    --         imageURL = imageURL,
+    --         description = "",
+    --         chapters = AsList(
+    --             map(selected, function(v)
+    --                 cur = cur - 1
+    --                 return NovelChapter {
+    --                     order = cur,
+    --                     title = v:text(),
+    --                     link = shrinkURL(v:attr("href"))
+    --                 }
+    --             end)
+    --         )
+    --     })
+    -- end
+    local desc = ""
+    map(document:select(".novel-description p"), function(v)
+        desc = desc .. v:text() .. "\n\n"
+    end)
+    local selected = document:select("tbody > tr > td > a")
     local cur = selected:size() + 1
 	return NovelInfo({
-        title = document:selectFirst(".title"):text():gsub("\n" ,""),
+        title = document:selectFirst("main h1.font-bold"):text():gsub("\n" ,""),
         imageURL = imageURL,
-        description = "",
+        description = desc,
         chapters = AsList(
             map(selected, function(v)
                 cur = cur - 1
@@ -132,23 +136,20 @@ local function parseNovel(novelURL)
 end
 
 local function getListing()
-    local document = GETDocument(expandURL("novels/"))
+    local document = GETDocument(expandURL("translated-novels/"))
     local novels = {}
-    map(document:select("#content > h4 a"), function(v)
+    local function addNovel(v)
+        local img = v:selectFirst("img.card-image")
+        img = img and img:attr("src") or imageURL
         table.insert(novels, Novel {
             title = v:text(),
-            link = shrinkURL(v:attr("href")),
-            imageURL = imageURL
+            link = shrinkURL(v:selectFirst(".card-title a"):attr("href")),
+            imageURL = expandURL(shrinkURL(img))
         })
-    end)
+    end
+    map(document:select(".novel-card"), addNovel)
     document = GETDocument(expandURL("original-novels/"))
-    map(document:select("#content > h3 a"), function(v)
-        table.insert(novels, Novel {
-            title = v:text(),
-            link = shrinkURL(v:attr("href")),
-            imageURL = imageURL
-        })
-    end)
+    map(document:select(".novel-card"), addNovel)
     return novels
 end
 
