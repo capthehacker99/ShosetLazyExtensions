@@ -1,5 +1,5 @@
--- {"id":114035263,"ver":"1.0.5","libVer":"1.0.5","author":"","repo":"","dep":[]}
-
+-- {"id":114035263,"ver":"1.1.0","libVer":"1.1.0","author":"","repo":"","dep":[]}
+local dkjson = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
 ---
@@ -28,7 +28,7 @@ local baseURL = "https://oayo.ink/"
 --- Optional, Default is empty.
 ---
 --- @type string
-local imageURL = "https://oayo.ink/wp-content/uploads/2024/10/cropped-logo-1.png"
+local imageURL = "https://www.oayo.ink/favicon.ico"
 --- ChapterType provided by the extension.
 ---
 --- Optional, Default is STRING. But please do HTML.
@@ -72,12 +72,20 @@ end
 --- @param chapterURL string The chapters shrunken URL.
 --- @return string Strings in lua are byte arrays. If you are not outputting strings/html you can return a binary stream.
 local function getPassage(chapterURL)
-	local url = expandURL(chapterURL)
-
-	--- Chapter page, extract info from it.
-	local document = GETDocument(url)
-    local htmlElement = document:selectFirst(".entry-content")
-    return pageOfElem(htmlElement, true)
+	local data = dkjson.GET(chapterURL)
+    local html = "<body>"
+    local function populatePassage(x)
+        for k, v in next, x do
+            if k == "text" then
+                html = html .. "<p>" .. v .. "</p>"
+            end
+            if type(v) == "table" then
+                populatePassage(v)
+            end
+        end
+    end
+    populatePassage(data)
+    return pageOfElem(Document(html .. "</body>"):selectFirst("body"), true)
 end
 
 --- Load info on a novel.
@@ -87,85 +95,49 @@ end
 --- @param novelURL string shrunken novel url.
 --- @return NovelInfo
 local function parseNovel(novelURL)
-	local url = expandURL(novelURL)
-
-	--- Novel page, extract info from it.
-	local document = GETDocument(url)
-    local entry_content = document:selectFirst(".entry-content")
-    local found_p = false
-    local author = "Unknown"
+    local data = dkjson.GET(novelURL .. "?populate[novel_chapters][sort][0]=num_chapter:asc").data.attributes
     local desc = ""
-    local found_synopsis = false
-    local end_of_p = false
-    map(entry_content:children(), function(v)
-        if end_of_p then return end
-        local is_p = tostring(v):match("^<p")
-        if is_p then
-            local p_text = v:text()
-            if found_synopsis then
-                desc = desc .. p_text .. "\n\n"
-            else
-                local cur_author = p_text:match("^Author: (.+)")
-                if cur_author then
-                    author = cur_author
-                elseif p_text == "Synopsis:" then
-                    found_synopsis = true
-                end
+    local function populateDesc(x)
+        for k, v in next, x do
+            if k == "text" then
+                desc = desc .. v .. "\n\n"
+            end
+            if type(v) == "table" then
+                populateDesc(v)
             end
         end
-        if found_p then
-            if not is_p then
-                end_of_p = true
-            end
-        elseif is_p then
-            found_p = true
-        end
-    end)
-    local img = document:selectFirst(".wp-block-image img")
-    local links = {}
-    map(document:select(".wp-block-query-pagination-numbers a"), function(v)
-        table.insert(links, v:attr("href"))
-    end)
+    end
+    populateDesc(data.text_synopsis)
     local chapters = {}
-    local function get_chapters(doc)
-        map(doc:select(".wp-block-post-template li a"), function(v)
-            table.insert(chapters, NovelChapter {
-                order = v,
-                title = v:text(),
-                link = shrinkURL(v:attr("href"))
-            })
-        end)
+    for _, v in next, data.novel_chapters.data do
+        table.insert(chapters, NovelChapter {
+            order = v.attributes.num_chapter,
+            title = v.attributes.name_chapter,
+            link = "https://api.oayo.ink/api/novel-chapters/" .. v.id
+        })
     end
-    get_chapters(document)
-    for _, page in next, links do
-        get_chapters(GETDocument(url .. page))
-    end
-    for i = 1, math.floor(#chapters/2) do
-        local j = #chapters - i + 1
-        chapters[i], chapters[j] = chapters[j], chapters[i]
-    end
-
-    local header = document:selectFirst(".wp-block-heading strong") or document:selectFirst(".wp-block-heading")
 	return NovelInfo({
-        title = header:text():gsub("\n" ,""),
-        authors = { author },
+        title = data.name_set,
+        authors = { data.name_author or "Unknown" },
         description = desc,
-        imageURL = img and img:attr("src") or imageURL,
+        imageURL = imageURL,
         chapters = AsList(
             chapters
         )
     })
 end
 
-local function getListing()
-    local document = GETDocument(expandURL("webnovel-tl/"))
-    return map(document:select(".entry-content > ul > li a"), function(v)
-        return Novel {
-            title = v:text(),
-            link = shrinkURL(v:attr("href")),
+local function getListing(data)
+    local novel_data = dkjson.GET("https://api.oayo.ink/api/novel-sets/?sort[0]=updatedAt:desc&populate[novel_chapters][fields][0]=id&populate[novel_chapters][fields][1]=name_chapter&populate[novel_chapters][fields][2]=num_chapter&populate[novel_chapters][fields][3]=publishedAt&pagination[page]=" ..  data[PAGE] .. "&pagination[pageSize]=12")
+    local novels = {}
+    for _, novel in next, novel_data.data do
+        table.insert(novels, Novel {
+            title = novel.attributes.name_set,
+            link = "https://api.oayo.ink/api/novel-sets/" .. novel.id,
             imageURL = imageURL
-        }
-    end)
+        })
+    end
+    return novels
 end
 
 -- Return all properties in a lua table.
@@ -175,7 +147,7 @@ return {
 	name = name,
 	baseURL = baseURL,
 	listings = {
-        Listing("Default", false, getListing)
+        Listing("Default", true, getListing)
     }, -- Must have at least one listing
 	getPassage = getPassage,
 	parseNovel = parseNovel,
