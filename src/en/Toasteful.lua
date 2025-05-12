@@ -1,5 +1,5 @@
--- {"id":1707688905,"ver":"1.0.2","libVer":"1.0.2","author":"","repo":"","dep":[]}
-
+-- {"id":1707688905,"ver":"1.0.3","libVer":"1.0.3","author":"","repo":"","dep":[]}
+local dkjson = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
 ---
@@ -102,37 +102,41 @@ local function parseNovel(novelURL)
     else
         title = "FAILED TO OBTAIN TITLE"
     end
-        return NovelInfo({
-            title = title,
-            imageURL = img,
-            chapters = AsList(
-                map(filter(document:select(".entry-content div > a"), function(v)
-                    return v:attr("href"):find(".html") ~= nil
-                end), function(v)
-                    return NovelChapter {
-                        order = v,
-                        title = v:text(),
-                        link = shrinkURL(v:attr("href"))
-                    }
-                end)
-            )
+    return NovelInfo({
+        title = title,
+        imageURL = img,
+        chapters = AsList(
+            map(filter(document:select(".entry-content div > a"), function(v)
+                return v:attr("href"):find(".html") ~= nil
+            end), function(v)
+                return NovelChapter {
+                    order = v,
+                    title = v:text(),
+                    link = shrinkURL(v:attr("href"))
+                }
+            end)
+        )
 
-        })
-    end
+    })
+end
 
 local function getListing()
-    local document = GETDocument(baseURL .. "p/list-novel.html")
-
-    return map(filter(document:select(".entry-content a"), function(v)
-        local text = v:text()
-        return text ~= "Report Error!"
-    end), function(v)
-        return Novel {
-            title = v:text():gsub("[\r\n]", ""),
-            link = shrinkURL(v:attr("href")),
+    local document = dkjson.GET(baseURL .. "feeds/posts/summary/-/Web%20Novel?alt=json&max-results=999999")
+    local novels = {}
+    for _, v in next, document.feed.entry do
+        local link;
+        for _, k in next, v.link do
+            if k.rel == "alternate" then
+                link = k.href
+            end
+        end
+        table.insert(novels, Novel {
+            title = v.title["$t"],
+            link = shrinkURL(link),
             imageURL = imageURL
-        }
-    end)
+        })
+    end
+    return novels
 end
 
 local function search(data)
