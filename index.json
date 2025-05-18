@@ -403,6 +403,16 @@
 			"ver": "1.0.1",
 			"libVer": "1.0.1",
 			"md5": "9282075e2c4eac22daa1d0f1a2273c5d"
+		},
+		{
+			"name": "Infinite Novel Translations",
+			"fileName": "InfiniteNovelTranslations",
+			"imageURL": "https://infinitenoveltranslations.net/wp-content/uploads/2024/08/Infinite-Novel-Translations-logo-inverted-smoll.png",
+			"id": 1007632639,
+			"lang": "en",
+			"ver": "1.0.0",
+			"libVer": "1.0.0",
+			"md5": "4ec31bea3e04e846237fc4a4e6d3036b"
 		}
 	]
 }
