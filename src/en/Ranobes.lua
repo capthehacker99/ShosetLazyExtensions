@@ -1,4 +1,4 @@
--- {"id":472808831,"ver":"1.0.3","libVer":"1.0.3","author":"","repo":"","dep":[]}
+-- {"id":472808831,"ver":"1.0.4","libVer":"1.0.4","author":"","repo":"","dep":[]}
 local json = Require("dkjson")
 local DELAY_AMOUNT = 1250
 --- Identification number of the extension.
@@ -22,14 +22,14 @@ local name = "Ranobes"
 --- Required.
 ---
 --- @type string
-local baseURL = "https://ranobes.top/"
+local baseURL = "https://ranobes.net/"
 
 --- URL of the logo.
 ---
 --- Optional, Default is empty.
 ---
 --- @type string
-local imageURL = "https://ranobes.top/templates/Dark/images/favicon.ico"
+local imageURL = "https://ranobes.net/templates/Dark/images/favicon.ico"
 --- ChapterType provided by the extension.
 ---
 --- Optional, Default is STRING. But please do HTML.
@@ -52,7 +52,7 @@ local startIndex = 1
 --- @param _ int Either KEY_CHAPTER_URL or KEY_NOVEL_URL.
 --- @return string Shrunk URL.
 local function shrinkURL(url, _)
-    return url:gsub(".-ranobes.top/", "")
+    return url:gsub(".-ranobes.net/", "")
 end
 
 --- Expand a given URL.
@@ -139,7 +139,7 @@ local function parseNovel(novelURL)
             data = json.decode(match:sub(18))
         end)
         if not data then
-            error("Failed to find chapter data.")
+            return true
         end
         max_page = math.max(max_page, data.pages_count)
         for _, v in next, data.chapters do
@@ -155,7 +155,9 @@ local function parseNovel(novelURL)
     add_chapters(first_page)
     for i = 2, max_page do
         delay(DELAY_AMOUNT)
-        add_chapters(GETDocument(expandURL(chapters_link .. "page/" .. i .. "/")))
+        if add_chapters(GETDocument(expandURL(chapters_link .. "page/" .. i .. "/"))) then
+            break
+        end
     end
 	return NovelInfo({
         title = document:selectFirst("h1.title"):text():gsub("\n" ,""),

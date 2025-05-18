@@ -1,4 +1,4 @@
--- {"id":1548078204,"ver":"1.0.13","libVer":"1.0.13","author":"","repo":"","dep":[]}
+-- {"id":1548078204,"ver":"1.0.14","libVer":"1.0.14","author":"","repo":"","dep":[]}
 local json = Require("dkjson")
 local utf8 = Require("utf8")
 
@@ -171,7 +171,6 @@ local function parseNovel(novelURL)
     local req = Request(
             POST("https://storyseedling.com/ajax",
                     HeadersBuilder()
-                            :add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; rv:126.0) Gecko/20100101 Firefox/126.0")
                             :add("Accept", "*/*")
                             :add("Accept-Language", "en-US,en;q=0.5")
                             :add("Origin", "null")
@@ -209,39 +208,6 @@ local function parseNovel(novelURL)
     })
 end
 
-local function getListing()
-    local doc = GETDocument(baseURL)
-    local tab = map(doc:select(".flex-wrap > .flex-col"), function(v)
-        local title = v:selectFirst(".flex > a.text-center")
-        return Novel {
-            title = title:text(),
-            link = shrinkURL(title:attr("href")),
-            imageURL = v:selectFirst("img"):attr("src")
-        }
-    end)
-    -- For cloudflare shit
-    table.insert(tab, Novel {
-        title = "Cloudflare chapter verification",
-        link = last_chap,
-        imageURL = "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fstatic-00.iconduck.com%2Fassets.00%2Fcloudflare-icon-2048x2048-wks6nchu.png&f=1&nofb=1&ipt=f3cc3d8cb94d2ff36ba070cd78a4f7a5a2c53b7c156f78431146f51c430b0055&ipo=images"
-    })
-    return tab
-end
-
-
-local function dump(o)
-    if type(o) == 'table' then
-        local s = '{ '
-        for k,v in pairs(o) do
-            if type(k) ~= 'number' then k = '"'..k..'"' end
-            s = s .. '['..k..'] = ' .. dump(v) .. ','
-        end
-        return s .. '} '
-    else
-        return tostring(o)
-    end
-end
-
 local function search(data)
     local page = data[PAGE]
     local query = data[QUERY]
@@ -262,7 +228,6 @@ local function search(data)
     local req = Request(
         POST("https://storyseedling.com/ajax",
             HeadersBuilder()
-                :add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; rv:126.0) Gecko/20100101 Firefox/126.0")
                 :add("Accept", "*/*")
                 :add("Accept-Language", "en-US,en;q=0.5")
                 :add("Origin", "null")
@@ -291,6 +256,22 @@ local function search(data)
     return novels
 end
 
+local function getListing(data)
+    local novels = search({
+        [QUERY] = "",
+        [PAGE] = data[PAGE]
+    })
+    -- For cloudflare shit
+    if data[PAGE] == 1 then
+        table.insert(novels, 2, Novel {
+            title = "Cloudflare chapter verification",
+            link = last_chap,
+            imageURL = "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fstatic-00.iconduck.com%2Fassets.00%2Fcloudflare-icon-2048x2048-wks6nchu.png&f=1&nofb=1&ipt=f3cc3d8cb94d2ff36ba070cd78a4f7a5a2c53b7c156f78431146f51c430b0055&ipo=images"
+        })
+    end
+    return novels
+end
+
 -- Return all properties in a lua table.
 return {
 	-- Required
@@ -298,7 +279,7 @@ return {
 	name = name,
 	baseURL = baseURL,
 	listings = {
-        Listing("Default", false, getListing)
+        Listing("Default", true, getListing)
     }, -- Must have at least one listing
 	getPassage = getPassage,
 	parseNovel = parseNovel,
