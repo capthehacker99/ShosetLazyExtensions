@@ -1,85 +1,103 @@
--- {"id":1339243358,"ver":"1.0.10","libVer":"1.0.10","author":"","repo":"","dep":[]}
-local dkjson = Require("dkjson")
+-- {"id":1339243358,"ver":"1.0.11","libVer":"1.0.0","author":""}
+local json = Require("dkjson")
 local bigint = Require("bigint")
---- Identification number of the extension.
---- Should be unique. Should be consistent in all references.
----
---- Required.
----
---- @type int
+
+
 local id = 1339243358
 
---- Name of extension to display to the user.
---- Should match index.
----
---- Required.
----
---- @type string
 local name = "MVLEMPYR"
 
---- Base URL of the extension. Used to open web view in Shosetsu.
----
---- Required.
----
---- @type string
-local baseURL = "https://www.mvlempyr.com/"
-
---- URL of the logo.
----
---- Optional, Default is empty.
----
---- @type string
-local imageURL = "https://assets.mvlempyr.com/images/asset/LogoMage.webp"
---- ChapterType provided by the extension.
----
---- Optional, Default is STRING. But please do HTML.
----
---- @type ChapterType
 local chapterType = ChapterType.HTML
 
---- Index that pages start with. For example, the first page of search is index 1.
----
---- Optional, Default is 1.
----
---- @type number
-local startIndex = 1
+local imageURL = "https://assets.mvlempyr.com/images/asset/LogoMage.webp"
 
---- Shrink the website url down. This is for space saving purposes.
----
---- Required.
----
---- @param url string Full URL to shrink.
---- @param _ int Either KEY_CHAPTER_URL or KEY_NOVEL_URL.
---- @return string Shrunk URL.
+--base Url for the site
+
+local baseURL = "https://www.mvlempyr.com/"
+
 local function shrinkURL(url, _)
     return url
 end
 
---- Expand a given URL.
----
---- Required.
----
---- @param url string Shrunk URL to expand.
---- @param _ int Either KEY_CHAPTER_URL or KEY_NOVEL_URL.
---- @return string Full URL.
 local function expandURL(url, _)
 	return url
 end
 
---- Get a chapter passage based on its chapterURL.
----
---- Required.
----
---- @param chapterURL string The chapters shrunken URL.
---- @return string Strings in lua are byte arrays. If you are not outputting strings/html you can return a binary stream.
-local function getPassage(chapterURL)
-    -- Thanks to bigr4nd for figuring out that somehow .space domain bypasses cloudflare
-	local url = expandURL(chapterURL):gsub("(%w+://[^/]+)%.net", "%1.space")
+local startIndex = 1
 
-	--- Chapter page, extract info from it.
-	local document = GETDocument(url)
-    local htmlElement = document:selectFirst("#chapter")
-    return pageOfElem(htmlElement, true)
+local matchingNovels = nil
+local loadedPages = 0
+local totalPages = nil
+local pageQueryId = "c5c66f03"
+local queryCache = {}
+
+local function clearNovelsCache()
+    matchingNovels = nil
+    loadedPages = 0
+    totalPages = nil
+end
+
+local function loadAllNovels(startPage, endPage, query)
+    query = query:lower()
+    local novels, seenLinks = {}, {}
+    startPage = math.max(startPage or 1, 1)
+    endPage = math.max(endPage or startPage + 19, startPage)
+    
+    local nextPageLink = nil
+    local hasMatches = false
+    
+    for page = startPage, endPage do
+        if loadedPages >= page then goto continue end
+        loadedPages = loadedPages + 1
+        local url = (baseURL .. "advance-search" .. (page > 1 and "?" .. pageQueryId .. "_page=" .. page or "")):gsub("(%w+://[^/]+)%.(com|net)(/|$)", "%1.space%3")
+        local doc = GETDocument(url, { timeout = 60000, javascript = true })
+        
+        if page == 1 then
+            local totalText = doc:selectFirst(".w-page-count.hide"):text()
+            if totalText then
+                local total = tonumber(totalText:match("Showing %d+ out of (%d+) novels")) or 0
+                if total > 0 then totalPages = math.ceil(total / 15) end
+            end
+            local link = doc:selectFirst("a.w-pagination-next.next")
+            if link and link:attr("href") then
+                pageQueryId = link:attr("href"):match("%?([^=]+)_page=") or pageQueryId
+            end
+        end
+        
+        nextPageLink = doc:selectFirst("a.w-pagination-next.next")
+        nextPageLink = nextPageLink and nextPageLink:attr("href") or nil 
+        local elements, newNovelsFound = doc:select(".novelcolumn"), false
+        for i = 0, elements:size() - 1 do
+            local v = elements:get(i)
+            local name = v:selectFirst("h2[fs-cmsfilter-field=\"name\"]")
+            if not name then goto inner_continue end
+            name = name:text()
+            local link = v:selectFirst("a")
+            if not link then goto inner_continue end
+            link = link:attr("href")
+            if not link or link == "" then goto inner_continue end
+            link = baseURL .. link:gsub("^/", "")
+            local key = link .. "|" .. name
+            if seenLinks[key] then goto inner_continue end
+            seenLinks[key] = true
+            local image = v:selectFirst("img")
+            image = image and image:attr("src") or imageURL
+            local novel = { title = name, link = link, imageURL = image }
+            table.insert(novels, novel)
+            if name:lower():find(query, 1, true) then hasMatches = true end
+            newNovelsFound = true
+            ::inner_continue::
+        end
+        if not newNovelsFound then return novels, hasMatches, nextPageLink end
+        ::continue::
+    end
+    return novels, hasMatches, nextPageLink
+end
+
+local function getPassage(chapterURL)
+    local url = chapterURL:gsub("(%w+://[^/]+)%.net", "%1.space")
+    local doc = GETDocument(url)
+    return pageOfElem(doc:selectFirst("#chapter"), true)
 end
 
 local function calculateTagId(novel_code)
@@ -98,40 +116,28 @@ local function calculateTagId(novel_code)
     return bigint.unserialize(u, "string")
 end
 
---- Load info on a novel.
----
---- Required.
----
---- @param novelURL string shrunken novel url.
---- @return NovelInfo
 local function parseNovel(novelURL)
-	local url = expandURL(novelURL)
-
-	--- Novel page, extract info from it.
-	local document = GETDocument(url)
+    local doc = GETDocument(novelURL)
     local desc = ""
-    map(document:select(".synopsis p"), function(p)
-        desc = desc .. '\n' .. p:text()
-    end)
-    local img = document:selectFirst("img.novel-image2")
+    map(doc:select(".synopsis p"), function(p) desc = desc .. '\n' .. p:text() end)
+    local img = doc:selectFirst("img.novel-image2")
     img = img and img:attr("src") or imageURL
-    local novel_code = document:selectFirst("#novel-code"):text()
+    local novel_code = doc:selectFirst("#novel-code"):text()
     local headers = HeadersBuilder():add("Origin", "https://www.mvlempyr.com"):build()
-    local chapters = {}
-    local page = 1
+    local chapters, page = {}, 1
     repeat
-        local chapter_data = dkjson.GET("https://chap.mvlempyr.space/wp-json/wp/v2/posts?tags=" .. calculateTagId(novel_code) .. "&per_page=500&page=" .. page, headers)
-        for i, v in next, chapter_data do
+        local data = json.GET("https://chap.mvlempyr.space/wp-json/wp/v2/posts?tags=" .. calculateTagId(novel_code) .. "&per_page=500&page=" .. page, headers)
+        for i, v in next, data do
             table.insert(chapters, NovelChapter {
                 order = v.acf.chapter_number,
                 title = v.acf.ch_name,
-                link = shrinkURL(v.link)
+                link = v.link
             })
         end
         page = page + 1
-    until #chapter_data < 500
-	return NovelInfo({
-        title = document:selectFirst(".novel-title2"):text():gsub("\n" ,""),
+    until #data < 500
+    return NovelInfo({
+        title = doc:selectFirst(".novel-title2"):text():gsub("\n", ""),
         imageURL = img,
         description = desc,
         chapters = chapters
@@ -164,38 +170,51 @@ local function getListing(data)
     end)
 end
 
-local search_page_parm
 local function search(data)
-    local query = data[QUERY]
-    local document = GETDocument("https://www.mvlempyr.com/advance-search" .. (search_page_parm and (search_page_parm .. data[PAGE]) or ""))
-    if not search_page_parm then
-        search_page_parm = document:selectFirst("[role=\"navigation\"]:has(.paginationbuttonwrapper) [aria-label=\"Next Page\"]")
-        if not search_page_parm then
-            error(document)
+    local query = (data[QUERY] or ""):lower()
+    local page = data[PAGE] or 1
+    if queryCache[query] then
+        matchingNovels = queryCache[query]
+    else
+        clearNovelsCache()
+        matchingNovels = matchingNovels or {}
+        local seenFiltered = {}
+        local pageBatchSize, currentStartPage = 20, 1
+        while true do
+            local novels, hasMatches, nextPageLink = loadAllNovels(currentStartPage, currentStartPage + pageBatchSize - 1, query)
+            if hasMatches then
+                for _, novel in ipairs(novels) do
+                    local title = novel.title:lower()
+                    if title:find(query, 1, true) then
+                        local key = novel.link .. "|" .. novel.title
+                        if not seenFiltered[key] then
+                            seenFiltered[key] = true
+                            table.insert(matchingNovels, Novel {
+                                title = novel.title,
+                                link = novel.link,
+                                imageURL = novel.imageURL
+                            })
+                        end
+                    end
+                end
+            end
+            if not nextPageLink then break end
+            currentStartPage = currentStartPage + pageBatchSize
         end
-        search_page_parm = search_page_parm:attr("href")
-        if not search_page_parm then
-            error("Failed to find search href")
-        end
-        search_page_parm = search_page_parm:match("%?[^=]+=")
-        if not search_page_parm then
-            error("Failed to find search match")
-        end
+        queryCache[query] = matchingNovels
     end
-    return mapNotNil(document:select(".novelcolumn"), function(v)
-        local name = v:selectFirst(".novelcolumcontent h2"):text()
-        if not name:lower():match(query) then
-            return nil
-        end
-        return Novel {
-            title = name,
-            link = "https://www.mvlempyr.com/" ..v:selectFirst("a"):attr("href"),
-            imageURL = imageURL
-        }
-    end)
+
+    local perPage = 20
+    local startIndex = (page - 1) * perPage + 1
+    local endIndex = math.min(startIndex + perPage - 1, #matchingNovels)
+    if startIndex > #matchingNovels then return {} end
+    local paged = {}
+    for i = startIndex, endIndex do
+        if matchingNovels[i] then table.insert(paged, matchingNovels[i]) end
+    end
+    return paged
 end
 
--- Return all properties in a lua table.
 return {
 	-- Required
 	id = id,
