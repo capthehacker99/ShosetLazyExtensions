@@ -2,7 +2,7 @@
 local json = Require("dkjson")
 local bigint = Require("bigint")
 
-local id = 620191
+local id = 1339243358
 local name = "MVLEMPYR"
 local chapterType = ChapterType.HTML
 local imageURL = "https://assets.mvlempyr.com/images/asset/LogoMage.webp"
