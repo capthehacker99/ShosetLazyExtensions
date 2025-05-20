@@ -2,17 +2,17 @@
 local json = Require("dkjson")
 local bigint = Require("bigint")
 
-
-local id = 1339243358
-
+local id = 620191
 local name = "MVLEMPYR"
-
 local chapterType = ChapterType.HTML
-
 local imageURL = "https://assets.mvlempyr.com/images/asset/LogoMage.webp"
 
---base Url for the site
+---@param v Element
+local text = function(v)
+    return v:text()
+end
 
+--base Url for the site
 local baseURL = "https://www.mvlempyr.com/"
 
 local function shrinkURL(url, _)
@@ -20,11 +20,10 @@ local function shrinkURL(url, _)
 end
 
 local function expandURL(url, _)
-	return url
+    return url
 end
 
 local startIndex = 1
-
 local matchingNovels = nil
 local loadedPages = 0
 local totalPages = nil
@@ -67,26 +66,29 @@ local function loadAllNovels(startPage, endPage, query)
         nextPageLink = doc:selectFirst("a.w-pagination-next.next")
         nextPageLink = nextPageLink and nextPageLink:attr("href") or nil 
         local elements, newNovelsFound = doc:select(".novelcolumn"), false
-        for i = 0, elements:size() - 1 do
-            local v = elements:get(i)
+        local newNovels = mapNotNil(elements, function(v)
             local name = v:selectFirst("h2[fs-cmsfilter-field=\"name\"]")
-            if not name then goto inner_continue end
+            if not name then return nil end
             name = name:text()
             local link = v:selectFirst("a")
-            if not link then goto inner_continue end
+            if not link then return nil end
             link = link:attr("href")
-            if not link or link == "" then goto inner_continue end
+            if not link or link == "" then return nil end
             link = baseURL .. link:gsub("^/", "")
             local key = link .. "|" .. name
-            if seenLinks[key] then goto inner_continue end
+            if seenLinks[key] then return nil end
             seenLinks[key] = true
             local image = v:selectFirst("img")
             image = image and image:attr("src") or imageURL
             local novel = { title = name, link = link, imageURL = image }
-            table.insert(novels, novel)
             if name:lower():find(query, 1, true) then hasMatches = true end
             newNovelsFound = true
-            ::inner_continue::
+            return novel
+        end)
+        for _, novel in ipairs(newNovels) do
+            table.insert(novels, novel)
+            if name:lower():find(query, 1, true) then hasMatches = true end
+               newNovelsFound = true 
         end
         if not newNovelsFound then return novels, hasMatches, nextPageLink end
         ::continue::
@@ -95,23 +97,33 @@ local function loadAllNovels(startPage, endPage, query)
 end
 
 local function getPassage(chapterURL)
-    local url = chapterURL:gsub("(%w+://[^/]+)%.net", "%1.space")
+    -- Thanks to bigr4nd for figuring out that somehow .space domain bypasses cloudflare
+    local url = expandURL(chapterURL):gsub("(%w+://[^/]+)%.net", "%1.space")
+    --- Chapter page, extract info from it.
     local doc = GETDocument(url)
-    return pageOfElem(doc:selectFirst("#chapter"), true)
+    local title = doc:selectFirst("h2.ChapterName span"):text()
+    local htmlElement = doc:selectFirst("#chapter")
+    local ht = "<h1>" .. title .. "</h1>"
+    local pTagList = map(htmlElement:select("p"), text)
+    local htmlContent = ""
+    for _, v in pairs(pTagList) do
+        htmlContent = htmlContent .. "<br><br>" .. v
+    end
+    ht = ht .. htmlContent
+    return pageOfElem(Document(ht), true)
 end
 
 local function calculateTagId(novel_code)
     local t = bigint.new("1999999997")
-    local c = bigint.modulus(bigint.new("7"), t);
-    local d = tonumber(novel_code);
-    local u = bigint.new(1);
+    local c = bigint.modulus(bigint.new("7"), t)
+    local d = tonumber(novel_code)
+    local u = bigint.new(1)
     while d > 0 do
-        -- print(bigint.unserialize(t, "string"), bigint.unserialize(c, "string"), d, bigint.unserialize(u, "string"))
         if (d % 2) == 1 then
             u = bigint.modulus((u * c), t)
         end
-        c = bigint.modulus((c * c), t);
-        d = math.floor(d/2);
+        c = bigint.modulus((c * c), t)
+        d = math.floor(d/2)
     end
     return bigint.unserialize(u, "string")
 end
@@ -216,22 +228,21 @@ local function search(data)
 end
 
 return {
-	-- Required
-	id = id,
-	name = name,
-	baseURL = baseURL,
-	listings = {
+    id = id,
+    name = name,
+    baseURL = baseURL,
+    listings = {
         Listing("Default", true, getListing)
-    }, -- Must have at least one listing
-	getPassage = getPassage,
-	parseNovel = parseNovel,
-	shrinkURL = shrinkURL,
-	expandURL = expandURL,
+    },
+    getPassage = getPassage,
+    parseNovel = parseNovel,
+    shrinkURL = shrinkURL,
+    expandURL = expandURL,
     hasSearch = true,
     isSearchIncrementing = true,
     hasCloudFlare = true,
     search = search,
-	imageURL = imageURL,
-	chapterType = chapterType,
-	startIndex = startIndex,
+    imageURL = imageURL,
+    chapterType = chapterType,
+    startIndex = startIndex,
 }
