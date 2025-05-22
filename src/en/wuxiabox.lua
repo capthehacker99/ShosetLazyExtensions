@@ -1,4 +1,4 @@
--- {"id":469256382,"ver":"1.0.1","libVer":"1.0.1","author":"","repo":"","dep":[]}
+-- {"id":469256382,"ver":"1.0.2","libVer":"1.0.2","author":"","repo":"","dep":[]}
 
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -62,6 +62,9 @@ end
 --- @param _ int Either KEY_CHAPTER_URL or KEY_NOVEL_URL.
 --- @return string Full URL.
 local function expandURL(url, _)
+    if url:find("^http") then
+        return url
+    end
 	return baseURL .. url
 end
 
@@ -111,9 +114,11 @@ local function parseNovel(novelURL)
         local doc = GETDocument(expandURL(part_a .. page .. '&' .. part_b))
         local selected = doc:select(".chapter-list a")
         map(selected, function(v)
+            local title = v:selectFirst(".chapter-title")
+            title = title and title:text() or v:attr("title")
             table.insert(chapters, NovelChapter {
                 order = cur,
-                title = v:attr("title"),
+                title = title,
                 link = shrinkURL(v:attr("href"))
             })
         end)
@@ -123,7 +128,7 @@ local function parseNovel(novelURL)
     end
 	return NovelInfo({
         title = title:text():gsub("\n" ,""),
-        imageURL = img:attr("src"),
+        imageURL = expandURL(img:attr("data-src")),
         description = desc,
         chapters = chapters
     })
@@ -136,7 +141,7 @@ local function getListing()
         return Novel {
             title = v:attr("title"),
             link = shrinkURL(v:attr("href")),
-            imageURL = v:selectFirst("img"):attr("src")
+            imageURL = expandURL(v:selectFirst("img"):attr("data-src"))
         }
     end)
 end
@@ -155,7 +160,7 @@ local function search(data)
         return Novel {
             title = v:attr("title"),
             link = shrinkURL(v:attr("href")),
-            imageURL = v:selectFirst("img"):attr("src")
+            imageURL = expandURL(v:selectFirst("img"):attr("data-src"))
         }
     end)
 end
