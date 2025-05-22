@@ -1,4 +1,4 @@
--- {"id":1553358903,"ver":"1.0.4","libVer":"1.0.4","author":"","repo":"","dep":[]}
+-- {"id":1553358903,"ver":"1.0.5","libVer":"1.0.5","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -127,7 +127,7 @@ local function parseNovel(novelURL)
         if not v.locked or v.locked.price == 0 then            
             table.insert(chapters, NovelChapter {
                 order = v.index,
-                title = v.title,
+                title = v.name or v.title,
                 link = raw_url .. "/chapter-" .. v.number
             })
         end
