@@ -1,4 +1,4 @@
--- {"id":626239047,"ver":"1.0.0","libVer":"1.0.0","author":"","repo":"","dep":[]}
+-- {"id":626239047,"ver":"1.0.1","libVer":"1.0.1","author":"","repo":"","dep":[]}
 
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -79,7 +79,7 @@ local function getPassage(chapterURL)
 
 	--- Chapter page, extract info from it.
 	local document = GETDocument(url)
-    local htmlElement = document:selectFirst("#storytext")
+    local htmlElement = document:selectFirst("#storytext,#storycontent")
     return pageOfElem(htmlElement, true)
 end
 
