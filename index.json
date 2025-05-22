@@ -413,6 +413,16 @@
 			"ver": "1.0.0",
 			"libVer": "1.0.0",
 			"md5": "4ec31bea3e04e846237fc4a4e6d3036b"
+		},
+		{
+			"name": "FanFiction",
+			"fileName": "FanFiction",
+			"imageURL": "https://www.fanfiction.net/static/icons3/ff-icon-192.png",
+			"id": 626239047,
+			"lang": "all",
+			"ver": "1.0.0",
+			"libVer": "1.0.0",
+			"md5": "2e9d4a741082b800836ed70608966825"
 		}
 	]
 }
