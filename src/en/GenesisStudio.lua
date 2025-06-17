@@ -1,4 +1,4 @@
--- {"id":1035923222,"ver":"1.0.9","libVer":"1.0.9","author":"","repo":"","dep":[]}
+-- {"id":1035923222,"ver":"1.0.10","libVer":"1.0.10","author":"","repo":"","dep":[]}
 local json = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -377,39 +377,7 @@ local function getPassage(chapterURL)
 
 	--- Chapter page, extract info from it.
 	local document = GETDocument(url)
-    local data;
-    map(document:select("script"),function(script)
-        if data then
-            return
-        end
-        local matched = string.match(tostring(script), "{\"type\":\"data\",\"data\":{form:.+")
-        if not matched then
-            return
-        end
-        matched = string.match(matched, "%b{}")
-        local trans = matched:gsub("void (%d)", function(o) return o end):gsub("([,{][a-zA-Z_$][0-9a-zA-Z_$]*):", function(a) return a:sub(0, 1) .. '"' .. a:sub(2) .. '":' end)
-        data = json.decode(trans)
-    end)
-    if not data or not data.data then
-        error("Failed to obtain passage data.")
-    end
-    --print(dump(data.data))
-    local real_content;
-    for _, v in next, data.data do
-        if type(v) == "string" then
-            if v:find("</p>") then
-                real_content = v
-                break
-            end
-        end
-    end
-    if not real_content then
-        real_content = data.data.gs
-    end
-    if real_content then
-        return pageOfElem(Document(real_content), true)
-    end
-    error("Content not found.")
+    return pageOfElem(document:selectFirst(".novel-content"), true)
 end
 
 --- Load info on a novel.
@@ -426,7 +394,7 @@ local function parseNovel(novelURL)
         if data then
             return
         end
-        local matched = string.match(tostring(script), "{\"type\":\"data\",\"data\":{novel:.+")
+        local matched = string.match(tostring(script), "{type:\"data\",data:{novel:.+")
         if not matched then
             return
         end

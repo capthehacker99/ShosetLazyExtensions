@@ -1,4 +1,4 @@
--- {"id":1141686301,"ver":"1.0.5","libVer":"1.0.5","author":"","repo":"","dep":[]}
+-- {"id":1141686301,"ver":"1.0.6","libVer":"1.0.6","author":"","repo":"","dep":[]}
 
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -127,13 +127,24 @@ local function getListing()
     end)
 end
 
+local function urlEncode(str)
+    if str then
+        str = str:gsub("\n", "\r\n")
+        str = str:gsub("([^%w %-%_%.%~])", function(c)
+            return ("%%%02X"):format(string.byte(c))
+        end)
+        str = str:gsub(" ", "+")
+    end
+    return str
+end
+
 local function search(data)
     local page = data[PAGE]
     local query = data[QUERY]
-    local document = GETDocument(expandURL("?s=" .. query .. "&paged=" .. page .. "/"))
+    local document = GETDocument(expandURL("?s=" .. urlEncode(query) .. "&paged=" .. page))
     return mapNotNil(document:select(".search-results > div.latest-postItemContainer > a"), function(v)
         local link = v:attr("href")
-        if not link:find("series") then return end
+        if not link:find("series") and not link:find("uncategorized") then return end
         return Novel {
             title = v:text(),
             link = shrinkURL(link),
