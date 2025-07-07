@@ -1,4 +1,4 @@
--- {"id":1339243358,"ver":"1.0.10","libVer":"1.0.10","author":"","repo":"","dep":[]}
+-- {"id":1339243358,"ver":"1.1.0","libVer":"1.0.10","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 local bigint = Require("bigint")
 --- Identification number of the extension.
@@ -73,8 +73,7 @@ end
 --- @param chapterURL string The chapters shrunken URL.
 --- @return string Strings in lua are byte arrays. If you are not outputting strings/html you can return a binary stream.
 local function getPassage(chapterURL)
-    -- Thanks to bigr4nd for figuring out that somehow .space domain bypasses cloudflare
-	local url = expandURL(chapterURL):gsub("(%w+://[^/]+)%.net", "%1.space")
+	local url = expandURL(chapterURL):gsub("(%w+://[^/]+)%.net", "%1.app")
 
 	--- Chapter page, extract info from it.
 	local document = GETDocument(url)
@@ -120,79 +119,51 @@ local function parseNovel(novelURL)
     local chapters = {}
     local page = 1
     repeat
-        local chapter_data = dkjson.GET("https://chap.mvlempyr.space/wp-json/wp/v2/posts?tags=" .. calculateTagId(novel_code) .. "&per_page=500&page=" .. page, headers)
+        local chapter_data = dkjson.GET("https://chap.heliosarchive.online/wp-json/wp/v2/posts?tags=" .. calculateTagId(novel_code) .. "&per_page=500&page=" .. page, headers)
         for i, v in next, chapter_data do
             table.insert(chapters, NovelChapter {
                 order = v.acf.chapter_number,
                 title = v.acf.ch_name,
-                link = shrinkURL(v.link)
+                link = shrinkURL(v.link):gsub("chap.heliosarchive.online", "www.mvlempyr.app")
             })
         end
         page = page + 1
     until #chapter_data < 500
 	return NovelInfo({
-        title = document:selectFirst(".novel-title2"):text():gsub("\n" ,""),
+        title = document:selectFirst(".novel-title2"):text():gsub("\n" ,"www.mvlempyr.app"),
         imageURL = img,
         description = desc,
         chapters = chapters
     })
 end
 
-local listing_page_parm
 local function getListing(data)
-    local document = GETDocument("https://www.mvlempyr.com/novels" .. (listing_page_parm and (listing_page_parm .. data[PAGE]) or ""))
-    if not listing_page_parm then
-        listing_page_parm = document:selectFirst(".g-tpage a.painationbutton.w--current, .g-tpage a.w-pagination-next")
-        if not listing_page_parm then
-            error(document)
-        end
-        listing_page_parm = listing_page_parm:attr("href")
-        if not listing_page_parm then
-            error("Failed to find listing href")
-        end
-        listing_page_parm = listing_page_parm:match("%?[^=]+=")
-        if not listing_page_parm then
-            error("Failed to find listing match")
-        end
+    local data = dkjson.GET("https://chap.heliosarchive.online/wp-json/wp/v2/mvl-novels?per_page=100&page=" .. data[PAGE])
+    local novels = {}
+    for _, novel in next, data do
+        table.insert(novels, Novel {
+            title = novel.name,
+            link = "https://www.mvlempyr.app/novel/" .. novel.slug,
+            imageURL = "https://assets.mvlempyr.app/images/600/" .. novel["novel-code"] .. ".webp"
+        })
     end
-    return map(document:select(".g-tpage div.searchlist[role=\"listitem\"] .novelcolumn .novelcolumimage a"), function(v)
-        return Novel {
-            title = v:attr("title"),
-            link = "https://www.mvlempyr.com/" .. v:attr("href"),
-            imageURL = v:selectFirst("img"):attr("src")
-        }
-    end)
+    return novels
 end
 
-local search_page_parm
 local function search(data)
     local query = data[QUERY]
-    local document = GETDocument("https://www.mvlempyr.com/advance-search" .. (search_page_parm and (search_page_parm .. data[PAGE]) or ""))
-    if not search_page_parm then
-        search_page_parm = document:selectFirst("[role=\"navigation\"]:has(.paginationbuttonwrapper) [aria-label=\"Next Page\"]")
-        if not search_page_parm then
-            error(document)
-        end
-        search_page_parm = search_page_parm:attr("href")
-        if not search_page_parm then
-            error("Failed to find search href")
-        end
-        search_page_parm = search_page_parm:match("%?[^=]+=")
-        if not search_page_parm then
-            error("Failed to find search match")
+    local data = dkjson.GET("https://chap.heliosarchive.online/wp-json/wp/v2/mvl-novels?per_page=5000&page=" .. data[PAGE])
+    local novels = {}
+    for _, novel in next, data do
+        if novel.name:match(query) then
+            table.insert(novels, Novel {
+                title = novel.name,
+                link = "https://www.mvlempyr.app/novel/" .. novel.slug,
+                imageURL = "https://assets.mvlempyr.app/images/600/" .. novel["novel-code"] .. ".webp"
+            })
         end
     end
-    return mapNotNil(document:select(".novelcolumn"), function(v)
-        local name = v:selectFirst(".novelcolumcontent h2"):text()
-        if not name:lower():match(query) then
-            return nil
-        end
-        return Novel {
-            title = name,
-            link = "https://www.mvlempyr.com/" ..v:selectFirst("a"):attr("href"),
-            imageURL = imageURL
-        }
-    end)
+    return novels
 end
 
 -- Return all properties in a lua table.
