@@ -1,4 +1,4 @@
--- {"id":1339243358,"ver":"1.1.0","libVer":"1.0.10","author":"","repo":"","dep":[]}
+-- {"id":1339243358,"ver":"1.1.1","libVer":"1.0.10","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 local bigint = Require("bigint")
 --- Identification number of the extension.
@@ -138,7 +138,7 @@ local function parseNovel(novelURL)
 end
 
 local function getListing(data)
-    local data = dkjson.GET("https://chap.heliosarchive.online/wp-json/wp/v2/mvl-novels?per_page=100&page=" .. data[PAGE])
+    local data = dkjson.GET("https://chap.heliosarchive.online/wp-json/wp/v2/mvl-novels?per_page=100&offset=" .. (100 * data[PAGE] - 100))
     local novels = {}
     for _, novel in next, data do
         table.insert(novels, Novel {
@@ -152,7 +152,7 @@ end
 
 local function search(data)
     local query = data[QUERY]
-    local data = dkjson.GET("https://chap.heliosarchive.online/wp-json/wp/v2/mvl-novels?per_page=5000&page=" .. data[PAGE])
+    local data = dkjson.GET("https://chap.heliosarchive.online/wp-json/wp/v2/mvl-novels?per_page=5000&offset=" .. (5000 * data[PAGE] - 5000))
     local novels = {}
     for _, novel in next, data do
         if novel.name:match(query) then
