@@ -423,6 +423,16 @@
 			"ver": "1.0.1",
 			"libVer": "1.0.1",
 			"md5": "2a77fd7d3d46536753dec2249f40b099"
+		},
+		{
+			"name": "Ziru's Musings",
+			"fileName": "ZirusMusings",
+			"imageURL": "https://www.zirusmusings.net/images/nextImageExportOptimizer/logo-opt-320.WEBP",
+			"id": 2069673422,
+			"lang": "en",
+			"ver": "1.0.0",
+			"libVer": "1.0.0",
+			"md5": "4a2a54a8a61e6bd7a39063f445722f7b"
 		}
 	]
 }
