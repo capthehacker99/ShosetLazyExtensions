@@ -425,6 +425,16 @@
 			"md5": "2a77fd7d3d46536753dec2249f40b099"
 		},
 		{
+			"name": "Archive of Our Own",
+			"fileName": "ArchiveOfOurOwn",
+			"imageURL": "https://archiveofourown.org/images/ao3_logos/logo_42.png",
+			"id": 236580412,
+			"lang": "all",
+			"ver": "1.0.0",
+			"libVer": "1.0.0",
+			"md5": "cbe07fc2e8f10370a8a97e6430d3a6d9"
+		},
+		{
 			"name": "Ziru's Musings",
 			"fileName": "ZirusMusings",
 			"imageURL": "https://www.zirusmusings.net/images/nextImageExportOptimizer/logo-opt-320.WEBP",
