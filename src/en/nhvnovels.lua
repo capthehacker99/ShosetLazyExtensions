@@ -1,4 +1,4 @@
--- {"id":402713732,"ver":"1.0.0","libVer":"1.0.0","author":"","repo":"","dep":[]}
+-- {"id":402713732,"ver":"1.0.1","libVer":"1.0.1","author":"","repo":"","dep":[]}
 
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -91,16 +91,16 @@ local function parseNovel(novelURL)
 	local url = expandURL(novelURL)
 	--- Novel page, extract info from it.
 	local document = GETDocument(url)
-    local desc_container = document:selectFirst(".novel-content-2")
+    local desc_container = document:selectFirst(".novel-description")
     local desc = ""
     map(desc_container:select("p"), function(p)
         desc = desc .. '\n' .. p:text()
     end)
-    local selected = document:select(".chapters > ul > li > a[class=\"\"]")
+    local selected = document:select(".chapter-item a.chapter-title-link")
     local cur = selected:size() + 1
 	return NovelInfo({
-        title = desc_container:selectFirst("h1"):text():gsub("\n" ,""),
-        imageURL = document:selectFirst(".novel-topcard .attachment-post-thumbnail"):attr("src"),
+        title = document:selectFirst("h1.novel-title"):text():gsub("\n" ,""),
+        imageURL = document:selectFirst(".novel-image img"):attr("src"),
         description = desc,
         chapters = AsList(
             map(selected, function(v)
@@ -116,8 +116,11 @@ local function parseNovel(novelURL)
 end
 
 local function getListing()
-    local document = GETDocument(baseURL)
-
+    local form = FormBodyBuilder()
+            :add("action", "ajax_novel_search")
+            :add("search_query", "")
+            :build()
+    local document = RequestDocument(POST(expandURL("wp-admin/admin-ajax.php"), DEFAULT_HEADERS(), form))
     return map(document:select(".novel-item"), function(v)
         local thumbnail = v:selectFirst(".novel-thumbnail")
         return Novel {
