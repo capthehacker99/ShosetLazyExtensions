@@ -1,4 +1,4 @@
--- {"id":1339243358,"ver":"1.1.1","libVer":"1.0.10","author":"","repo":"","dep":[]}
+-- {"id":1339243358,"ver":"1.1.2","libVer":"1.0.10","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 local bigint = Require("bigint")
 --- Identification number of the extension.
@@ -152,7 +152,7 @@ end
 
 local function search(data)
     local query = data[QUERY]
-    local data = dkjson.GET("https://chap.heliosarchive.online/wp-json/wp/v2/mvl-novels?per_page=5000&offset=" .. (5000 * data[PAGE] - 5000))
+    local data = dkjson.GET("https://chap.heliosarchive.online/wp-json/wp/v2/mvl-novels?per_page=200&offset=" .. (200 * data[PAGE] - 200))
     local novels = {}
     for _, novel in next, data do
         if novel.name:match(query) then
@@ -162,6 +162,13 @@ local function search(data)
                 imageURL = "https://assets.mvlempyr.app/images/600/" .. novel["novel-code"] .. ".webp"
             })
         end
+    end
+    if #novels <= 0 then
+        table.insert(novels, Novel {
+            title = "DO NOT CLICK (placeholder)",
+            link = "",
+            imageURL = ""
+        })
     end
     return novels
 end
