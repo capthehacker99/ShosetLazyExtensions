@@ -1,4 +1,4 @@
--- {"id":304044934,"ver":"2.0.0","libVer":"1.0.0","author":"","repo":"","dep":[]}
+-- {"id":304044934,"ver":"3.0.0","libVer":"1.0.0","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -14,14 +14,14 @@ local id = 304044934
 --- Required.
 ---
 --- @type string
-local name = "Stellar Realm"
+local name = "Bright Novels"
 
 --- Base URL of the extension. Used to open web view in Shosetsu.
 ---
 --- Required.
 ---
 --- @type string
-local baseURL = "https://stellarrealm.net/"
+local baseURL = "https://brightnovels.com/"
 
 --- URL of the logo.
 ---
@@ -51,7 +51,7 @@ local startIndex = 1
 --- @param _ int Either KEY_CHAPTER_URL or KEY_NOVEL_URL.
 --- @return string Shrunk URL.
 local function shrinkURL(url, _)
-    return url:gsub(".-stellarrealm.net/", "")
+    return url:gsub(".-brightnovels.com/", "")
 end
 
 --- Expand a given URL.
