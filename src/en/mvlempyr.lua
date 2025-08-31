@@ -1,4 +1,4 @@
--- {"id":1339243358,"ver":"1.1.2","libVer":"1.0.10","author":"","repo":"","dep":[]}
+-- {"id":1339243358,"ver":"1.1.3","libVer":"1.0.10","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 local bigint = Require("bigint")
 --- Identification number of the extension.
@@ -150,26 +150,41 @@ local function getListing(data)
     return novels
 end
 
+local searchHelper = {}
+
 local function search(data)
-    local query = data[QUERY]
-    local data = dkjson.GET("https://chap.heliosarchive.online/wp-json/wp/v2/mvl-novels?per_page=200&offset=" .. (200 * data[PAGE] - 200))
-    local novels = {}
-    for _, novel in next, data do
-        if novel.name:match(query) then
-            table.insert(novels, Novel {
-                title = novel.name,
-                link = "https://www.mvlempyr.app/novel/" .. novel.slug,
-                imageURL = "https://assets.mvlempyr.app/images/600/" .. novel["novel-code"] .. ".webp"
-            })
+    local query = data[QUERY]:lower()
+    local origPage = data[PAGE]
+    local page = origPage
+    if searchHelper[query] == nil then
+        searchHelper = {}
+    else
+        page = searchHelper[query][page - 1]
+        if page == nil then
+            page = origPage
+        else
+            page = page + 1
         end
     end
-    if #novels <= 0 then
-        table.insert(novels, Novel {
-            title = "DO NOT CLICK (placeholder)",
-            link = "",
-            imageURL = ""
-        })
+    local novels = {}
+    local idx = 0
+    while #novels == 0 and idx < 200 do
+        local data = dkjson.GET("https://chap.heliosarchive.online/wp-json/wp/v2/mvl-novels?per_page=200&offset=" .. (200 * page - 200))
+        for _, novel in next, data do
+            if novel.name:lower():match(query) then
+                table.insert(novels, Novel {
+                    title = novel.name,
+                    link = "https://www.mvlempyr.app/novel/" .. novel.slug,
+                    imageURL = "https://assets.mvlempyr.app/images/600/" .. novel["novel-code"] .. ".webp"
+                })
+            end
+        end
+        idx = idx + 1
     end
+    if not searchHelper[query] then
+        searchHelper[query] = {}
+    end
+    searchHelper[query][origPage] = page
     return novels
 end
 
