@@ -1,4 +1,4 @@
--- {"id":1339243358,"ver":"1.1.3","libVer":"1.0.10","author":"","repo":"","dep":[]}
+-- {"id":1339243358,"ver":"1.1.4","libVer":"1.0.10","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 local bigint = Require("bigint")
 --- Identification number of the extension.
@@ -157,7 +157,7 @@ local function search(data)
     local origPage = data[PAGE]
     local page = origPage
     if searchHelper[query] == nil then
-        searchHelper = {}
+        searchHelper = {[query] = {}}
     else
         page = searchHelper[query][page - 1]
         if page == nil then
@@ -179,10 +179,8 @@ local function search(data)
                 })
             end
         end
+        page = page + 1
         idx = idx + 1
-    end
-    if not searchHelper[query] then
-        searchHelper[query] = {}
     end
     searchHelper[query][origPage] = page
     return novels
