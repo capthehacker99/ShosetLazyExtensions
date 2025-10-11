@@ -83,6 +83,7 @@ pub noinline fn testScript(allocator: std.mem.Allocator, stdout: *std.Io.Writer,
         return;
     stdout.writeAll(child_stdout.items) catch {};
     stdout.writeAll(child_stderr.items) catch {};
+    stdout.flush() catch {};
 }
 
 pub fn main() !void {
@@ -94,7 +95,8 @@ pub fn main() !void {
         .mode = .read_write
     });
     defer file.close();
-    const file_content = try file.readToEndAlloc(allocator, std.math.maxInt(usize));
+    var fileReader = file.reader(&.{});
+    const file_content = try fileReader.interface.allocRemaining(allocator, .unlimited);
     const index = try std.json.parseFromSliceLeaky(IndexJson, allocator, file_content, .{});
     const args = try std.process.argsAlloc(allocator);
     defer std.process.argsFree(allocator, args);

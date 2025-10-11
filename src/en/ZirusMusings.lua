@@ -1,4 +1,4 @@
--- {"id":2069673422,"ver":"1.0.0","libVer":"1.0.0","author":"","repo":"","dep":[]}
+-- {"id":2069673422,"ver":"1.0.1","libVer":"1.0.0","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -138,16 +138,14 @@ end
 local function getListing()
     local document = GETDocument(expandURL("series"))
     local novels = {}
-    map(filter(document:select("div"), attribContains("class", "Translations_container")), function(v)
-        local coverElem = first(v:select("img"), attribContains("alt", "Series Cover"))
+    map(filter(document:select("div"), attribContains("class", "Series_seriesCard")), function(v)
+        local coverElem = first(v:select("img"), attribContains("class", "Series_coverImage"))
         local coverLink = coverElem and coverElem:attr("src") or imageURL
-        local titleElem = first(v:select("p"), attribContains("class", "Translations_title"))
+        local titleElem = first(v:select("h3"), attribContains("class", "Series_seriesTitle"))
         local title = titleElem and titleElem:text() or "Unknown Title"
-        local seriesAnchorElem = first(v:select("a"), attribContains("href", "/series/"))
-        if seriesAnchorElem == nil then return nil end
         table.insert(novels, Novel {
             title = title;
-            link = shrinkURL(seriesAnchorElem:attr("href"):sub(2));
+            link = shrinkURL(coverLink:gsub("/images/", "/series/"):gsub("/cover.jpg", ""));
             imageURL = expandURL(coverLink);
         })
     end)
