@@ -1,5 +1,5 @@
--- {"id":28508335,"ver":"1.0.0","libVer":"1.0.0","author":"","repo":"","dep":[]}
-
+-- {"id":28508335,"ver":"1.0.1","libVer":"1.0.0","author":"","repo":"","dep":[]}
+local dkjson = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
 ---
@@ -76,8 +76,7 @@ local function getPassage(chapterURL)
 
 	--- Chapter page, extract info from it.
 	local document = GETDocument(url)
-    local htmlElement = document:selectFirst(".reading-content")
-    htmlElement:select("div > figure"):remove()
+    local htmlElement = document:selectFirst("#chapter-content")
     return pageOfElem(htmlElement, true)
 end
 
@@ -92,60 +91,69 @@ local function parseNovel(novelURL)
 
 	--- Novel page, extract info from it.
 	local document = GETDocument(url)
-    local title = document:selectFirst(".post-title")
-    title = title and title:text() or "Unknown Title"
-    local img = document:selectFirst(".summary_image img")
-    img = img and (img:attr("src") or img:attr("data-src")) or imageURL
-    local desc = ""
-    map(document:select(".manga-summary p"), function(p)
-        desc = desc .. '\n' .. p:text()
-    end)
-    local chapters_doc = RequestDocument(POST(url .. "ajax/chapters/"))
-    local selected = chapters_doc:select(".free-chap a")
-    local cur = selected:size() + 1
+    local title = document:selectFirst("meta[property=\"og:title\"]")
+    title = title and title:attr("content") or "Unknown Title"
+    -- local img = document:selectFirst(".summary_image img")
+    -- img = img and (img:attr("src") or img:attr("data-src")) or imageURL
+    local img = imageURL
+    local desc = document:selectFirst("meta[property=\"og:description\"]")
+    desc = desc and desc:attr("content") or ""
+
     return NovelInfo({
         title = title,
         imageURL = img,
         description = desc,
         chapters = AsList(
-                map(selected,function(v)
-                    cur = cur - 1
-                    return NovelChapter {
-                        order = cur,
-                        title = v:text(),
-                        link = shrinkURL(v:attr("href"))
-                    }
-                end)
+            map(document:select(".chapter-group__list a"), function(v)
+                return NovelChapter {
+                    order = v,
+                    title = v:text(),
+                    link = shrinkURL(v:attr("href"))
+                }
+            end)
         )
     })
 end
 
 local function getListing(data)
-    local document = GETDocument(expandURL("browse/page/" .. data[PAGE] .. "/"))
+    local data = dkjson.GET(expandURL("wp-json/wp/v2/fcn_story?per_page=100&_fields=link,title&offset=" .. data[PAGE] * 100))
+    local novels = {}
+    for _, v in next, data do
+        table.insert(novels, Novel {
+            title = v.title.rendered,
+            link = shrinkURL(v.link),
+            imageURL = imageURL
+        })
+    end
+    return novels
+end
 
-    return map(document:select(".page-item-detail > [data-post-id] > a"), function(v)
-        return Novel {
-            title = v:attr("title"),
-            link = shrinkURL(v:attr("href")),
-            imageURL = v:selectFirst("img"):attr("src")
-        }
-    end)
+local function urlEncode(str)
+    if str then
+        str = str:gsub("\n", "\r\n")
+        str = str:gsub("([^%w %-%_%.%~])", function(c)
+            return ("%%%02X"):format(string.byte(c))
+        end)
+        str = str:gsub(" ", "+")
+    end
+    return str
 end
 
 local function search(data)
     local page = data[PAGE]
     local query = data[QUERY]
-    local document = GETDocument(expandURL("page/" .. page .. "/?s=" .. query .. "&post_type=wp-manga"))
-    return map(document:select(".tab-content-wrap > div > .row"), function(v)
-        local img = v:selectFirst(".tab-thumb img")
-        img = img and img:attr("src") or imageURL
-        local title = v:selectFirst(".post-title a")
-        return Novel {
-            title = title:text(),
-            link = shrinkURL(title:attr("href")),
-            imageURL = img
-        }
-    end)
+    local data = dkjson.GET(expandURL("wp-json/wp/v2/search?search=" .. urlEncode(query) .. "&per_page=100&_fields=url,title,subtype&offset=" .. data[PAGE] * 100))
+    local novels = {}
+    for _, v in next, data do
+        if v.subtype == "fcn_story" then
+            table.insert(novels, Novel {
+                title = v.title,
+                link = shrinkURL(v.url),
+                imageURL = imageURL
+            })
+        end
+    end
+    return novels
 end
 
 -- Return all properties in a lua table.
