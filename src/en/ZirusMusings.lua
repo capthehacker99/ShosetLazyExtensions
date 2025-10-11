@@ -1,4 +1,4 @@
--- {"id":2069673422,"ver":"1.0.1","libVer":"1.0.0","author":"","repo":"","dep":[]}
+-- {"id":2069673422,"ver":"1.0.2","libVer":"1.0.0","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -138,17 +138,19 @@ end
 local function getListing()
     local document = GETDocument(expandURL("series"))
     local novels = {}
-    map(filter(document:select("div"), attribContains("class", "Series_seriesCard")), function(v)
-        local coverElem = first(v:select("img"), attribContains("class", "Series_coverImage"))
-        local coverLink = coverElem and coverElem:attr("src") or imageURL
-        local titleElem = first(v:select("h3"), attribContains("class", "Series_seriesTitle"))
-        local title = titleElem and titleElem:text() or "Unknown Title"
+    local dataElem = document:selectFirst("script[id=\"__NEXT_DATA__\"]")
+    if not dataElem then
+        error("Novel data not found")
+    end
+    local data = dkjson.decode(string.match(tostring(dataElem), "%b{}"))
+    data = data.props.pageProps.seriesData
+    for _, v in next, data do
         table.insert(novels, Novel {
-            title = title;
-            link = shrinkURL(coverLink:gsub("/images/", "/series/"):gsub("/cover.jpg", ""));
-            imageURL = expandURL(coverLink);
+            title = v.name;
+            link = "series/" .. v.seriesID;
+            imageURL = expandURL(v.cover);
         })
-    end)
+    end
     return novels
 end
 
