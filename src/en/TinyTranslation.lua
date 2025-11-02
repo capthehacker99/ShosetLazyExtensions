@@ -1,4 +1,4 @@
--- {"id":1141686301,"ver":"1.0.6","libVer":"1.0.6","author":"","repo":"","dep":[]}
+-- {"id":1141686301,"ver":"1.0.7","libVer":"1.0.6","author":"","repo":"","dep":[]}
 
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -101,7 +101,7 @@ local function parseNovel(novelURL)
         title = title,
         imageURL = imageURL,
         description = desc,
-        chapters = AsList(mapNotNil(document:select("#info ul > li a, .entry-content div.container ul > li a"), function(v)
+        chapters = AsList(mapNotNil(document:select("#info ul > li a, .entry-content div.container ul > li a, .entry-content ul > li a"), function(v)
             local link = v:attr("href")
             if not (link:find("tinytranslation") or link:find("^/")) then return end
             return NovelChapter {
