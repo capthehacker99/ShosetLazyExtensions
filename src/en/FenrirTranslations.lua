@@ -1,4 +1,4 @@
--- {"id":1553358903,"ver":"1.0.6","libVer":"1.0.6","author":"","repo":"","dep":[]}
+-- {"id":1553358903,"ver":"1.0.7","libVer":"1.0.6","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -65,6 +65,13 @@ local function expandURL(url, _)
     return baseURL .. url
 end
 
+local function attribContains(attrib, substr)
+    return function(element)
+        local className = element:attr(attrib)
+        return className ~= nil and className:find(substr) ~= nil
+    end
+end
+
 --- Get a chapter passage based on its chapterURL.
 ---
 --- Required.
@@ -76,7 +83,7 @@ local function getPassage(chapterURL)
 
     --- Chapter page, extract info from it.
     local document = GETDocument(url)
-    local htmlElement = document:selectFirst("#reader-area")
+    local htmlElement = first(document:select("div[id]"), attribContains("id", "reader%-area"))
     return pageOfElem(htmlElement, true)
 end
 
@@ -154,7 +161,7 @@ end
 
 local function getListing(data)
     local page = data[PAGE]
-    local data = dkjson.GET(expandURL("api/series/filter?page=" .. page .. "&per_page=25&status=any&order=latest"))
+    local data = dkjson.GET(expandURL("api/new/v2/series?page=" .. page .. "&per_page=25&status=any&order=latest"))
     local chapters = {}
     for _, v in next, data.data do
         table.insert(chapters, Novel {
@@ -182,7 +189,7 @@ end
 local function search(data)
     local query = data[QUERY]
     local page = data[PAGE]
-    local data = dkjson.GET(expandURL("api/series/filter?page=" .. page .. "&per_page=25&status=any&order=latest&search=" .. urlEncode(query)))
+    local data = dkjson.GET(expandURL("api/new/v2/series?page=" .. page .. "&per_page=25&status=any&order=latest&search=" .. urlEncode(query)))
     local chapters = {}
     for _, v in next, data.data do
         table.insert(chapters, Novel {

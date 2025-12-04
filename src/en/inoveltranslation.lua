@@ -1,4 +1,4 @@
--- {"id":516385957,"ver":"1.0.6","libVer":"1.0.6","author":"","repo":"","dep":[]}
+-- {"id":516385957,"ver":"1.0.7","libVer":"1.0.6","author":"","repo":"","dep":[]}
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
 ---
@@ -123,16 +123,21 @@ local function parseNovel(novelURL)
 end
 
 local function getListing()
-    local doc = GETDocument(expandURL("novels/"))
-    return map(doc:select("main > section > div > section > a"), function(v)
+    local doc = GETDocument(expandURL("novels"))
+    local links = {}
+    local novels = {}
+    map(doc:select("a[data-sentry-component=\"NovelCard\"]"), function(v)
+        local link = v:attr("href")
+        if links[link] then return end
+        links[link] = true
         local img = v:selectFirst("img")
-        img = img and expandURL(img:attr("src")) or nil
-        return Novel {
-            title = v:selectFirst("span"):text(),
-            link = v:attr("href"),
-            imageURL = img
-        }
+        table.insert(novels, Novel {
+            title = v:text(),
+            link = shrinkURL(link),
+            imageURL = img and img:attr("src") or imageURL
+        })
     end)
+    return novels
 end
 
 local function search(data)
