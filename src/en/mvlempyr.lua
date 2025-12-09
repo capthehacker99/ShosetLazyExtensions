@@ -1,4 +1,4 @@
--- {"id":1339243358,"ver":"1.1.4","libVer":"1.0.10","author":"","repo":"","dep":[]}
+-- {"id":1339243358,"ver":"1.1.5","libVer":"1.0.10","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 local bigint = Require("bigint")
 --- Identification number of the extension.
@@ -153,6 +153,16 @@ end
 local searchHelper = {}
 
 local function search(data)
+    local matched = data[QUERY]:match("/novel/(%g+)/")
+    if matched then
+        return AsList({
+            Novel {
+                title = "URL Import",
+                link = "https://www.mvlempyr.app/novel/" .. matched,
+                imageURL = imageURL
+            }
+        })
+    end
     local query = data[QUERY]:lower()
     local origPage = data[PAGE]
     local page = origPage
