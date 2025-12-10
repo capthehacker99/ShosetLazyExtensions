@@ -1,4 +1,4 @@
--- {"id":1339243358,"ver":"1.1.6","libVer":"1.0.10","author":"","repo":"","dep":[]}
+-- {"id":1339243358,"ver":"1.1.7","libVer":"1.0.10","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 local bigint = Require("bigint")
 --- Identification number of the extension.
@@ -153,7 +153,7 @@ end
 local searchHelper = {}
 
 local function search(data)
-    local matched = data[QUERY]:match("/novel/(%a+)")
+    local matched = data[QUERY]:match("/novel/(.*)")
     if matched then
         return AsList({
             Novel {

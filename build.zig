@@ -31,9 +31,11 @@ const IndexJson = struct {
                 ".lua"
             });
             const file = try dir.openFile(file_path, .{});
+            var io = std.Io.Threaded.init_single_threaded;
+            var reader = file.reader(io.ioBasic(), &.{});
             var md5 = std.crypto.hash.Md5.init(.{});
             while (true) {
-                const len = try file.readAll(&buf);
+                const len = try reader.interface.readSliceShort(&buf);
                 md5.update(buf[0..len]);
                 if(len != buf.len)
                     break;
@@ -95,7 +97,8 @@ pub fn main() !void {
         .mode = .read_write
     });
     defer file.close();
-    var fileReader = file.reader(&.{});
+    var io = std.Io.Threaded.init_single_threaded;
+    var fileReader = file.reader(io.ioBasic(), &.{});
     const file_content = try fileReader.interface.allocRemaining(allocator, .unlimited);
     const index = try std.json.parseFromSliceLeaky(IndexJson, allocator, file_content, .{});
     const args = try std.process.argsAlloc(allocator);
