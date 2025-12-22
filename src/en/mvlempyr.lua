@@ -1,4 +1,4 @@
--- {"id":1339243358,"ver":"1.1.7","libVer":"1.0.10","author":"","repo":"","dep":[]}
+-- {"id":1339243358,"ver":"1.1.8","libVer":"1.0.10","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 local bigint = Require("bigint")
 --- Identification number of the extension.
@@ -73,7 +73,7 @@ end
 --- @param chapterURL string The chapters shrunken URL.
 --- @return string Strings in lua are byte arrays. If you are not outputting strings/html you can return a binary stream.
 local function getPassage(chapterURL)
-	local url = expandURL(chapterURL):gsub("(%w+://[^/]+)%.net", "%1.app")
+	local url = expandURL(chapterURL):gsub("(%w+://[^/]+)%.io", "%1.io")
 
 	--- Chapter page, extract info from it.
 	local document = GETDocument(url)
@@ -124,13 +124,13 @@ local function parseNovel(novelURL)
             table.insert(chapters, NovelChapter {
                 order = v.acf.chapter_number,
                 title = v.acf.ch_name,
-                link = shrinkURL(v.link):gsub("chap.heliosarchive.online", "www.mvlempyr.app")
+                link = shrinkURL(v.link):gsub("chap.heliosarchive.online", "www.mvlempyr.io")
             })
         end
         page = page + 1
     until #chapter_data < 500
 	return NovelInfo({
-        title = document:selectFirst(".novel-title2"):text():gsub("\n" ,"www.mvlempyr.app"),
+        title = document:selectFirst(".novel-title2"):text():gsub("\n" ,"www.mvlempyr.io"),
         imageURL = img,
         description = desc,
         chapters = chapters
@@ -143,8 +143,8 @@ local function getListing(data)
     for _, novel in next, data do
         table.insert(novels, Novel {
             title = novel.name,
-            link = "https://www.mvlempyr.app/novel/" .. novel.slug,
-            imageURL = "https://assets.mvlempyr.app/images/600/" .. novel["novel-code"] .. ".webp"
+            link = "https://www.mvlempyr.io/novel/" .. novel.slug,
+            imageURL = "https://assets.mvlempyr.io/images/600/" .. novel["novel-code"] .. ".webp"
         })
     end
     return novels
@@ -158,7 +158,7 @@ local function search(data)
         return AsList({
             Novel {
                 title = "URL Import",
-                link = "https://www.mvlempyr.app/novel/" .. matched,
+                link = "https://www.mvlempyr.io/novel/" .. matched,
                 imageURL = imageURL
             }
         })
@@ -184,8 +184,8 @@ local function search(data)
             if novel.name:lower():match(query) then
                 table.insert(novels, Novel {
                     title = novel.name,
-                    link = "https://www.mvlempyr.app/novel/" .. novel.slug,
-                    imageURL = "https://assets.mvlempyr.app/images/600/" .. novel["novel-code"] .. ".webp"
+                    link = "https://www.mvlempyr.io/novel/" .. novel.slug,
+                    imageURL = "https://assets.mvlempyr.io/images/600/" .. novel["novel-code"] .. ".webp"
                 })
             end
         end
