@@ -1,4 +1,4 @@
--- {"id":2069673422,"ver":"1.0.2","libVer":"1.0.0","author":"","repo":"","dep":[]}
+-- {"id":2069673422,"ver":"1.0.3","libVer":"1.0.0","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -86,7 +86,12 @@ local function getPassage(chapterURL)
     
 	--- Chapter page, extract info from it.
 	local document = GETDocument(url)
-    return pageOfElem(first(document:select("div"), attribContains("class", "Chapter_chapterText_")), true)
+    local ele = first(document:select("div"), attribContains("class", "__chapterText"))
+    local img = ele:selectFirst("img")
+    if img then
+        img:remove()
+    end
+    return pageOfElem(ele, true)
 end
 
 --- Load info on a novel.
@@ -137,21 +142,13 @@ end
 
 local function getListing()
     local document = GETDocument(expandURL("series"))
-    local novels = {}
-    local dataElem = document:selectFirst("script[id=\"__NEXT_DATA__\"]")
-    if not dataElem then
-        error("Novel data not found")
-    end
-    local data = dkjson.decode(string.match(tostring(dataElem), "%b{}"))
-    data = data.props.pageProps.seriesData
-    for _, v in next, data do
-        table.insert(novels, Novel {
-            title = v.name;
-            link = "series/" .. v.seriesID;
-            imageURL = expandURL(v.cover);
-        })
-    end
-    return novels
+    return AsList(map(document:select("nav div a"), function(v)
+        return Novel {
+            title = v:text();
+            link = v:attr("href");
+            imageURL = imageURL;
+        }
+    end))
 end
 
 -- Return all properties in a lua table.
