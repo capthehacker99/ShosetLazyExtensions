@@ -1,5 +1,5 @@
--- {"id":1567186593,"ver":"1.0.0","libVer":"1.0.0","author":"","repo":"","dep":[]}
-
+-- {"id":1567186593,"ver":"1.0.1","libVer":"1.0.0","author":"","repo":"","dep":[]}
+local dkjson = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
 ---
@@ -21,7 +21,7 @@ local name = "Dragonholic"
 --- Required.
 ---
 --- @type string
-local baseURL = "https://dragonholic.com/"
+local baseURL = "https://dragonholictranslations.com/"
 
 --- URL of the logo.
 ---
@@ -51,7 +51,7 @@ local startIndex = 0
 --- @param _ int Either KEY_CHAPTER_URL or KEY_NOVEL_URL.
 --- @return string Shrunk URL.
 local function shrinkURL(url, _)
-    return url:gsub(".-dragonholic.com/", "")
+    return url:gsub(".-dragonholictranslations.com/", "")
 end
 
 --- Expand a given URL.
@@ -65,6 +65,17 @@ local function expandURL(url, _)
     return baseURL .. url
 end
 
+local function urlEncode(str)
+    if str then
+        str = str:gsub("\n", "\r\n")
+        str = str:gsub("([^%w %-%_%.%~])", function(c)
+            return ("%%%02X"):format(string.byte(c))
+        end)
+        str = str:gsub(" ", "+")
+    end
+    return str
+end
+
 --- Get a chapter passage based on its chapterURL.
 ---
 --- Required.
@@ -76,8 +87,7 @@ local function getPassage(chapterURL)
 
     --- Chapter page, extract info from it.
     local document = GETDocument(url)
-    local htmlElement = document:selectFirst(".reading-content")
-    htmlElement:select(".chapter-warning"):remove()
+    local htmlElement = document:selectFirst("main .container > .border")
     return pageOfElem(htmlElement, true)
 end
 
@@ -93,57 +103,43 @@ local function parseNovel(novelURL)
     --- Novel page, extract info from it.
     local document = GETDocument(url)
     local desc = ""
-    map(document:select(".summary__content p"), function(p)
+    map(document:select(".prose p"), function(p)
         desc = desc .. '\n' .. p:text()
     end)
-    local title = document:selectFirst(".post-title h1")
+    local title = document:selectFirst("h1")
     title = title and title:text():gsub("\n" ,"") or "Failed to obtain title"
     local img = document:selectFirst(".summary_image img")
     img = img and img:attr("data-src") or imageURL
-    local chapters_doc = RequestDocument(POST(url .. "ajax/chapters/"))
-    local selected = chapters_doc:select(".free-chap a")
-    local cur = selected:size() + 1
+    local ch_list = document:selectFirst("#chapter-list-container")
+    local series_id = ch_list:attr("x-data"):match("seriesId:%s+(%d+)")
+    local chapters_doc = dkjson.GET(expandURL("/api/chapters?series_id=" .. series_id .. "&sort_order=asc&per_page=1000000000"))
+    local chapters = {}
+    for _, v in next, chapters_doc.chapters do
+        if not v.is_premium then
+            table.insert(chapters, NovelChapter {
+                order = tonumber(v.chapter_order) or v.chapter_order,
+                title = v.name .. " - " .. (v.subtitle or ""),
+                link = novelURL .. "/" .. v.slug .. "/"
+            })
+        end
+    end
     return NovelInfo({
         title = title,
         imageURL = img,
         description = desc,
-        chapters = AsList(
-            map(selected,function(v)
-                cur = cur - 1
-                return NovelChapter {
-                    order = cur,
-                    title = v:text(),
-                    link = shrinkURL(v:attr("href"))
-                }
-            end)
-        )
+        chapters = AsList(chapters),
     })
 end
 
 local function getListing(data)
     local page = data[PAGE]
-    local form = FormBodyBuilder()
-            :add("action", "madara_load_more")
-            :add("page", page)
-            :add("template", "madara-core/content/content-archive")
-            :add("vars[paged]", "1")
-            :add("vars[orderby]", "meta_value_num")
-            :add("vars[template]", "archive")
-            :add("vars[sidebar]", "full")
-            :add("vars[post_type]", "wp-manga")
-            :add("vars[post_status]", "publish")
-            :add("vars[meta_key]", "_latest_update")
-            :add("vars[order]", "desc")
-            :add("vars[meta_query][relation]", "AND")
-            :add("vars[manga_archives_item_layout]", "big_thumbnail")
-        :build()
-    local document = RequestDocument(POST(expandURL("wp-admin/admin-ajax.php"), DEFAULT_HEADERS(), form))
-    return map(document:select("[title]"), function(v)
+    local document = GETDocument(expandURL("/browse/page/" .. page .. "/?sort=new&order=desc"))
+    return map(document:select("#series-list-container > div > a"), function(v)
         local img = v:selectFirst("img")
         img = img and img:attr("data-src") or imageURL
         img = img or imageURL
         return Novel {
-            title = v:attr("title"),
+            title = v:selectFirst("h3"):text(),
             link = shrinkURL(v:attr("href")),
             imageURL = img
         }
@@ -153,31 +149,19 @@ end
 local function search(data)
     local page = data[PAGE]
     local query = data[QUERY]
-    local form = FormBodyBuilder()
-        :add("action", "madara_load_more")
-        :add("page", page)
-        :add("template", "madara-core/content/content-search")
-        :add("vars[s]", query)
-        :add("vars[orderby]", "")
-        :add("vars[paged]", "1")
-        :add("vars[template]", "search")
-        :add("vars[meta_query][0][relation]", "AND")
-        :add("vars[meta_query][relation]", "AND")
-        :add("vars[post_type]", "wp-manga")
-        :add("vars[post_status]", "publish")
-        :add("vars[manga_archives_item_layout]", "big_thumbnail")
-        :build()
-    local document = RequestDocument(POST(expandURL("wp-admin/admin-ajax.php"), DEFAULT_HEADERS(), form))
-    return map(document:select("[title]"), function(v)
-        local img = v:selectFirst("img")
-        img = img and img:attr("data-src") or imageURL
-        img = img or imageURL
-        return Novel {
-            title = v:attr("title"),
-            link = shrinkURL(v:attr("href")),
-            imageURL = img
-        }
-    end)
+    if #query < 3 then
+        query = query .. (" "):rep(3-#query)
+    end
+    local data = dkjson.GET(expandURL("/api/search?q=" .. urlEncode(query) .. "&per_page=10&page=" .. page .. "&types[]=series"))
+    local novels = {}
+    for _, v in next, data.results do
+        table.insert(novels, Novel {
+            title = v.title,
+            link = shrinkURL(v.url),
+            imageURL = v.thumbnail or imageURL
+        })
+    end
+    return AsList(novels)
 end
 
 -- Return all properties in a lua table.
