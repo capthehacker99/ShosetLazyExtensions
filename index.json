@@ -443,6 +443,16 @@
 			"ver": "1.0.3",
 			"libVer": "1.0.0",
 			"md5": "d80c0395a5ffbb454c679e8b57559c91"
+		},
+		{
+			"name": "Gadgetized Panda Translation",
+			"fileName": "GadgetizedPanda",
+			"imageURL": "https://gadgetizedpanda.com/wp-content/uploads/2023/06/oig.png?w=1024",
+			"id": 568428406,
+			"lang": "en",
+			"ver": "1.0.0",
+			"libVer": "1.0.0",
+			"md5": "aa3d163a4bdb893584533e909ad56c3b"
 		}
 	]
 }
