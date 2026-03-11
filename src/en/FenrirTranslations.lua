@@ -1,4 +1,4 @@
--- {"id":1553358903,"ver":"1.0.8","libVer":"1.0.6","author":"","repo":"","dep":[]}
+-- {"id":1553358903,"ver":"1.0.9","libVer":"1.0.6","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -149,7 +149,7 @@ local function parseNovel(novelURL)
     end
     return NovelInfo({
         title = data.title,
-        imageURL = expandURL(shrinkURL(data.cover)),
+        imageURL = data.cover and expandURL(shrinkURL(data.cover)) or imageURL,
         description = data.description,
         alternativeTitles = data.alt_title and { data.alt_title } or nil,
         tags = tags,
