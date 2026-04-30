@@ -1,4 +1,4 @@
--- {"id":2069673422,"ver":"1.0.3","libVer":"1.0.0","author":"","repo":"","dep":[]}
+-- {"id":2069673422,"ver":"1.0.4","libVer":"1.0.0","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -86,7 +86,7 @@ local function getPassage(chapterURL)
     
 	--- Chapter page, extract info from it.
 	local document = GETDocument(url)
-    local ele = first(document:select("div"), attribContains("class", "__chapterText"))
+    local ele = first(document:select("div"), attribContains("class", "_chapterText"))
     local img = ele:selectFirst("img")
     if img then
         img:remove()

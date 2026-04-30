@@ -83,8 +83,6 @@ pub noinline fn testScript(allocator: std.mem.Allocator, io: std.Io, stdout: *st
     }
     multi_reader.checkAnyError() catch return;
     const term = child.wait(io) catch return;
-    if(term.exited != 0)
-        return;
     mutex.lock(io) catch return;
     defer mutex.unlock(io);
     count.* += 1;
