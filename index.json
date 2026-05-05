@@ -453,6 +453,16 @@
 			"ver": "1.0.0",
 			"libVer": "1.0.0",
 			"md5": "aa3d163a4bdb893584533e909ad56c3b"
+		},
+		{
+			"name": "MelReads",
+			"fileName": "melreads",
+			"imageURL": "https://melreads.com/wp-content/uploads/2026/01/melreads-2.png",
+			"id": 1207937470,
+			"lang": "en",
+			"ver": "1.0.0",
+			"libVer": "1.0.0",
+			"md5": "305163c5772349befd10ecc210960619"
 		}
 	]
 }
