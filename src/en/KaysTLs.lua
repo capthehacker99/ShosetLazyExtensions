@@ -1,5 +1,5 @@
--- {"id":1343493282,"ver":"1.0.2","libVer":"1.0.2","author":"","repo":"","dep":[]}
-
+-- {"id":1343493282,"ver":"1.0.3","libVer":"1.0.2","author":"","repo":"","dep":[]}
+local json = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
 ---
@@ -109,13 +109,34 @@ local function parseNovel(novelURL)
     })
 end
 
-local function getListing()
-    local document = GETDocument(baseURL)
-    return map(document:select("div > ul > li > .sub-menu > li > .sub-menu > li > ul > li > a"), function(v)
+local nonce;
+
+local function getListing(data)
+    if not nonce then
+        local doc = GETDocument(expandURL("browse/"))
+        nonce = doc:selectFirst("[data-nonce]"):attr("data-nonce")
+    end
+    local page = data[PAGE]
+    local form = FormBodyBuilder()
+        :add("status", "all")
+        :add("page", page)
+        :add("sort", "popular")
+        :add("action", "kay_browse_query")
+        :add("_wpnonce", nonce)
+        :build()
+    local req = Request(POST(expandURL("wp-admin/admin-ajax.php"), DEFAULT_HEADERS(), form))
+    local str = req:body():string()
+    local data = json.decode(str)
+    local doc = Document(data.html)
+    return map(doc:select("article"), function(v)
+        local img = v:selectFirst("img")
+        img = img and img:attr("data-src") or imageURL
+        img = img or imageURL
+        local link = v:selectFirst(".kay-card-title > a")
         return Novel {
-            title = v:text(),
-            link = shrinkURL(v:attr("href")),
-            imageURL = imageURL
+            title = link:text(),
+            link = shrinkURL(link:attr("href")),
+            imageURL = img
         }
     end)
 end
@@ -127,7 +148,7 @@ return {
 	name = name,
 	baseURL = baseURL,
 	listings = {
-        Listing("Default", false, getListing)
+        Listing("Default", true, getListing)
     }, -- Must have at least one listing
 	getPassage = getPassage,
 	parseNovel = parseNovel,
