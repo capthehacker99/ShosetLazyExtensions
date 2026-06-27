@@ -463,6 +463,16 @@
 			"ver": "1.0.0",
 			"libVer": "1.0.0",
 			"md5": "305163c5772349befd10ecc210960619"
+		},
+		{
+			"name": "Konkon",
+			"fileName": "Konkon",
+			"imageURL": "https://konkon.ink/logo.png",
+			"id": 1991726384,
+			"lang": "en",
+			"ver": "1.0.0",
+			"libVer": "1.0.0",
+			"md5": "08e4c0afde4328e44bc502a06f919fed"
 		}
 	]
 }

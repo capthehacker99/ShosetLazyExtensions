@@ -15,3 +15,7 @@ _doc.lua
 doc.js
 build.exe
 .zig-cache
+opencode.json
+AGENTS.MD
+CONTEXT.MD
+docs/
