@@ -1,5 +1,5 @@
--- {"id":639193459,"ver":"1.0.0","libVer":"1.0.0","author":"","repo":"","dep":[]}
-
+-- {"id":639193459,"ver":"1.0.1","libVer":"1.0.0","author":"","repo":"","dep":[]}
+local dkjson = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
 ---
@@ -14,21 +14,21 @@ local id = 639193459
 --- Required.
 ---
 --- @type string
-local name = "Arcane Translations"
+local name = "Novel Dex"
 
 --- Base URL of the extension. Used to open web view in Shosetsu.
 ---
 --- Required.
 ---
 --- @type string
-local baseURL = "https://arcanetranslations.com/"
+local baseURL = "https://noveldex.io/"
 
 --- URL of the logo.
 ---
 --- Optional, Default is empty.
 ---
 --- @type string
-local imageURL = "https://arcanetranslations.com/wp-content/uploads/2024/03/Untitled_design_16_-removebg-preview.png"
+local imageURL = "https://noveldex.io/_next/image?url=%2Fuploads%2Fsettings%2Flogo-9f6ca6403bb40c476fb1c57fa981d6bc.webp&w=256&q=75"
 --- ChapterType provided by the extension.
 ---
 --- Optional, Default is STRING. But please do HTML.
@@ -51,7 +51,7 @@ local startIndex = 1
 --- @param _ int Either KEY_CHAPTER_URL or KEY_NOVEL_URL.
 --- @return string Shrunk URL.
 local function shrinkURL(url, _)
-    return url:gsub(".-arcanetranslations.com/", "")
+    return url:gsub(".-noveldex.io/", "")
 end
 
 --- Expand a given URL.
@@ -65,6 +65,17 @@ local function expandURL(url, _)
 	return baseURL .. url
 end
 
+local function urlEncode(str)
+    if str then
+        str = str:gsub("\n", "\r\n")
+        str = str:gsub("([^%w %-%_%.%~])", function(c)
+            return ("%%%02X"):format(string.byte(c))
+        end)
+        str = str:gsub(" ", "+")
+    end
+    return str
+end
+
 --- Get a chapter passage based on its chapterURL.
 ---
 --- Required.
@@ -76,8 +87,15 @@ local function getPassage(chapterURL)
 
 	--- Chapter page, extract info from it.
 	local document = GETDocument(url)
-    local htmlElement = document:selectFirst(".entry-content")
-    return pageOfElem(htmlElement, true)
+    map(document:select("script"), function(val)
+        for val in a:gmatch("(%b())") do
+            local div_match = a:match("\"\\u003cdiv\\u003e(.*)\\u003c/div\\u003e")
+            if div_match then
+                return pageOfElem(Document("<body>" .. div_match .. "</body>"):selectFirst("body"), true)
+            end
+        end
+    end)
+    error("Passage content not found")
 end
 
 --- Load info on a novel.
@@ -91,59 +109,75 @@ local function parseNovel(novelURL)
 
 	--- Novel page, extract info from it.
 	local document = GETDocument(url)
-    document:select("script"):remove()
-    local desc = ""
-    map(document:select(".entry-content p"), function(p)
-        desc = desc .. '\n' .. p:text()
+    local series;
+    local chapters_data;
+    map(document:select("script"), function(val)
+        local script_val = tostring(val)
+        local series_match = script_val:match("series\":(%b{})")
+        if series_match then
+            local parsed_series = dkjson.decode(series_match)
+            if parsed_series then
+                series = parsed_series
+            end
+        end
+        local chapters_data_match = script_val:match("chapters\":(%b[])")
+        if chapters_data_match then
+            local parsed_chapters_data = dkjson.decode(chapters_data_match)
+            if parsed_chapters_data then
+                chapters_data = parsed_chapters_data
+            end
+        end
     end)
-    local selected = document:select(".eplister > ul > li > a")
-    local cur = selected:size() + 1
+    if not series then
+        error("Series data not found")
+    end
+    if not chapters_data then
+        error("Chapters data not found")
+    end
+    local chapters = {}
+    for _, chapter in next, chapters_data do
+        if not chapter.isLocked then
+            table.insert(chapters, NovelChapter {
+                order = chapter.number,
+                title = chapter.title,
+                link = novelURL .. "/chapter/" .. chapter.number
+            })
+        end
+    end
 	return NovelInfo({
-        title = document:selectFirst(".entry-title"):text():gsub("\n" ,""),
-        imageURL = document:selectFirst(".wp-post-image"):attr("src"),
-        description = desc,
-        chapters = AsList(
-                map(filter(selected, function(v)
-                    local price = v:selectFirst(".epl-num")
-                    return price == nil or price:text():lower():find("🔒") == nil
-                end), function(v)
-                    cur = cur - 1
-                    return NovelChapter {
-                        order =cur,
-                        title = v:selectFirst(".epl-title"):text(),
-                        link = shrinkURL(v:attr("href"))
-                    }
-                end)
-        )
-
+        title = series.title,
+        imageURL = expandURL(series.coverImage),
+        description = series.description,
+        chapters = AsList(chapters)
     })
 end
 
-local function getListing()
-    local document = GETDocument(expandURL("series/"))
-
-    return map(document:select(".listupd article"), function(v)
-        local header = v:selectFirst("h2")
-        return Novel {
-            title = header:text(),
-            link = shrinkURL(header:selectFirst("a"):attr("href")),
-            imageURL = v:selectFirst(".wp-post-image"):attr("src")
-        }
-    end)
+local function getListing(data)
+    local novel_data = dkjson.GET(expandURL("api/series?page=" .. data[PAGE] .. "&limit=100"))
+    local novels = {}
+    for _, v in next, novel_data.data do
+        table.insert(novels, Novel {
+            title = v.title,
+            link = "series/novel/" .. v.urlSlug,
+            imageURL = expandURL(v.coverImage)
+        })
+    end
+    return AsList(novels)
 end
 
 local function search(data)
     local page = data[PAGE]
     local query = data[QUERY]
-    local document = GETDocument(expandURL("page/" .. page .. "/?s=" .. query))
-    return map(document:select(".listupd article"), function(v)
-        local header = v:selectFirst("h2")
-        return Novel {
-            title = header:text(),
-            link = shrinkURL(header:selectFirst("a"):attr("href")),
-            imageURL = v:selectFirst(".wp-post-image"):attr("src")
-        }
-    end)
+    local novel_data = dkjson.GET(expandURL("api/series?q=" .. urlEncode(query) .. "&page=" .. page .. "&limit=100"))
+    local novels = {}
+    for _, v in next, novel_data.data do
+        table.insert(novels, Novel {
+            title = v.title,
+            link = "series/novel/" .. v.urlSlug,
+            imageURL = expandURL(v.coverImage)
+        })
+    end
+    return AsList(novels)
 end
 
 -- Return all properties in a lua table.
@@ -153,7 +187,7 @@ return {
 	name = name,
 	baseURL = baseURL,
 	listings = {
-        Listing("Default", false, getListing)
+        Listing("Default", true, getListing)
     }, -- Must have at least one listing
 	getPassage = getPassage,
 	parseNovel = parseNovel,
