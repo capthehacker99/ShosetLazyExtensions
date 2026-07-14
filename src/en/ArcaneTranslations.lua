@@ -1,4 +1,4 @@
--- {"id":639193459,"ver":"1.0.1","libVer":"1.0.0","author":"","repo":"","dep":[]}
+-- {"id":639193459,"ver":"1.0.2","libVer":"1.0.0","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -113,16 +113,16 @@ local function parseNovel(novelURL)
     local chapters_data;
     map(document:select("script"), function(val)
         local script_val = tostring(val)
-        local series_match = script_val:match("series\":(%b{})")
+        local series_match = script_val:match("series\\\":(%b{})")
         if series_match then
-            local parsed_series = dkjson.decode(series_match)
+            local parsed_series = dkjson.decode(series_match:gsub("\\\"", "\""))
             if parsed_series then
                 series = parsed_series
             end
         end
-        local chapters_data_match = script_val:match("chapters\":(%b[])")
+        local chapters_data_match = script_val:match("chapters\\\":(%b[])")
         if chapters_data_match then
-            local parsed_chapters_data = dkjson.decode(chapters_data_match)
+            local parsed_chapters_data = dkjson.decode(chapters_data_match:gsub("\\\"", "\""))
             if parsed_chapters_data then
                 chapters_data = parsed_chapters_data
             end
