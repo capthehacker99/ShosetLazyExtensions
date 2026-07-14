@@ -50,9 +50,9 @@
 			"imageURL": "https://genesistudio.com/favicon-32x32.png",
 			"id": 1035923222,
 			"lang": "en",
-			"ver": "1.0.10",
-			"libVer": "1.0.10",
-			"md5": "eca70a47e5700d79c2b4e3f0d978e93f"
+			"ver": "1.1.0",
+			"libVer": "1.0.0",
+			"md5": "d8a9dd1f163b3b413f6d899b85224f2a"
 		},
 		{
 			"name": "Novel Dex",
@@ -350,9 +350,9 @@
 			"imageURL": "https://otakutl.blogspot.com/favicon.ico",
 			"id": 930283970,
 			"lang": "en",
-			"ver": "1.0.0",
+			"ver": "1.1.0",
 			"libVer": "1.0.0",
-			"md5": "999162784d90210130918e35581d113b"
+			"md5": "0c1af1ad99483305955e0ec3996cc424"
 		},
 		{
 			"name": "Lazy Translations",
