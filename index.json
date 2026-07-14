@@ -473,6 +473,16 @@
 			"ver": "1.0.0",
 			"libVer": "1.0.0",
 			"md5": "08e4c0afde4328e44bc502a06f919fed"
+		},
+		{
+			"name": "FuckNovelPia",
+			"fileName": "FuckNovelPia",
+			"imageURL": "https://fucknovelpia.com/apple-touch-icon.png",
+			"id": 891819725,
+			"lang": "en",
+			"ver": "1.0.0",
+			"libVer": "1.0.0",
+			"md5": "ac5b0c74ff1ed3cdf1b47a454d40dad8"
 		}
 	]
 }
