@@ -1,4 +1,4 @@
--- {"id":639193459,"ver":"1.0.5","libVer":"1.0.0","author":"","repo":"","dep":[]}
+-- {"id":639193459,"ver":"1.0.6","libVer":"1.0.0","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -76,6 +76,98 @@ local function urlEncode(str)
     return str
 end
 
+local function bxor(a, b)
+  local r, p = 0, 1
+  while a > 0 or b > 0 do
+    if (a % 2) ~= (b % 2) then r = r + p end
+    a = math.floor(a / 2); b = math.floor(b / 2); p = p * 2
+  end
+  return r
+end
+
+local function band(a, b)
+  local r, p = 0, 1
+  while a > 0 and b > 0 do
+    if (a % 2) == 1 and (b % 2) == 1 then r = r + p end
+    a = math.floor(a / 2); b = math.floor(b / 2); p = p * 2
+  end
+  return r
+end
+
+local function bor(a, b)
+  local r, p = 0, 1
+  while a > 0 or b > 0 do
+    if (a % 2) == 1 or (b % 2) == 1 then r = r + p end
+    a = math.floor(a / 2); b = math.floor(b / 2); p = p * 2
+  end
+  return r
+end
+
+local function lshift(x, n) return x * (2 ^ n) end
+
+local function rshift(x, n) return math.floor(x / (2 ^ n)) end
+
+local function mul32(a, b)
+  local r = 0
+  while b > 0 do
+    if b % 2 == 1 then r = (r + a) % 4294967296 end
+    a = (a * 2) % 4294967296
+    b = math.floor(b / 2)
+  end
+  return r
+end
+
+local function derive_key(hint, ts, nonce)
+  local s = hint .. "|" .. ts .. "|" .. nonce
+  local hash = 0x811c9dc5
+  for i = 1, #s do
+    hash = bxor(hash, s:byte(i))
+    hash = mul32(hash, 0x1000193)
+  end
+  local key = {}
+  for i = 0, 31 do
+    hash = bxor(hash, band(i * 0x9e3779b9, 0xFFFFFFFF))
+    hash = mul32(hash, 0x1000193)
+    key[i+1] = band(hash, 0xFF)
+  end
+  return key
+end
+
+local function xor_decrypt(data, key)
+  local res = {}
+  for i = 1, #data do
+    res[i] = bxor(data[i], key[(i-1) % #key + 1])
+  end
+  return res
+end
+
+local function bytes_to_str(bytes)
+  local chars = {}
+  for i = 1, #bytes do chars[i] = string.char(bytes[i]) end
+  return table.concat(chars)
+end
+
+local b64chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+local b64map = {}
+for i = 1, 64 do b64map[b64chars:sub(i,i)] = i - 1 end
+
+local function base64_decode(s)
+  s = s:gsub("[^%w%+/=]", "")
+  local res = {}
+  for i = 1, #s, 4 do
+    local chunk = s:sub(i, i+3)
+    local a = b64map[chunk:sub(1,1)] or 0
+    local b = b64map[chunk:sub(2,2)] or 0
+    local c = b64map[chunk:sub(3,3)] or 0
+    local d = b64map[chunk:sub(4,4)] or 0
+    local n = bor(bor(lshift(a, 18), lshift(b, 12)), bor(lshift(c, 6), d))
+    res[#res+1] = band(rshift(n, 16), 0xFF)
+    if chunk:sub(3,3) ~= "=" then res[#res+1] = band(rshift(n, 8), 0xFF) end
+    if chunk:sub(4,4) ~= "=" then res[#res+1] = band(n, 0xFF) end
+  end
+  return res
+end
+
 --- Get a chapter passage based on its chapterURL.
 ---
 --- Required.
@@ -87,18 +179,48 @@ local function getPassage(chapterURL)
 
 	--- Chapter page, extract info from it.
 	local document = GETDocument(url)
-    local result;
+    local has_encrypt;
     map(document:select("script"), function(val)
-        if result then return end
+        if has_encrypt then return end
         for a in tostring(val):gmatch("(%b())") do
-            local div_match, _ = a:match("\"\\u003cdiv\\u003e(.*)\\u003c/div\\u003e")
+            local div_match, _ = a:match("xorEncryption\":(%b{})")
             if div_match then
-                result = div_match
+                local decoded = dkjson.decode(div_match)
+                has_encrypt = decoded
                 return
             end
         end
         return
     end)
+    local result;
+    map(document:select("script"), function(val)
+        if has_encrypt then
+            for a in tostring(val):gmatch("(%b())") do
+                local b64_match, _ = a:match("\"([0-9a-zA-Z+/=]*)\"")
+                if b64_match then
+                    local new_result = base64_decode(b64_match)
+                    if not result or #new_result > #result then
+                        result = new_result
+                    end
+                end
+            end
+        else
+            if result then return end
+            for a in tostring(val):gmatch("(%b())") do
+                local div_match, _ = a:match("\"\\u003cdiv\\u003e(.*)\\u003c/div\\u003e")
+                if div_match then
+                    result = div_match
+                    return
+                end
+            end
+        end
+        return
+    end)
+    if has_encrypt then
+        local key = derive_key(has_encrypt.partialKeyHint, has_encrypt.timestamp, has_encrypt.clientNonce)
+        local decrypted_bytes = xor_decrypt(result, key)
+        result = bytes_to_str(decrypted_bytes)
+    end
     if not result then
         error("Passage content not found")
     end
