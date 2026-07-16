@@ -1,4 +1,4 @@
--- {"id":639193459,"ver":"1.0.4","libVer":"1.0.0","author":"","repo":"","dep":[]}
+-- {"id":639193459,"ver":"1.0.5","libVer":"1.0.0","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -87,15 +87,23 @@ local function getPassage(chapterURL)
 
 	--- Chapter page, extract info from it.
 	local document = GETDocument(url)
+    local result;
     map(document:select("script"), function(val)
+        if result then return end
         for a in tostring(val):gmatch("(%b())") do
             local div_match, _ = a:match("\"\\u003cdiv\\u003e(.*)\\u003c/div\\u003e")
             if div_match then
-                return pageOfElem(Document("<body>" .. div_match .. "</body>"):selectFirst("body"), true)
+                result = div_match
+                return
             end
         end
+        return
     end)
-    error("Passage content not found")
+    if not result then
+        error("Passage content not found")
+    end
+    result = dkjson.decode("{\"text\":\"" .. result .. "\"}").text
+    return pageOfElem(Document("<body>" .. result .. "</body>"):selectFirst("body"), true)
 end
 
 --- Load info on a novel.
