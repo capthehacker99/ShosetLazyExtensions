@@ -1,4 +1,4 @@
--- {"id":639193459,"ver":"1.0.2","libVer":"1.0.0","author":"","repo":"","dep":[]}
+-- {"id":639193459,"ver":"1.0.3","libVer":"1.0.0","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -89,7 +89,7 @@ local function getPassage(chapterURL)
 	local document = GETDocument(url)
     map(document:select("script"), function(val)
         for val in a:gmatch("(%b())") do
-            local div_match = a:match("\"\\u003cdiv\\u003e(.*)\\u003c/div\\u003e")
+            local div_match, _ = a:match("\"\\u003cdiv\\u003e(.*)\\u003c/div\\u003e")
             if div_match then
                 return pageOfElem(Document("<body>" .. div_match .. "</body>"):selectFirst("body"), true)
             end
@@ -115,14 +115,16 @@ local function parseNovel(novelURL)
         local script_val = tostring(val)
         local series_match = script_val:match("series\\\":(%b{})")
         if series_match then
-            local parsed_series = dkjson.decode(series_match:gsub("\\\"", "\""))
+            local raw_json, _ = series_match:gsub("\\\"", "\""):gsub("\\\\n", "\\n"):gsub("\\\\r", "\\r")
+            local parsed_series = dkjson.decode(raw_json)
             if parsed_series then
                 series = parsed_series
             end
         end
         local chapters_data_match = script_val:match("chapters\\\":(%b[])")
         if chapters_data_match then
-            local parsed_chapters_data = dkjson.decode(chapters_data_match:gsub("\\\"", "\""))
+            local raw_json, _ = chapters_data_match:gsub("\\\"", "\""):gsub("\\\\n", "\\n"):gsub("\\\\r", "\\r")
+            local parsed_chapters_data = dkjson.decode(raw_json)
             if parsed_chapters_data then
                 chapters_data = parsed_chapters_data
             end
