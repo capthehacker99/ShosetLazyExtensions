@@ -1,4 +1,4 @@
--- {"id":639193459,"ver":"1.0.3","libVer":"1.0.0","author":"","repo":"","dep":[]}
+-- {"id":639193459,"ver":"1.0.4","libVer":"1.0.0","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -88,7 +88,7 @@ local function getPassage(chapterURL)
 	--- Chapter page, extract info from it.
 	local document = GETDocument(url)
     map(document:select("script"), function(val)
-        for val in a:gmatch("(%b())") do
+        for a in tostring(val):gmatch("(%b())") do
             local div_match, _ = a:match("\"\\u003cdiv\\u003e(.*)\\u003c/div\\u003e")
             if div_match then
                 return pageOfElem(Document("<body>" .. div_match .. "</body>"):selectFirst("body"), true)
