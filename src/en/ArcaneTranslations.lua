@@ -1,4 +1,4 @@
--- {"id":639193459,"ver":"1.0.6","libVer":"1.0.0","author":"","repo":"","dep":[]}
+-- {"id":639193459,"ver":"1.0.7","libVer":"1.0.0","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -183,9 +183,10 @@ local function getPassage(chapterURL)
     map(document:select("script"), function(val)
         if has_encrypt then return end
         for a in tostring(val):gmatch("(%b())") do
-            local div_match, _ = a:match("xorEncryption\":(%b{})")
+            local div_match, _ = a:match("xorEncryption\\\":(%b{})")
             if div_match then
-                local decoded = dkjson.decode(div_match)
+                local raw_json, _ = div_match:gsub("\\\"", "\"")
+                local decoded = dkjson.decode(raw_json)
                 has_encrypt = decoded
                 return
             end
