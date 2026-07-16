@@ -1,4 +1,4 @@
--- {"id":639193459,"ver":"1.0.7","libVer":"1.0.0","author":"","repo":"","dep":[]}
+-- {"id":639193459,"ver":"1.0.8","libVer":"1.0.0","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -225,7 +225,10 @@ local function getPassage(chapterURL)
     if not result then
         error("Passage content not found")
     end
-    result = dkjson.decode("{\"text\":\"" .. result .. "\"}").text
+    local stripped_result = dkjson.decode("{\"text\":\"" .. result .. "\"}")
+    if stripped_result then
+        result = stripped_result.text
+    end
     return pageOfElem(Document("<body>" .. result .. "</body>"):selectFirst("body"), true)
 end
 
