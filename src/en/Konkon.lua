@@ -1,4 +1,4 @@
--- {"id":1991726384,"ver":"1.0.0","libVer":"1.0.0","author":"","repo":"","dep":[]}
+-- {"id":1991726384,"ver":"1.0.1","libVer":"1.0.0","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 
 local id = 1991726384
@@ -74,11 +74,13 @@ local function parseNovel(novelURL)
         end
         for _, vol in ipairs(nd.volumes or {}) do
             for _, ch in ipairs(vol.chapters or {}) do
-                table.insert(chapters, NovelChapter {
-                    order = ch.sort_order,
-                    title = ch.title,
-                    link = apiBase .. "chapters/" .. ch.id
-                })
+                if not ch.is_locked then
+                    table.insert(chapters, NovelChapter {
+                        order = ch.sort_order,
+                        title = ch.title,
+                        link = apiBase .. "chapters/" .. ch.id
+                    })
+                end
             end
         end
     end
