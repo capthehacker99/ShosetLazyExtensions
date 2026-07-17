@@ -1,4 +1,4 @@
--- {"id":639193459,"ver":"1.0.8","libVer":"1.0.0","author":"","repo":"","dep":[]}
+-- {"id":639193459,"ver":"1.0.9","libVer":"1.0.0","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -185,7 +185,7 @@ local function getPassage(chapterURL)
         for a in tostring(val):gmatch("(%b())") do
             local div_match, _ = a:match("xorEncryption\\\":(%b{})")
             if div_match then
-                local raw_json, _ = div_match:gsub("\\\"", "\"")
+                local raw_json, _ = div_match:gsub("\\\"", "\""):gsub("\\\\n", "\\n"):gsub("\\\\r", "\\r"):gsub("\\\\", "\\")
                 local decoded = dkjson.decode(raw_json)
                 has_encrypt = decoded
                 return
@@ -249,7 +249,7 @@ local function parseNovel(novelURL)
         local script_val = tostring(val)
         local series_match = script_val:match("series\\\":(%b{})")
         if series_match then
-            local raw_json, _ = series_match:gsub("\\\"", "\""):gsub("\\\\n", "\\n"):gsub("\\\\r", "\\r")
+            local raw_json, _ = series_match:gsub("\\\"", "\""):gsub("\\\\n", "\\n"):gsub("\\\\r", "\\r"):gsub("\\\\", "\\")
             local parsed_series = dkjson.decode(raw_json)
             if parsed_series then
                 series = parsed_series
@@ -257,7 +257,7 @@ local function parseNovel(novelURL)
         end
         local chapters_data_match = script_val:match("chapters\\\":(%b[])")
         if chapters_data_match then
-            local raw_json, _ = chapters_data_match:gsub("\\\"", "\""):gsub("\\\\n", "\\n"):gsub("\\\\r", "\\r")
+            local raw_json, _ = chapters_data_match:gsub("\\\"", "\""):gsub("\\\\n", "\\n"):gsub("\\\\r", "\\r"):gsub("\\\\", "\\")
             local parsed_chapters_data = dkjson.decode(raw_json)
             if parsed_chapters_data then
                 chapters_data = parsed_chapters_data
@@ -271,14 +271,39 @@ local function parseNovel(novelURL)
         error("Chapters data not found")
     end
     local chapters = {}
-    for _, chapter in next, chapters_data do
-        if not chapter.isLocked then
-            table.insert(chapters, NovelChapter {
-                order = chapter.number,
-                title = chapter.title,
-                link = novelURL .. "/chapter/" .. chapter.number
-            })
+    local function addChapters(new_chapters_data)
+        for _, chapter in next, new_chapters_data do
+            if not chapter.isLocked then
+                table.insert(chapters, NovelChapter {
+                    order = chapter.number,
+                    title = chapter.title,
+                    link = novelURL .. "/chapter/" .. chapter.number
+                })
+            end
         end
+    end
+    local page = 2
+    local function getNewChapterData(page)
+        local new_document = GETDocument(url .. "?page=" .. page)
+        local new_chapters_data;
+        map(new_document:select("script"), function(val)
+            local script_val = tostring(val)
+            local chapters_data_match = script_val:match("chapters\\\":(%b[])")
+            if chapters_data_match then
+                local raw_json, _ = chapters_data_match:gsub("\\\"", "\""):gsub("\\\\n", "\\n"):gsub("\\\\r", "\\r"):gsub("\\\\", "\\")
+                local parsed_chapters_data = dkjson.decode(raw_json)
+                if parsed_chapters_data then
+                    new_chapters_data = parsed_chapters_data
+                end
+            end
+        end)
+        return new_chapters_data
+    end
+    addChapters(chapters_data)
+    while #chapters_data >= 100 do
+        chapters_data = getNewChapterData(page) or {}
+        addChapters(chapters_data)
+        page = page + 1
     end
 	return NovelInfo({
         title = series.title,
