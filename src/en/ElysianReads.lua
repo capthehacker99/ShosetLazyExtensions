@@ -1,4 +1,4 @@
--- {"id":220455404,"ver":"1.0.9","libVer":"1.0.0","author":"","repo":"","dep":[]}
+-- {"id":220455404,"ver":"1.0.10","libVer":"1.0.0","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -92,15 +92,15 @@ local function parseNovel(novelURL)
 
 	--- Novel page, extract info from it.
 	local document = GETDocument(url)
-    local desc = document:selectFirst("meta[name=\"og:description\"]")
+    local desc = document:selectFirst("meta[property=\"og:description\"]")
     if desc then
         desc = desc:attr("content")
     end
-    local image = document:selectFirst("meta[name=\"og:image\"]")
+    local image = document:selectFirst("meta[property=\"og:image\"]")
     if image then
         image = image:attr("content")
     end
-    local title = document:selectFirst("meta[name=\"og:title\"]")
+    local title = document:selectFirst("meta[property=\"og:title\"]")
     if title then
         title = title:attr("content")
     end
