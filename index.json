@@ -483,6 +483,16 @@
 			"ver": "1.0.0",
 			"libVer": "1.0.0",
 			"md5": "ac5b0c74ff1ed3cdf1b47a454d40dad8"
+		},
+		{
+			"name": "Elysian Reads",
+			"fileName": "ElysianReads",
+			"imageURL": "https://cdn.jsdelivr.net/gh/elysianreads/elysian-assets/elysian/Logo.webp",
+			"id": 220455404,
+			"lang": "en",
+			"ver": "1.0.0",
+			"libVer": "1.0.0",
+			"md5": "90933244d27b5b1dc9de7cee30d8b8e1"
 		}
 	]
 }
