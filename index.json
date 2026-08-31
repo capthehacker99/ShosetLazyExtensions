@@ -493,6 +493,16 @@
 			"ver": "1.0.10",
 			"libVer": "1.0.0",
 			"md5": "3bdf4b7f2e43bdab49efb97b28d42271"
+		},
+		{
+			"name": "WuxiaTranslate",
+			"fileName": "WuxiaTranslate",
+			"imageURL": "https://wuxiatranslate.com/logo.png",
+			"id": 1946264740,
+			"lang": "en",
+			"ver": "1.0.0",
+			"libVer": "1.0.1",
+			"md5": "07a1db66d826780f04ce8ce3cbd3a6e3"
 		}
 	]
 }
