@@ -503,6 +503,26 @@
 			"ver": "1.0.0",
 			"libVer": "1.0.1",
 			"md5": "07a1db66d826780f04ce8ce3cbd3a6e3"
+		},
+		{
+			"name": "LightNovelAsia",
+			"fileName": "LightNovelAsia",
+			"imageURL": "https://lightnovelasia.com/favicon.ico",
+			"id": 1846546104,
+			"lang": "en",
+			"ver": "1.0.0",
+			"libVer": "1.0.0",
+			"md5": "19da07302e01ce54818447dff96a3e7e"
+		},
+		{
+			"name": "NovelsHaven",
+			"fileName": "NovelsHaven",
+			"imageURL": "https://novelshaven.com/icon.png",
+			"id": 638138592,
+			"lang": "en",
+			"ver": "1.0.0",
+			"libVer": "1.0.0",
+			"md5": "527f6c298b5779e4e4ae32e88c9dae7c"
 		}
 	]
 }
