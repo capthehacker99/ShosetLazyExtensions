@@ -1,4 +1,6 @@
--- {"id":638138592,"ver":"1.0.0","libVer":"1.0.0","author":"","repo":"","dep":[]}
+-- {"id":638138592,"ver":"1.0.1","libVer":"1.0.0","author":"","repo":"","dep":[]}
+
+local dkjson = Require("dkjson")
 
 local id = 638138592
 
@@ -138,24 +140,51 @@ local function parseNovel(novelURL)
     end
     local chapters = {}
     local seen_chapters = {}
-    local html_chapters = document:select('a[href*="/chapter-"]')
-    for i = 0, html_chapters:size() - 1 do
-        local a = html_chapters:get(i)
-        local href = a:attr("href")
-        if href then
-            local num = href:match("/chapter%-(%d+)")
-            if num then
-                local n = tonumber(num)
-                if n and not seen_chapters[n] then
-                    seen_chapters[n] = true
-                    local link = href:gsub(".*novelshaven%.com", "")
-                    if not link:find("^/") then link = "/" .. link end
-                    table.insert(chapters, NovelChapter({
-                        order = n,
-                        title = "Chapter " .. n,
-                        link = shrinkURL(link)
-                    }))
+    local slug = novelURL:match("/series/([a-z0-9][a-z0-9%-]+)")
+    -- Extract chapters from RSC JSON data
+    local ch_start = rsc:find('"chapters":%[', 1)
+    if ch_start then
+        local arr_start = rsc:find('%[', ch_start)
+        local depth = 0
+        local arr_end = arr_start
+        for i = arr_start, #rsc do
+            local c = rsc:sub(i, i)
+            if c == '[' then depth = depth + 1
+            elseif c == ']' then
+                depth = depth - 1
+                if depth == 0 then arr_end = i; break end
+            end
+        end
+        local chapters_raw = rsc:sub(arr_start, arr_end)
+        local ok, parsed = pcall(dkjson.decode, chapters_raw)
+        if ok and type(parsed) == "table" then
+            for _, ch in ipairs(parsed) do
+                if type(ch) == "table" and ch.chapter_num then
+                    local n = ch.chapter_num
+                    if not seen_chapters[n] then
+                        seen_chapters[n] = true
+                        table.insert(chapters, NovelChapter({
+                            order = n,
+                            title = ch.title or ("Chapter " .. n),
+                            link = shrinkURL("/series/" .. slug .. "/chapter-" .. n)
+                        }))
+                    end
                 end
+            end
+        end
+    end
+    -- Fallback: also get first chapter from firstChapter object
+    if not seen_chapters[1] then
+        local first_ch = rsc:match('"firstChapter":%s*(%b{})')
+        if first_ch then
+            local ok, obj = pcall(dkjson.decode, first_ch)
+            if ok and obj and obj.chapter_num then
+                seen_chapters[1] = true
+                table.insert(chapters, NovelChapter({
+                    order = 1,
+                    title = obj.title or "Chapter 1",
+                    link = shrinkURL("/series/" .. slug .. "/chapter-1")
+                }))
             end
         end
     end
