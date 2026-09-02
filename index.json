@@ -523,6 +523,16 @@
 			"ver": "1.0.1",
 			"libVer": "1.0.0",
 			"md5": "60c6ab3201662690ac9c61dc62b92e1e"
+		},
+		{
+			"name": "Curspe",
+			"fileName": "Curspe",
+			"imageURL": "https://curspe.com/wp-content/uploads/2025/11/cropped-ava_211686_1749960656-192x192.jpg",
+			"id": 1113924916,
+			"lang": "en",
+			"ver": "1.0.0",
+			"libVer": "1.0.0",
+			"md5": "a3d5c9130a36992a315fdcfefafa229c"
 		}
 	]
 }
