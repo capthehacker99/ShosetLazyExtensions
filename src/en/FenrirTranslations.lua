@@ -1,4 +1,4 @@
--- {"id":1553358903,"ver":"1.0.9","libVer":"1.0.6","author":"","repo":"","dep":[]}
+-- {"id":1553358903,"ver":"1.0.10","libVer":"1.0.6","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -84,6 +84,7 @@ local function getPassage(chapterURL)
     --- Chapter page, extract info from it.
     local document = GETDocument(url)
     local htmlElement = first(document:select("div[id]"), attribContains("id", "reader%-area"))
+    htmlElement:select("[aria-hidden=\"true\"]"):remove()   
     return pageOfElem(htmlElement, true)
 end
 
