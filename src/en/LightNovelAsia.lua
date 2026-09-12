@@ -1,4 +1,4 @@
--- {"id":1846546104,"ver":"1.0.0","libVer":"1.0.0","author":"","repo":"","dep":["dkjson"]}
+-- {"id":1846546104,"ver":"1.0.1","libVer":"1.0.0","author":"","repo":"","dep":["dkjson"]}
 
 local dkjson = Require("dkjson")
 
@@ -123,7 +123,9 @@ local function getPassage(chapterURL)
     end
 
     content = content:gsub("&nbsp;", " ")
-    local doc = Document("<html><body>" .. content .. "</body></html>")
+    content = content:gsub("<br />", "<br/><br/>")
+    print(content)
+    local doc = Document(content)
     return pageOfElem(doc:selectFirst("body"), true)
 end
 
