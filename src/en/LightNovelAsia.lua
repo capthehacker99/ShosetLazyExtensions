@@ -1,4 +1,4 @@
--- {"id":1846546104,"ver":"1.0.1","libVer":"1.0.0","author":"","repo":"","dep":["dkjson"]}
+-- {"id":1846546104,"ver":"1.0.2","libVer":"1.0.0","author":"","repo":"","dep":["dkjson"]}
 
 local dkjson = Require("dkjson")
 
@@ -80,6 +80,20 @@ local function expandURL(url, _)
     return baseURL .. url
 end
 
+local function contentToHtml(content)
+	if not content:find("<br") then
+		return content
+	end
+	local paragraphs = {}
+	for line in content:gsub("<br%s*/?>", "\n"):gmatch("[^\n]+") do
+		local trimmed = line:match("^%s*(.-)%s*$")
+		if trimmed ~= "" then
+			table.insert(paragraphs, "<p>" .. trimmed .. "</p>")
+		end
+	end
+	return table.concat(paragraphs)
+end
+
 local function getPassage(chapterURL)
     loadConfig()
     local slug = chapterURL:match("novel/([^/]+)")
@@ -123,9 +137,7 @@ local function getPassage(chapterURL)
     end
 
     content = content:gsub("&nbsp;", " ")
-    content = content:gsub("<br />", "<br/><br/>")
-    print(content)
-    local doc = Document(content)
+    local doc = Document("<body>" .. contentToHtml(content) .. "</body>")
     return pageOfElem(doc:selectFirst("body"), true)
 end
 
