@@ -1,4 +1,4 @@
--- {"id":626239047,"ver":"1.0.1","libVer":"1.0.1","author":"","repo":"","dep":[]}
+-- {"id":626239047,"ver":"1.0.2","libVer":"1.0.1","author":"","repo":"","dep":[]}
 
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -97,34 +97,50 @@ local function parseNovel(novelURL)
     local desc = document:selectFirst("#profile_top div.xcontrast_txt")
     desc = desc and desc:text() or ""
     local title = document:selectFirst("#profile_top b.xcontrast_txt")
-    title = title and title:text() or "Unknown Title"
+    title = title and title:text() or nil
+    if not title then
+        title = document:selectFirst("#content > div[align=\"center\"]")
+        title = title and title:text() or "Unknown Title"
+    end
     local img = novelURL:match("#([^#]+)$")
     img = img and expandURL(img) or baseURL
     local chapter_selector = document:selectFirst("#chap_select")
     local left, right;
+    local chapters = {}
     if chapter_selector then
         left, right = chapter_selector:attr("onchange"):match("=%s*'([^']*)[^+]*+[^+]*+[^']*'([^']*)'")
+        map(chapter_selector:select("option"), function(v)
+            local idx = v:attr("value")
+            table.insert(chapters, NovelChapter {
+                order = idx,
+                title = v:text(),
+                link = shrinkURL(left .. idx .. right)
+            })
+        end)
+    end
+    local ds = tostring(document)
+    local nch = ds:match("var chs = (%d+);")
+    local base = ds:match("self.location = '([^']+)'+")
+    if not nch or not base then
+        table.insert(chapters, NovelChapter {
+            order = 0,
+            title = title,
+            link = novelURL
+        })
+    else
+        for i = 1, tonumber(nch) do
+            table.insert(chapters, NovelChapter {
+                order = i,
+                title = "Chapter " .. i,
+                link = base .. i .. "/"
+            })
+        end
     end
     return NovelInfo({
         title = title,
         imageURL = img,
         description = desc,
-        chapters = chapter_selector and AsList(
-            map(chapter_selector:select("option"), function(v)
-                local idx = v:attr("value")
-                return NovelChapter {
-                    order = idx,
-                    title = v:text(),
-                    link = shrinkURL(left .. idx .. right)
-                }
-            end)
-        ) or {
-            NovelChapter {
-                order = 0,
-                title = title,
-                link = novelURL
-            }
-        }
+        chapters = AsList(chapters)
     })
 end
 
@@ -141,8 +157,7 @@ end
 
 local function getListing()
     local document = GETDocument(expandURL("j/0/0/0/"))
-
-    return map(document:select("#content_wrapper_inner .z-list > a.stitle"), function(v)
+    return map(document:select("#content > div.bs, #content_wrapper_inner .z-list > a.stitle"), function(v)
         local img = v:selectFirst("img")
         if img then
             local imgo = img:attr("data-original")
@@ -153,9 +168,10 @@ local function getListing()
         else
             img = imageURL
         end
+        local link = v:selectFirst("a:not([class])") or v
         return Novel {
-            title = v:text(),
-            link = shrinkURL(v:attr("href") .. "#".. urlEncode(img)),
+            title = link:text(),
+            link = shrinkURL(link:attr("href") .. "#".. urlEncode(img)),
             imageURL = expandURL(img)
         }
     end)
@@ -165,7 +181,7 @@ local function search(data)
     local page = data[PAGE]
     local query = data[QUERY]
     local document = GETDocument(expandURL("search/?keywords=" .. urlEncode(query) ..  "&ready=1&type=story&ppage=" .. page))
-    return map(document:select("#content_wrapper_inner .z-list > a.stitle"), function(v)
+    return map(document:select("#content_wrapper_inner .z-list > a.stitle, #content div.bs"), function(v)
         local img = v:selectFirst("img")
         if img then
             local imgo = img:attr("data-original")
@@ -176,9 +192,10 @@ local function search(data)
         else
             img = imageURL
         end
+        local link = v:selectFirst("a:not([class])") or v
         return Novel {
-            title = v:text(),
-            link = shrinkURL(v:attr("href") .. "#".. urlEncode(img)),
+            title = link:text(),
+            link = shrinkURL(link:attr("href") .. "#".. urlEncode(img)),
             imageURL = expandURL(img)
         }
     end)
