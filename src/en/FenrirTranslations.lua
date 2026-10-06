@@ -1,4 +1,4 @@
--- {"id":1553358903,"ver":"1.0.12","libVer":"1.0.6","author":"","repo":"","dep":[]}
+-- {"id":1553358903,"ver":"1.0.13","libVer":"1.0.6","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -83,22 +83,7 @@ local function getPassage(chapterURL)
 
     --- Chapter page, extract info from it.
     local obj = dkjson.GET(url)
-    local function recurseFind(obj)
-        if type(obj) == "table" then
-            for _, v in next, obj do
-                local ret = recurseFind(v)
-                if ret then
-                    return ret
-                end
-            end
-            return nil
-        elseif type(obj) == "string" and obj:find("aria%-hidden=\"true\"") then
-            return obj
-        end
-        return nil
-    end
-    local html_str = recurseFind(obj)
-    local htmlElement = Document(html_str)
+    local htmlElement = Document(obj.content)
     htmlElement:select("[aria-hidden=\"true\"]"):remove()   
     return pageOfElem(htmlElement, true)
 end
@@ -151,7 +136,7 @@ local function parseNovel(novelURL)
             table.insert(chapters, NovelChapter {
                 order = v.index,
                 title = v.name or v.title,
-                link = raw_url .. "/" .. (v.slug or v.number) .. "/__data.json"
+                link = "api/new/v2/" .. raw_url .. "/" .. (v.slug or v.number)
             })
         end
     end
