@@ -1,4 +1,4 @@
--- {"id":1553358903,"ver":"1.0.13","libVer":"1.0.6","author":"","repo":"","dep":[]}
+-- {"id":1553358903,"ver":"1.0.14","libVer":"1.0.6","author":"","repo":"","dep":[]}
 local dkjson = Require("dkjson")
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -141,7 +141,7 @@ local function parseNovel(novelURL)
         end
     end
     local tags = {}
-    for _, v in next, data.tags do
+    for _, v in next, data.tags or data.genres do
         table.insert(tags, v.name)
     end
     local genres = {}
