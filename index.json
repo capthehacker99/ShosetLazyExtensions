@@ -533,6 +533,16 @@
 			"ver": "1.0.0",
 			"libVer": "1.0.0",
 			"md5": "a3d5c9130a36992a315fdcfefafa229c"
+		},
+		{
+			"name": "Light Novels Translations",
+			"fileName": "LightNovelsTranslation",
+			"imageURL": "https://lightnovelstranslations.com/wp-content/uploads/2020/12/cropped-favicon-32px-192x192.png",
+			"id": 861033045,
+			"lang": "en",
+			"ver": "1.0.0",
+			"libVer": "1.0.1",
+			"md5": "a887f26585d3ff672156370505bfd14e"
 		}
 	]
 }
