@@ -543,6 +543,16 @@
 			"ver": "1.0.0",
 			"libVer": "1.0.1",
 			"md5": "a887f26585d3ff672156370505bfd14e"
+		},
+		{
+			"name": "Shin Translations",
+			"fileName": "ShinTranslations",
+			"imageURL": "https://shintranslations.com/wp-content/uploads/2025/04/cropped-ShinLogoNew2-200x200.webp",
+			"id": 685751804,
+			"lang": "en",
+			"ver": "1.0.0",
+			"libVer": "1.0.0",
+			"md5": "b2c57b1735846cf72b5e4e8a2d368479"
 		}
 	]
 }
